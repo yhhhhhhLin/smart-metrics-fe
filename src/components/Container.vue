@@ -12,7 +12,15 @@
         </div>
 
         <div class="header-menu">
-          这是菜单栏（参数控制展示哪些菜单选项）
+          <div v-if="props.topMenuType === 1">
+            <project-manager-top-menu :default = props.topMenuSelected></project-manager-top-menu>
+          </div>
+          <div v-else-if="props.topMenuType === 2">
+            <project-detail-top-menu :default = props.topMenuSelected></project-detail-top-menu>
+          </div>
+          <div v-else-if="props.topMenuType === 3">
+
+          </div>
         </div>
       </div>
 
@@ -34,13 +42,25 @@
 
 <script setup lang="ts">
 
+import ProjectManagerTopMenu from "./menu/ProjectManagerTopMenu.vue";
+import ProjectDetailTopMenu from "./menu/ProjectDetailTopMenu.vue";
+
 const props = defineProps({
   navbarDefault: String,
   needDropDown: {
     type: Boolean,
     default: false
   },
-  topMenuType: String,
+  // 如果为1那么就是项目管理的顶部菜单，2为项目详细顶部菜单, 3为没有菜单顶部
+  topMenuType: {
+    type: Number,
+    default: 1
+  },
+  // 选中的标签，对应标签序号在routes中
+  topMenuSelected: {
+    type: String,
+    default: '0'
+  }
 })
 </script>
 
@@ -61,6 +81,7 @@ const props = defineProps({
   align-items: center;
   justify-content: space-between;
   gap: 10px;
+  overflow: hidden;
 }
 
 .header-container-left-logo {
@@ -84,7 +105,7 @@ const props = defineProps({
 .header-menu {
   flex-grow: 1;
   height: 64px;
-  background-color: aquamarine;
+  background-color: #FFFFFF;
 }
 
 .header-right-box {
@@ -109,4 +130,6 @@ const props = defineProps({
   justify-content: center;
   color: #333;
 }
+
+
 </style>

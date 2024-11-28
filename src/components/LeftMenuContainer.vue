@@ -12,18 +12,52 @@
         </div>
 
         <div class="header-menu">
-          这是菜单栏（参数控制展示哪些菜单选项）
+          <project-detail-top-menu></project-detail-top-menu>
         </div>
       </div>
 
       <div class="header-right-box">
-        这是右侧固定用户信息什么的
+        用户信息什么的
       </div>
     </div>
 
     <div class="mid-container">
       <div class="mid-container-left">
-        这是左侧menu
+
+        <a-menu
+            :style="{ width: '200px', height: '100%' }"
+            :default-open-keys="['0']"
+            :default-selected-keys="['0_2']"
+            show-collapse-button
+            breakpoint="xl"
+            @collapse="onCollapse"
+        >
+          <a-sub-menu key="0">
+            <template #icon><icon-apps></icon-apps></template>
+            <template #title>Navigation 1</template>
+            <a-menu-item key="0_0">Menu 1</a-menu-item>
+            <a-menu-item key="0_1">Menu 2</a-menu-item>
+            <a-menu-item key="0_2">Menu 3</a-menu-item>
+            <a-menu-item key="0_3">Menu 4</a-menu-item>
+          </a-sub-menu>
+          <a-sub-menu key="1">
+            <template #icon><icon-bug></icon-bug></template>
+            <template #title>Navigation 2</template>
+            <a-menu-item key="1_0">Menu 1</a-menu-item>
+            <a-menu-item key="1_1">Menu 2</a-menu-item>
+            <a-menu-item key="1_2">Menu 3</a-menu-item>
+          </a-sub-menu>
+          <a-sub-menu key="2">
+            <template #icon><icon-bulb></icon-bulb></template>
+            <template #title>Navigation 3</template>
+            <a-menu-item key="2_0">Menu 1</a-menu-item>
+            <a-menu-item key="2_1">Menu 2</a-menu-item>
+            <a-sub-menu key="2_2" title="Navigation 4">
+              <a-menu-item key="2_2_0">Menu 1</a-menu-item>
+              <a-menu-item key="2_2_1">Menu 2</a-menu-item>
+            </a-sub-menu>
+          </a-sub-menu>
+        </a-menu>
       </div>
 
       <div class="mid-container-content">
@@ -40,6 +74,8 @@
 
 <script setup lang="ts">
 
+import {Message} from "@arco-design/web-vue";
+
 const props = defineProps({
   navbarDefault: String,
   needDropDown: {
@@ -49,6 +85,23 @@ const props = defineProps({
   topMenuType: String,
   leftMenuType: String
 })
+
+import {
+  IconMenuFold,
+  IconMenuUnfold,
+  IconApps,
+  IconBug,
+  IconBulb,
+} from '@arco-design/web-vue/es/icon';
+import ProjectDetailTopMenu from "./menu/ProjectDetailTopMenu.vue";
+
+function onCollapse(val:any, type:any) {
+  const content = type === 'responsive' ? '触发响应式收缩' : '点击触发收缩';
+  Message.info({
+    content,
+    duration: 2000,
+  });
+}
 </script>
 
 <style scoped>
@@ -69,6 +122,7 @@ const props = defineProps({
   align-items: center;
   justify-content: space-between;
   gap: 10px;
+  overflow: hidden;
 }
 
 .header-container-left-logo {
@@ -92,7 +146,7 @@ const props = defineProps({
 .header-menu {
   flex-grow: 1;
   height: 64px;
-  background-color: aquamarine;
+  background-color: #FFFFFF;
 }
 
 .header-right-box {
@@ -117,7 +171,7 @@ const props = defineProps({
 .mid-container-content{
   flex-grow: 1;
   padding: 16px;
-  margin-left: 180px;
+  margin-left: 200px;
 }
 
 .footer-container {

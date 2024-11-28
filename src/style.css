@@ -77,3 +77,27 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+.arco-menu-overflow-wrap {
+  display: flex;
+  justify-content: flex-start;
+  font-size: 16px;
+}
+.arco-menu-inner{
+  display: flex;
+  flex-direction: column;
+  margin-top: 1px;
+}
+.arco-menu-vertical .arco-menu-item.arco-menu-has-icon, .arco-menu-vertical .arco-menu-group-title.arco-menu-has-icon, .arco-menu-vertical .arco-menu-pop-header.arco-menu-has-icon, .arco-menu-vertical .arco-menu-inline-header.arco-menu-has-icon{
+  padding: 6px 34px 10px 5px;
+}
+
+/*左侧菜单选项*/
+.arco-menu-light.arco-menu-horizontal .arco-menu-item.arco-menu-selected, .arco-menu-light.arco-menu-horizontal .arco-menu-group-title.arco-menu-selected, .arco-menu-light.arco-menu-horizontal .arco-menu-pop-header.arco-menu-selected, .arco-menu-light.arco-menu-horizontal .arco-menu-inline-header.arco-menu-selected{
+  padding: 0 20px;
+}
+.arco-menu-horizontal .arco-menu-item, .arco-menu-horizontal .arco-menu-group-title, .arco-menu-horizontal .arco-menu-pop-header, .arco-menu-horizontal .arco-menu-inline-header{
+  padding: 0 20px;
+}
+.arco-menu-light.arco-menu-horizontal .arco-menu-item.arco-menu-selected, .arco-menu-light.arco-menu-horizontal .arco-menu-group-title.arco-menu-selected, .arco-menu-light.arco-menu-horizontal .arco-menu-pop-header.arco-menu-selected, .arco-menu-light.arco-menu-horizontal .arco-menu-inline-header.arco-menu-selected{
+  padding: 0 20px;
+}

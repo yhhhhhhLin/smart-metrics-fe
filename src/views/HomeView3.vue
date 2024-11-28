@@ -1,18 +1,17 @@
 <template>
-  <left-menu-container>
+  <container :top-menu-type = 2 :top-menu-selected = "'2'">
     <template #content>
       <div class="home-view">
-        这是内容
+        这是首页
       </div>
-
     </template>
 
-  </left-menu-container>
+  </container>
 </template>
 
 <script setup lang="ts">
 
-import LeftMenuContainer from "../components/LeftMenuContainer.vue";
+import Container from "../components/Container.vue";
 </script>
 
 <style scoped>
