@@ -11,6 +11,8 @@ import ProjectManagerView from "../views/project/ProjectManagerView.vue";
 import ProjectManagerIndexView from "../views/projectManager/ProjectManagerIndexView.vue";
 import ProjectListView from "../views/projectManager/ProjectListView.vue";
 import HomeView3 from "../views/HomeView3.vue";
+import DataSourceListView from "../views/dataSourceManager/DataSourceListView.vue";
+import DataSourceManagerIndexView from "../views/dataSourceManager/DataSourceManagerIndexView.vue";
 
 // 选择详细目录后的菜单列表
 export const projectRoutes = [
@@ -22,7 +24,7 @@ export const projectRoutes = [
     },
     {
         index: '1',
-        path: '/online',
+        path: 'online',
         name: '在线查询',
         component: OnlineQueryView
     },
@@ -34,7 +36,7 @@ export const projectRoutes = [
     },
     {
         index: '3',
-        path: '/offline-management',
+        path: 'offline-management',
         name: '运维中心',
         component: OfflineManagementView
     },
@@ -46,7 +48,7 @@ export const projectRoutes = [
     },
     {
         index: '5',
-        path: '/projectManager',
+        path: 'projectManager',
         name: '项目管理',
         component: ProjectManagerView
     }
@@ -57,9 +59,18 @@ export const projectManagerIndexViewRoutes = [
     {
         index: '0',
         path: 'project-list',
-        name: '项目列表',
+        name: '数据源列表',
         component: ProjectListView
     },
+]
+
+export const datasourceManagerIndexViewRoutes = [
+    {
+        index: '0',
+        path: 'list',
+        name: '数据展示',
+        component: DataSourceListView
+    }
 ]
 
 export const routes: any = [
@@ -87,6 +98,12 @@ export const routes: any = [
         name: '项目管理',
         component: ProjectManagerIndexView,
         children: projectManagerIndexViewRoutes
+    },
+    {
+        path: '/datasource',
+        name: '数据源管理',
+        component: DataSourceManagerIndexView,
+        children: datasourceManagerIndexViewRoutes
     }
 ]
 

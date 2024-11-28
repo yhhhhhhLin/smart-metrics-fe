@@ -1,5 +1,5 @@
 <template>
-  <container :top-menu-type=3 :top-menu-selected="'2'">
+  <container :top-menu-type=-1 :top-menu-selected="'2'">
     <template #content>
       <div class="home-view">
         <div class="home-title">
@@ -63,16 +63,17 @@ const options = [
   {key: 4, image: AdminManagerPng, title: '管理员模块'},
 ];
 
-const clickOption = (optionKey:number) => {
+const clickOption = (optionKey: number) => {
   // 根据点击的key跳转到对应的页面
   switch (optionKey) {
     case 1:
       router.push('/2');
       break;
     case 2:
-      router.push('/3');
+      router.push('/datasource/list')
       break;
     case 3:
+      router.push('/3');
       break;
     case 4:
       break;
@@ -168,6 +169,7 @@ const clickOption = (optionKey:number) => {
 .home-options-item-image {
   height: 80%;
 }
+
 .home-options-item-image img {
   width: 100%;
   height: 100%;

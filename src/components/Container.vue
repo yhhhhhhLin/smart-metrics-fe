@@ -13,12 +13,17 @@
 
         <div class="header-menu">
           <div v-if="props.topMenuType === 1">
-            <project-manager-top-menu :default = props.topMenuSelected></project-manager-top-menu>
+            <project-manager-top-menu :default=props.topMenuSelected></project-manager-top-menu>
           </div>
           <div v-else-if="props.topMenuType === 2">
-            <project-detail-top-menu :default = props.topMenuSelected></project-detail-top-menu>
+            <project-detail-top-menu :default=props.topMenuSelected></project-detail-top-menu>
           </div>
+
           <div v-else-if="props.topMenuType === 3">
+            <project-manager-top-menu :default="props.topMenuSelected"></project-manager-top-menu>
+          </div>
+
+          <div v-else-if="props.topMenuType === -1">
 
           </div>
         </div>
@@ -51,7 +56,7 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  // 如果为1那么就是项目管理的顶部菜单，2为项目详细顶部菜单, 3为没有菜单顶部
+  // 如果为1那么就是项目管理的顶部菜单，2为项目详细顶部菜单, 3为数据源顶部菜单，-1为没有菜单顶部
   topMenuType: {
     type: Number,
     default: 1
@@ -65,6 +70,7 @@ const props = defineProps({
 </script>
 
 <style scoped>
+
 .container {
   display: flex;
   flex-direction: column;

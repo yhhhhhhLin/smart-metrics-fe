@@ -28,9 +28,6 @@
             :style="{ width: '200px', height: '100%' }"
             :default-open-keys="['0']"
             :default-selected-keys="['0_2']"
-            show-collapse-button
-            breakpoint="xl"
-            @collapse="onCollapse"
         >
           <a-sub-menu key="0">
             <template #icon><icon-apps></icon-apps></template>
@@ -87,21 +84,12 @@ const props = defineProps({
 })
 
 import {
-  IconMenuFold,
-  IconMenuUnfold,
   IconApps,
   IconBug,
   IconBulb,
 } from '@arco-design/web-vue/es/icon';
 import ProjectDetailTopMenu from "./menu/ProjectDetailTopMenu.vue";
 
-function onCollapse(val:any, type:any) {
-  const content = type === 'responsive' ? '触发响应式收缩' : '点击触发收缩';
-  Message.info({
-    content,
-    duration: 2000,
-  });
-}
 </script>
 
 <style scoped>
@@ -163,7 +151,6 @@ function onCollapse(val:any, type:any) {
 
 .mid-container-left{
   width: 180px;
-  background-color: #FFFFFF;
   position: fixed;
   height: calc(100vh - 6.5%);
 }
