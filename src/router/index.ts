@@ -14,6 +14,10 @@ import HomeView3 from "../views/HomeView3.vue";
 import DataSourceListView from "../views/dataSourceManager/DataSourceListView.vue";
 import DataSourceManagerIndexView from "../views/dataSourceManager/DataSourceManagerIndexView.vue";
 import DataSourceAddView from "../views/dataSourceManager/DataSourceAddView.vue";
+import DataSourceAlarmView from "../views/dataSourceManager/DataSourceAlarmView.vue";
+import DataSourceAlarmListView from "../views/dataSourceManager/DataSourceAlarmListView.vue";
+
+export const dataSourceRootPath = '/datasource'
 
 // 选择详细目录后的菜单列表
 export const projectRoutes = [
@@ -60,7 +64,7 @@ export const projectManagerIndexViewRoutes = [
     {
         index: '0',
         path: 'project-list',
-        name: '数据源列表',
+        name: '项目列表',
         component: ProjectListView
     },
 ]
@@ -69,13 +73,33 @@ export const datasourceManagerIndexViewRoutes = [
     {
         index: '0',
         path: 'list',
-        name: '数据展示',
+        name: '数据源列表',
         component: DataSourceListView
     },
     {
         index: '1',
         path: 'add',
+        name: '数据源新增',
         component: DataSourceAddView,
+        meta: {
+            // 如果为true那么就不展示在菜单列表
+            notFixedNav: true
+        }
+    },
+    {
+        index: '2',
+        path: 'alarm',
+        name: '新增数据源告警',
+        component: DataSourceAlarmView,
+        meta: {
+            notFixedNav: true
+        }
+    },
+    {
+        index: '3',
+        path: 'alarm-list',
+        name: '数据源告警记录',
+        component: DataSourceAlarmListView,
     }
 ]
 
@@ -106,7 +130,7 @@ export const routes: any = [
         children: projectManagerIndexViewRoutes
     },
     {
-        path: '/datasource',
+        path: dataSourceRootPath,
         name: '数据源管理',
         component: DataSourceManagerIndexView,
         children: datasourceManagerIndexViewRoutes

@@ -1,5 +1,5 @@
 <template>
-  <container :top-menu-type="3" :top-menu-selected="'0'">
+  <container :top-menu-type="3" :top-menu-selected="'/datasource/list'">
     <template #content>
       <div class="datasource-list">
         <div class="datasource-list-header">
@@ -56,7 +56,7 @@
           </div>
 
           <div class="select-forms-button">
-            <a-button>告警配置</a-button>
+            <a-button @click="toAlarmDataSourcePath">告警配置</a-button>
             <a-button type="primary" @click="toAddDataSourcePath">新增数据源</a-button>
           </div>
 
@@ -156,6 +156,10 @@ const scroll = {
 
 const toAddDataSourcePath = () => {
   router.push('/datasource/add')
+}
+
+const toAlarmDataSourcePath = () =>{
+  router.push('/datasource/alarm')
 }
 
 

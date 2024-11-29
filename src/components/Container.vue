@@ -20,7 +20,7 @@
           </div>
 
           <div v-else-if="props.topMenuType === 3">
-            <project-manager-top-menu :default="props.topMenuSelected"></project-manager-top-menu>
+            <data-source-manager-top-menu :default="props.topMenuSelected"></data-source-manager-top-menu>
           </div>
 
           <div v-else-if="props.topMenuType === -1">
@@ -49,6 +49,7 @@
 
 import ProjectManagerTopMenu from "./menu/ProjectManagerTopMenu.vue";
 import ProjectDetailTopMenu from "./menu/ProjectDetailTopMenu.vue";
+import DataSourceManagerTopMenu from "./menu/DataSourceManagerTopMenu.vue";
 
 const props = defineProps({
   navbarDefault: String,

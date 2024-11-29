@@ -1,5 +1,5 @@
 <template>
-  <container :top-menu-type="3" :top-menu-selected="'0'">
+  <container :top-menu-type="3" :top-menu-selected="'/datasource/list'">
     <template #content>
       <div class="add-datasource">
 
