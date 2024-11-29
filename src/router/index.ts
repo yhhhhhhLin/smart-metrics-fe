@@ -13,6 +13,7 @@ import ProjectListView from "../views/projectManager/ProjectListView.vue";
 import HomeView3 from "../views/HomeView3.vue";
 import DataSourceListView from "../views/dataSourceManager/DataSourceListView.vue";
 import DataSourceManagerIndexView from "../views/dataSourceManager/DataSourceManagerIndexView.vue";
+import DataSourceAddView from "../views/dataSourceManager/DataSourceAddView.vue";
 
 // 选择详细目录后的菜单列表
 export const projectRoutes = [
@@ -70,6 +71,11 @@ export const datasourceManagerIndexViewRoutes = [
         path: 'list',
         name: '数据展示',
         component: DataSourceListView
+    },
+    {
+        index: '1',
+        path: 'add',
+        component: DataSourceAddView,
     }
 ]
 

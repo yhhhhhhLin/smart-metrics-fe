@@ -10,7 +10,7 @@
 
               </div>
               <div class="select-form-item-label-input">
-                <a-input-search :style="{width:'220px'}" placeholder="Please enter something"/>
+                <a-input-search :style="{width:'220px'}" placeholder="按数据源名称查询"/>
 
               </div>
             </div>
@@ -19,7 +19,7 @@
                 类型
               </div>
               <div class="select-form-item-label-input">
-                <a-select :style="{width:'320px'}" v-model="value" placeholder="Please select ..." allow-clear>
+                <a-select :style="{width:'320px'}" v-model="value" placeholder="按数据源描述查询" allow-clear>
                   <a-option>Beijing</a-option>
                   <a-option>Shanghai</a-option>
                   <a-option>Guangzhou</a-option>
@@ -57,7 +57,7 @@
 
           <div class="select-forms-button">
             <a-button>告警配置</a-button>
-            <a-button type="primary">新增数据源</a-button>
+            <a-button type="primary" @click="toAddDataSourcePath">新增数据源</a-button>
           </div>
 
         </div>
@@ -73,6 +73,7 @@
 <script setup lang="ts">
 import Container from "../../components/Container.vue";
 import {reactive, ref} from "vue";
+import router from "../../router";
 
 
 const value = ref('Shanghai');
@@ -104,6 +105,7 @@ const columns = [
   {
     title: '负责人名称',
     dataIndex: 'email',
+    width: 300
   },
   {
     title: '创建时间',
@@ -152,6 +154,10 @@ const scroll = {
   y: 200
 }
 
+const toAddDataSourcePath = () => {
+  router.push('/datasource/add')
+}
+
 
 </script>
 
@@ -165,34 +171,34 @@ const scroll = {
 
 }
 
-.datasource-list-header{
+.datasource-list-header {
   height: 10%;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.select-forms{
+.select-forms {
   display: flex;
   gap: 25px;
 
 }
 
-.select-forms-item{
+.select-forms-item {
   display: flex;
   gap: 10px;
 }
 
-.select-form-item-label{
+.select-form-item-label {
   margin-top: 5px;
 }
 
-.select-forms-button{
+.select-forms-button {
   display: flex;
   gap: 10px;
 }
 
-.datasource-items{
+.datasource-items {
   flex-grow: 1;
 }
 
