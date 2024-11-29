@@ -63,7 +63,12 @@
         </div>
         <div class="datasource-items">
 
-          <a-table :columns="columns" :data="data" :sticky-header="60" :scroll="scroll"/>
+          <a-table :columns="columns" :data="data" :sticky-header="60" :scroll="scroll">
+            <template #optional="{ record }">
+              <a-button @click="$modal.info({ title:'Name', content:record.name })">编辑</a-button>
+              <a-button @click="$modal.info({ title:'Name', content:record.name })">删除</a-button>
+            </template>
+          </a-table>
         </div>
       </div>
     </template>
@@ -114,7 +119,7 @@ const columns = [
   {
     title: '操作',
     fixed: 'right',
-    dataIndex: 'email',
+    slotName: 'optional',
   },
 ];
 const data = reactive([{

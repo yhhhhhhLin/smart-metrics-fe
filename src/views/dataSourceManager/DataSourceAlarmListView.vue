@@ -32,6 +32,8 @@ import container from "../../components/Container.vue";
   background-color: #FFFFFF;
   flex-grow: 1;
   border-radius: 5px;
+  display: flex;
+  flex-direction: column;
 }
 
 </style>
