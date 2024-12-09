@@ -30,7 +30,7 @@
       </div>
 
       <div class="header-right-box">
-        这是右侧固定用户信息什么的
+        <user-top-info></user-top-info>
       </div>
     </div>
 
@@ -50,6 +50,7 @@
 import ProjectManagerTopMenu from "./menu/ProjectManagerTopMenu.vue";
 import ProjectDetailTopMenu from "./menu/ProjectDetailTopMenu.vue";
 import DataSourceManagerTopMenu from "./menu/DataSourceManagerTopMenu.vue";
+import UserTopInfo from "./userinfo/UserTopInfo.vue";
 
 const props = defineProps({
   navbarDefault: String,
@@ -118,7 +119,6 @@ const props = defineProps({
 .header-right-box {
   width: 200px;
   height: 64px;
-  background-color: #1a1a1a;
 }
 
 .content-container {

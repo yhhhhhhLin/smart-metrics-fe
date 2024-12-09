@@ -17,6 +17,7 @@
       </div>
 
       <div class="header-right-box">
+        <user-top-info></user-top-info>
         用户信息什么的
       </div>
     </div>
@@ -71,7 +72,8 @@
 
 <script setup lang="ts">
 
-import {Message} from "@arco-design/web-vue";
+
+import UserTopInfo from "./userinfo/UserTopInfo.vue";
 
 const props = defineProps({
   navbarDefault: String,
