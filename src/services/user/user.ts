@@ -1,5 +1,19 @@
-import {get} from "../../request";
+import {get, post} from "../../request";
+
+// TODO: 先都不加api
+export function getEmailMsg(email: string) {
+    return get<boolean>('/user/getMsg',{email});
+
+}
+
+export function userRegister(registerForm:API.UserRegisterForm){
+    return post<boolean>('/user/register',registerForm);
+}
+
+export function userLogin(loginForm:API.UserLoginForm){
+    return post<string>('/user/login',loginForm);
+}
 
 export function getUserInfo() {
-    return get<API.UserInfo>('/main/user/get/login')
+    return get<API.UserInfo>('/user/info')
 }

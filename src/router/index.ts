@@ -16,6 +16,9 @@ import DataSourceManagerIndexView from "../views/dataSourceManager/DataSourceMan
 import DataSourceAddView from "../views/dataSourceManager/DataSourceAddView.vue";
 import DataSourceAlarmView from "../views/dataSourceManager/DataSourceAlarmView.vue";
 import DataSourceAlarmListView from "../views/dataSourceManager/DataSourceAlarmListView.vue";
+import UserIndex from "../views/user/UserIndex.vue";
+import UserLoginView from "../views/user/UserLoginView.vue";
+import UserRegisterView from "../views/user/UserRegisterView.vue";
 
 export const dataSourceRootPath = '/datasource'
 
@@ -110,12 +113,21 @@ export const routes: any = [
         component: HomeView,
     },
     {
-        path: '/2',
-        component: Home2View,
-    },
-    {
-        path: '/3',
-        component: HomeView3,
+        path: '/user',
+        component: UserIndex,
+        children: [
+            {
+                path: 'login',
+                name: '登陆',
+                component: UserLoginView
+            },
+            {
+                path: 'register',
+                name: '注册',
+                component: UserRegisterView
+            },
+
+        ]
     },
     {
         path: '/project',

@@ -7,11 +7,26 @@ declare namespace API {
     }
 
     type UserInfo = {
-        id: string
         userName: string
         userAccount: string
         userAvatar: string
         userEmail: string
         gender: number
+    }
+
+    type UserRegisterForm = {
+        username: string
+        userAccount: string
+        password: string
+        checkPassword: string
+        registerType: string
+        email: string
+        code: string
+    }
+
+    type UserLoginForm = {
+        userAccount: string
+        password: string
+        code: string
     }
 }

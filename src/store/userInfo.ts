@@ -1,9 +1,9 @@
 import {defineStore} from 'pinia'
 import {reactive} from "vue";
+import {getUserInfo} from "../services/user/user.ts";
 
 export const useUserInfoStore = defineStore('user', () => {
     const user = reactive({
-        'id': '',
         'userName': '',
         'userAccount': '',
         'userAvatar': '',
@@ -17,11 +17,16 @@ export const useUserInfoStore = defineStore('user', () => {
     }
 
     const storeGetUserInfo = async () => {
-        if (user.id) {
-            return
-        }
+        const response = await getUserInfo()
+        if(response.code === 0){
+            const userInfo = response.data
+            user.userName = userInfo.userName
+            user.gender = userInfo.gender
+            user.userAvatar = userInfo.userAvatar
+            user.userEmail = userInfo.userEmail
+            user.userAccount = userInfo.userAccount
 
-        // 发送请求获取用户信息
+        }
 
 
 
