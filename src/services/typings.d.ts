@@ -29,4 +29,17 @@ declare namespace API {
         password: string
         code: string
     }
+
+
+    type DatasourceAdd = {
+        dscId?: number
+        datasourceTypeCode: number | null
+        datasourceName?: string
+        datasourceDesc?: string
+        url: string
+        username: string
+        password: string
+    }
 }
+
+

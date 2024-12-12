@@ -56,7 +56,7 @@
                   <div class="datasource-config-input">
                     <a-select :style="{width:'620px'}" placeholder="选择版本号" v-model="datasourceConfigForm.version">
                       <a-option v-for="version in selectedDatasource.versions">
-                        {{version}}
+                        {{ version }}
                       </a-option>
                     </a-select>
                   </div>
@@ -67,7 +67,8 @@
                     数据源名称
                   </div>
                   <div>
-                    <a-input :style="{width:'620px'}" placeholder="请输入数据源名称" v-model="datasourceConfigForm.name" allow-clear />
+                    <a-input :style="{width:'620px'}" placeholder="请输入数据源名称" v-model="datasourceConfigForm.name"
+                             allow-clear/>
                   </div>
                 </div>
 
@@ -85,7 +86,8 @@
                     jdbcUrl
                   </div>
                   <div>
-                    <a-input :style="{width:'620px'}" v-model="datasourceConfigForm.jdbcUrl" placeholder="请输入数据源链接地址" allow-clear />
+                    <a-input :style="{width:'620px'}" v-model="datasourceConfigForm.jdbcUrl"
+                             placeholder="请输入数据源链接地址" allow-clear/>
                   </div>
                 </div>
 
@@ -94,7 +96,8 @@
                     用户名
                   </div>
                   <div>
-                    <a-input :style="{width:'620px'}" placeholder="请输入连接用户名" v-model="datasourceConfigForm.username" allow-clear />
+                    <a-input :style="{width:'620px'}" placeholder="请输入连接用户名"
+                             v-model="datasourceConfigForm.username" allow-clear/>
                   </div>
                 </div>
 
@@ -103,7 +106,8 @@
                     密码
                   </div>
                   <div>
-                    <a-input :style="{width:'620px'}" placeholder="请输入连接密码" v-model="datasourceConfigForm.password" allow-clear />
+                    <a-input :style="{width:'620px'}" placeholder="请输入连接密码"
+                             v-model="datasourceConfigForm.password" allow-clear/>
                   </div>
                 </div>
 
@@ -135,6 +139,8 @@ import Container from "../../components/Container.vue";
 import {reactive, ref} from "vue";
 import imagess from '../../assets/images/AdminManager.png'
 import router from "../../router";
+import {addDatasource, testConnect} from "../../services/datasource/datasource.ts";
+import {Notification} from "@arco-design/web-vue";
 
 const currentStep = ref(1)
 const connectionTest = reactive({
@@ -169,7 +175,7 @@ const datasourceList = reactive([
   {
     id: 1,
     name: 'mysql',
-    versions: ['5.6', '8.0'],
+    versions: ['5.7', '8.0'],
     image: imagess,
   },
   {
@@ -179,6 +185,15 @@ const datasourceList = reactive([
     image: imagess,
   }
 ])
+const dscTypeCodeMapping: Record<string, Record<string, number>> = {
+  mysql: {
+    '5.7': 1,
+    '8.0': 2,
+  },
+  redis: {
+    '6.0': 3,
+  },
+};
 
 const clickDatasource = (datasource: any) => {
   currentStep.value = 2
@@ -192,44 +207,115 @@ const initDatasourceForm = () => {
   datasourceConfigForm.username = ''
   datasourceConfigForm.name = ''
   datasourceConfigForm.description = ''
-  datasourceConfigForm.password=''
-  datasourceConfigForm.version=''
+  datasourceConfigForm.password = ''
+  datasourceConfigForm.version = ''
 }
 
-const cancelAddDatasource = ()=>{
+const cancelAddDatasource = () => {
   router.push('/datasource/list')
 }
 
-const previous = ()=>{
+const previous = () => {
   currentStep.value = 1
 }
 
-const connectTest = ()=>{
-  connectionTest.isSend = true
-  console.log(datasourceConfigForm)
-
-  if(true){
-    connectionTest.isConnectionSuccess = true;
-  }
-
+const getDscTypeCode = (dscName: string, version: string) => {
+  return dscTypeCodeMapping[dscName]?.[version] || null;
 }
 
-const submitDatasourceAdd = ()=>{
+const connectTest = async () => {
+  connectionTest.isSend = true;
+  console.log(datasourceConfigForm);
+
+  const version = datasourceConfigForm.version;
+  const dscName = selectedDatasource.name;
+
+  const datasourceTypeCode = getDscTypeCode(dscName, version);
+  const url = datasourceConfigForm.jdbcUrl;
+  const username = datasourceConfigForm.username;
+  const password = datasourceConfigForm.password;
+
+  try {
+    const resp = await testConnect({ url, username, password, datasourceTypeCode });
+    if (resp.data) {
+      connectionTest.isConnectionSuccess = true;
+      Notification.success({
+        title: '系统提示',
+        content: '连接成功',
+        closable: true
+      });
+    } else {
+      connectionTest.isSend = false;
+    }
+  } catch (error) {
+    connectionTest.isSend = false;
+    console.error(error);
+    Notification.error({
+      title: '系统提示',
+      content: '连接测试失败',
+      closable: true
+    });
+  }
+};
+
+
+const submitDatasourceAdd = async () => {
   // 先判断连接成功后才可以发送新增请求
-  if(!connectionTest.isSend){
+  if (!connectionTest.isSend) {
     // 如果没发送过，那么先测试
-    connectTest()
+    await connectTest();
   }
-  if(connectionTest.isConnectionSuccess){
-    // 成功了才可以添加
 
-    // 添加成功后跳转到 /datasource/list
+  if (connectionTest.isConnectionSuccess) {
+    const datasourceName = datasourceConfigForm.name;
+    const datasourceDesc = datasourceConfigForm.description;
+    const url = datasourceConfigForm.jdbcUrl;
+    const username = datasourceConfigForm.username;
+    const password = datasourceConfigForm.password;
 
-  }else{
-    // 提示没连接成功
+    const version = datasourceConfigForm.version;
+    const dscName = selectedDatasource.name;
+
+    const datasourceTypeCode = getDscTypeCode(dscName, version);
+
+    try {
+      const resp = await addDatasource({
+        datasourceName,
+        datasourceDesc,
+        url,
+        username,
+        password,
+        datasourceTypeCode
+      });
+
+      if (resp.data) {
+        Notification.success({
+          title: '系统提示',
+          content: '添加成功！',
+          closable: true
+        });
+
+        // 添加成功后跳转到 /datasource/list
+        router.push('/datasource/list');
+      }
+    } catch (error) {
+      console.log(error);
+      Notification.error({
+        title: '系统提示',
+        content: '添加失败！',
+        closable: true
+      });
+    }
+  } else {
+    Notification.warning({
+      title: '系统提示',
+      content: '数据源无法连接！',
+      closable: true
+    });
   }
-  console.log(datasourceConfigForm)
-}
+
+  console.log(datasourceConfigForm);
+};
 
 // 函数：根据传入的路径数组拼接完整路径
 const getFullPath = (paths: string[]) => {
@@ -259,7 +345,7 @@ const getFullPath = (paths: string[]) => {
   padding: 20px 0 0 0;
 }
 
-.add-datasource-detail{
+.add-datasource-detail {
   height: 88%;
 }
 
@@ -323,32 +409,33 @@ const getFullPath = (paths: string[]) => {
   font-size: 14px;
 }
 
-.add-datasource-config{
+.add-datasource-config {
   height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.datasource-config-items{
+.datasource-config-items {
   height: 97%;
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-.datasource-config-item{
+.datasource-config-item {
   display: flex;
   flex-direction: column;
   gap: 7px;
 }
-.datasource-config-label{
+
+.datasource-config-label {
   display: flex;
   justify-content: start;
   margin-left: 5px;
 }
 
-.step2-button{
+.step2-button {
   height: 3%;
   display: flex;
   gap: 10px;

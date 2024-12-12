@@ -33,7 +33,6 @@ export const useUserInfoStore = defineStore('user', () => {
     }
 
     function clearUserInfo() {
-        user.id = ''
         user.userName = ''
         user.userAccount = ''
         user.userAvatar = ''
@@ -43,4 +42,4 @@ export const useUserInfoStore = defineStore('user', () => {
 
 
     return {user, storeGetUserInfo, clearUserInfo, updateUserInfo}
-})
+},{persist: true})

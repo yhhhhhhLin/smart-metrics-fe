@@ -6,11 +6,15 @@ import '@arco-design/web-vue/dist/arco.css';
 import router from "./router";
 import {createPinia} from "pinia";
 import ArcoVueIcon from '@arco-design/web-vue/es/icon';
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
+
+
 
 
 // 挂载到全局
 const app = createApp(App);
 const pinia = createPinia()
+pinia.use(piniaPluginPersistedstate);
 // arco-design组件库
 app.use(ArcoVue);
 app.config.globalProperties.$message = Message;
