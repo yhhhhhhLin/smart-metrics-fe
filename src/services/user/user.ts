@@ -17,3 +17,7 @@ export function userLogin(loginForm:API.UserLoginForm){
 export function getUserInfo() {
     return get<API.UserInfo>('/user/info')
 }
+
+export function listUserIdAndNameMap(username: string){
+    return get<Map<number,string>>('/user/usernames',{username});
+}

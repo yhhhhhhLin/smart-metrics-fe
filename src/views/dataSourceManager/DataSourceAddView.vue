@@ -193,7 +193,7 @@ const dscTypeCodeMapping: Record<string, Record<string, number>> = {
   redis: {
     '6.0': 3,
   },
-};
+}
 
 const clickDatasource = (datasource: any) => {
   currentStep.value = 2
