@@ -68,7 +68,7 @@ const clickOption = (optionKey: number) => {
   // 根据点击的key跳转到对应的页面
   switch (optionKey) {
     case 1:
-      router.push('/2');
+      router.push('/projectManager/projectList');
       break;
     case 2:
       router.push('/datasource/list')

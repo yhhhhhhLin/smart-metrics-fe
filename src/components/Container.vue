@@ -126,6 +126,7 @@ const props = defineProps({
   padding: 16px;
   background-color: #F1F6FB;
   overflow-y: auto;
+  height: 100%;
 }
 
 .footer-container {

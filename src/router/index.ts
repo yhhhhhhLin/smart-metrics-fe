@@ -66,7 +66,7 @@ export const projectRoutes = [
 export const projectManagerIndexViewRoutes = [
     {
         index: '0',
-        path: 'project-list',
+        path: 'projectList',
         name: '项目列表',
         component: ProjectListView
     },

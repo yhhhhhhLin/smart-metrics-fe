@@ -101,3 +101,8 @@ button:focus-visible {
 .arco-menu-light.arco-menu-horizontal .arco-menu-item.arco-menu-selected, .arco-menu-light.arco-menu-horizontal .arco-menu-group-title.arco-menu-selected, .arco-menu-light.arco-menu-horizontal .arco-menu-pop-header.arco-menu-selected, .arco-menu-light.arco-menu-horizontal .arco-menu-inline-header.arco-menu-selected{
   padding: 0 20px;
 }
+
+/*增加按钮br*/
+.arco-btn-primary, .arco-btn-primary[type='button'], .arco-btn-primary[type='submit']{
+  border-radius: 6px;
+}

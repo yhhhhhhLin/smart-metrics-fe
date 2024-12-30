@@ -188,11 +188,14 @@ const toAlarmDataSourcePath = () => {
 
 <style scoped>
 .datasource-list {
-  height: 100%;
-  background-color: #fff;
+  background-color: #FFFFFF;
+  flex-grow: 1;
   border-radius: 5px;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   padding: 20px;
+  box-sizing: border-box;
 }
 
 .datasource-list-header {

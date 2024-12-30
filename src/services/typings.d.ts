@@ -102,7 +102,7 @@ declare namespace API {
     }
 
     type AlertRuleAddOrUpdateDto = {
-        ruleName: string |null
+        ruleName: string | null
         dscId: number | undefined
         // 告警通知方式
         notifyChannel: number | undefined
@@ -113,8 +113,15 @@ declare namespace API {
     }
 
     type IdAndStatusDto = {
-        id:number
-        status:number
+        id: number
+        status: number
+    }
+
+    type projectAddDto = {
+        projectName: string | undefined
+        projectNameEn: string | undefined
+        projectDesc: string | undefined
+        dscId: number | undefined
     }
 
 
