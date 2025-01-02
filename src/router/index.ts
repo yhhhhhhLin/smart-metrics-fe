@@ -21,6 +21,7 @@ import UserLoginView from "../views/user/UserLoginView.vue";
 import UserRegisterView from "../views/user/UserRegisterView.vue";
 
 export const dataSourceRootPath = '/datasource'
+export const projectManagerRootPath = '/projectManager'
 
 // 选择详细目录后的菜单列表
 export const projectRoutes = [
@@ -136,7 +137,7 @@ export const routes: any = [
         children: projectRoutes
     },
     {
-        path: '/projectManager',
+        path: projectManagerRootPath,
         name: '项目管理',
         component: ProjectManagerIndexView,
         children: projectManagerIndexViewRoutes

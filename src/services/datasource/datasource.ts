@@ -27,10 +27,22 @@ export function pageDataSourceAlertRule(pageInfo: API.Page<API.AlertRulePage>) {
     return post<API.Page<API.DscAlertRuleVO>>('/dsc/alert/page', pageInfo);
 }
 
-export function addAlertRule(addAlertRuleInfo: API.AlertRuleAddOrUpdateDto){
+export function addAlertRule(addAlertRuleInfo: API.AlertRuleAddOrUpdateDto) {
     return post<boolean>("/dsc/alert/add", addAlertRuleInfo);
 }
 
-export function updateAlertRuleStatus(info: API.IdAndStatusDto){
+export function updateAlertRuleStatus(info: API.IdAndStatusDto) {
     return post<boolean>("/dsc/alert/status", info);
+}
+
+export function addDscProject(info: API.projectAddDto) {
+    return post<boolean>("/dsc/project/add", info);
+}
+
+export function pageProject(info: API.ProjectPageDto) {
+    return post<API.Page<API.DscProjectVO>>("/dsc/project/page", info)
+}
+
+export function updateProjectIsTopStatus(info: API.IdAndStatusDto) {
+    return post<boolean>("/dsc/project/top", info)
 }

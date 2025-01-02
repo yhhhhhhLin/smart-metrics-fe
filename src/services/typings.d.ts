@@ -124,6 +124,28 @@ declare namespace API {
         dscId: number | undefined
     }
 
+    type ProjectPageDto = {
+        projectName: string | null
+        projectNameEn: string | null
+        pageSize: number
+        currentPage: number
+
+    }
+
+    type DscProjectVO = {
+        id: number
+        dscId: number
+        createUserId:number
+        createdUserName:number
+        projectName: string
+        projectNameEn: string
+        projectDesc: string
+        databaseName: string
+        isTop: number
+        createdTime: Dateo
+        updatedTime: Date
+    }
+
 
 }
 
