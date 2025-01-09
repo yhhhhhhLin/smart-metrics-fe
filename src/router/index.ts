@@ -22,12 +22,13 @@ import UserRegisterView from "../views/user/UserRegisterView.vue";
 
 export const dataSourceRootPath = '/datasource'
 export const projectManagerRootPath = '/projectManager'
+export const projectRootPath = '/project'
 
 // 选择详细目录后的菜单列表
 export const projectRoutes = [
     {
         index: '0',
-        path: '/overview',
+        path: 'overview',
         name: '概述',
         component: OverviewView
     },
@@ -131,7 +132,7 @@ export const routes: any = [
         ]
     },
     {
-        path: '/project',
+        path: projectRootPath,
         name: '项目详细',
         component: ProjectIndexView,
         children: projectRoutes

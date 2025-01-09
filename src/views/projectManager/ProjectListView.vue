@@ -23,6 +23,10 @@
               </a-button>
               <a-button @click="$modal.info({ title: 'Name', content: record.name })">删除</a-button>
             </template>
+
+            <template #projectName="{record}">
+              <a-link href="javascript:void(0)" @click="goToProjectOverviewPage(record.id)">{{record.projectName}}</a-link>
+            </template>
           </a-table>
         </div>
       </div>
@@ -78,6 +82,7 @@ import {
   updateProjectIsTopStatus
 } from "../../services/datasource/datasource.ts";
 import {Notification} from "@arco-design/web-vue";
+import router from "../../router";
 
 const projectAddForm = reactive<API.projectAddDto>({projectName: '', projectNameEn: '', projectDesc: '', dscId: null});
 const projectAddVisible = ref(false)
@@ -92,11 +97,11 @@ const pageProjectParam = reactive<API.ProjectPageDto>({
 });
 
 const columns = [
-  {title: "项目名称", dataIndex: "projectName"},
+  {title: "项目名称", slotName: 'projectName'},
   {title: "项目描述", dataIndex: "projectDesc"},
   {
     title: "项目创建人",
-    dataIndex: "createdUserName",
+    dataIndex: "createUserName",
   },
   {title: "创建时间", dataIndex: "createdTime"},
   {
@@ -210,6 +215,15 @@ const updateStatus = (project: API.DscProjectVO) => {
 
 
 }
+
+const goToProjectOverviewPage = (projectId:number)=>{
+
+  sessionStorage.setItem("projectId", projectId.toString());
+  router.push({
+        path: "/project/overview"
+      }
+  )
+}
 </script>
 
 <style scoped>
@@ -230,7 +244,7 @@ const updateStatus = (project: API.DscProjectVO) => {
 
 }
 
-.project-page-content-content{
+.project-page-content-content {
   height: 100%;
   padding: 20px;
 }
