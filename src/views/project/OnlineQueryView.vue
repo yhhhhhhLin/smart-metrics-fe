@@ -18,9 +18,8 @@
           <a-form :model="simpleQuery" layout="vertical">
             <!-- 表选择 -->
             <a-form-item label="选择表">
-              <a-select v-model="simpleQuery.tableName" placeholder="请选择表" :options="tableOptions" />
+              <a-select v-model="simpleQuery.tableName" placeholder="请选择表" :options="tableOptions" @change="onTableChange" />
             </a-form-item>
-
 
             <!-- 字段选择 -->
             <a-form-item label="选择字段">
@@ -29,6 +28,13 @@
                   mode="multiple"
                   placeholder="请选择字段"
                   :options="fieldOptions"
+              />
+              <a-select
+                  v-model="simpleQuery.aggregateFields"
+                  mode="multiple"
+                  placeholder="选择聚合字段（如 avg, sum 等）"
+                  :options="aggregateFieldOptions"
+                  style="margin-top: 10px"
               />
             </a-form-item>
 
@@ -40,15 +46,15 @@
                     v-model="condition.field"
                     placeholder="字段"
                     :options="fieldOptions"
-                    style="width: 120px"
+                    style="width: 150px"
                 />
                 <a-select
                     v-model="condition.operator"
                     placeholder="操作符"
                     :options="operatorOptions"
-                    style="width: 100px"
+                    style="width: 120px"
                 />
-                <a-input v-model="condition.value" placeholder="值" style="width: 120px" />
+                <a-input v-model="condition.value" placeholder="值" style="width: 150px" />
                 <a-button type="text" status="danger" @click="removeCondition(index)">删除</a-button>
               </div>
             </div>
@@ -59,7 +65,7 @@
                   v-model="simpleQuery.orderBy"
                   placeholder="选择排序字段"
                   :options="fieldOptions"
-                  style="width: 120px"
+                  style="width: 150px"
               />
               <a-radio-group v-model="simpleQuery.order" style="margin-left: 10px">
                 <a-radio value="ASC">升序</a-radio>
@@ -77,7 +83,7 @@
 
         <!-- 高级查询模式 -->
         <div v-else class="advanced-query">
-          <p>高级查询可以sql查询和多表连接查询</p>
+          <p>高级查询支持 SQL 语句及多表连接查询</p>
           <a-textarea
               v-model="advancedQuery.sql"
               rows="8"
@@ -85,7 +91,6 @@
               style="width: 100%"
           />
         </div>
-        <p>还需增加一些查询条件</p>
 
         <!-- 操作按钮 -->
         <div class="actions">
@@ -118,6 +123,7 @@ const queryMode = ref("simple");
 const simpleQuery = ref({
   tableName: "",
   fields: [],
+  aggregateFields: [],
   conditions: [],
   orderBy: "",
   order: "ASC",
@@ -145,10 +151,12 @@ const tableOptions = ref([
   { label: "订单表", value: "orders" },
   { label: "产品表", value: "products" },
 ]);
-const fieldOptions = ref([
-  { label: "字段1", value: "field1" },
-  { label: "字段2", value: "field2" },
-  { label: "字段3", value: "field3" },
+const fieldOptions = ref([]);
+const aggregateFieldOptions = ref([
+  { label: "AVG", value: "avg" },
+  { label: "SUM", value: "sum" },
+  { label: "MAX", value: "max" },
+  { label: "MIN", value: "min" },
 ]);
 const operatorOptions = ref([
   { label: "=", value: "=" },
@@ -156,6 +164,16 @@ const operatorOptions = ref([
   { label: "<", value: "<" },
   { label: "LIKE", value: "LIKE" },
 ]);
+
+// 动态加载字段
+const onTableChange = (tableName: string) => {
+  // 根据选择的表名加载字段信息
+  fieldOptions.value = [
+    { label: `${tableName}_字段1`, value: `${tableName}_field1` },
+    { label: `${tableName}_字段2`, value: `${tableName}_field2` },
+    { label: `${tableName}_字段3`, value: `${tableName}_field3` },
+  ];
+};
 
 // 添加条件
 const addCondition = () => {
@@ -182,6 +200,7 @@ const clearQuery = () => {
     simpleQuery.value = {
       tableName: "",
       fields: [],
+      aggregateFields: [],
       conditions: [],
       orderBy: "",
       order: "ASC",
@@ -196,7 +215,7 @@ const clearQuery = () => {
 
 <style scoped>
 .query-page {
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   flex-grow: 1;
   border-radius: 5px;
   display: flex;
