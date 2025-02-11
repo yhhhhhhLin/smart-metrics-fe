@@ -201,7 +201,10 @@ const removeField = (index: number) => {
 };
 
 const formatFieldLabel = (field: { field: string; aggregate: string }) => {
-  return field.aggregate
+  if(aggregate=='normal'){
+    return field;
+  }else{
+    field.aggregate
       ? `${field.aggregate.toUpperCase()}(${field.field})`
       : field.field;
 };
