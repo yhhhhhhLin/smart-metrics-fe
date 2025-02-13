@@ -158,12 +158,14 @@ const pagination = ref({total: 0, current: 1, pageSize: 10});
 const addCustomizedFieldModalVisible = ref(false)
 const customField = ref('')
 
+// TODO mock数据
 const tableOptions = ref([
   {label: "用户表", value: "users"},
   {label: "订单表", value: "orders"},
   {label: "产品表", value: "products"},
 ]);
 const fieldOptions = ref([]);
+
 const aggregateFieldOptions = ref([
   {label: "普通字段", value: "normal"},
   {label: "AVG", value: "avg"},
