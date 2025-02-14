@@ -43,11 +43,20 @@
               </div>
             </a-form-item>
 
+            <!-- 展示选择的字段 -->
             <div class="selected-fields">
               <p>已选择字段：</p>
-              <div v-for="(field, index) in simpleQuery.fields" :key="index" class="selected-field">
-                <span>{{ formatFieldLabel(field) }}</span>
-                <a-button type="text" status="danger" @click="removeField(index)">删除</a-button>
+
+              <!-- 展示普通字段 selectColumns -->
+              <div v-for="(field, index) in simpleQuery.selectColumns" :key="'select_' + index" class="selected-field">
+                <span v-html="formatFieldLabel(field)"></span>
+                <a-button type="text" status="danger" @click="removeField(index, false)" style="padding-left: 10px;">删除</a-button>
+              </div>
+
+              <!-- 展示聚合字段 computedExpressions -->
+              <div v-for="(expression, index) in simpleQuery.computedExpressions" :key="'computed_' + index" class="selected-field">
+                <span v-html="formatFieldLabel(expression.expression)"></span>
+                <a-button type="text" status="danger" @click="removeField(index, true)" style="padding-left: 10px;">删除</a-button>
               </div>
             </div>
 
@@ -57,21 +66,34 @@
                 <span>条件设置：</span>
                 <a-button type="primary" @click="addCondition">添加条件</a-button>
               </div>
-              <div v-for="(condition, index) in simpleQuery.conditions" :key="index" class="condition-row">
-                <a-select
-                    v-model="condition.field"
-                    placeholder="字段"
-                    :options="fieldOptions"
-                    style="width: 150px"
-                />
-                <a-select
-                    v-model="condition.operator"
-                    placeholder="操作符"
-                    :options="operatorOptions"
-                    style="width: 120px"
-                />
-                <a-input v-model="condition.value" placeholder="值" style="width: 150px"/>
-                <a-button type="text" status="danger" @click="removeCondition(index)">删除</a-button>
+
+              <!-- 遍历 simpleQuery.conditions 展示条件 -->
+              <div v-for="(condition, index) in simpleQuery.whereConditions" :key="'condition_' + index" class="condition-row">
+<!--                <a-select-->
+<!--                    v-model="condition.field"-->
+<!--                    placeholder="字段"-->
+<!--                    :options="fieldOptions"-->
+<!--                    style="width: 150px"-->
+<!--                />-->
+<!--                <a-select-->
+<!--                    v-model="condition.operator"-->
+<!--                    placeholder="操作符"-->
+<!--                    :options="operatorOptions"-->
+<!--                    style="width: 120px"-->
+<!--                />-->
+<!--                <a-input-->
+<!--                    v-model="condition.value"-->
+<!--                    placeholder="值"-->
+<!--                    style="width: 150px"-->
+<!--                />-->
+                <a-button
+                    type="text"
+                    status="danger"
+                    @click="removeCondition(index)"
+                    style="padding-left: 10px;"
+                >
+                  删除
+                </a-button>
               </div>
             </div>
 
@@ -83,7 +105,7 @@
                   :options="fieldOptions"
                   style="width: 150px"
               />
-              <a-radio-group v-model="simpleQuery.order" style="margin-left: 10px">
+              <a-radio-group v-model="simpleQuery.orderBy" style="margin-left: 10px">
                 <a-radio value="ASC">升序</a-radio>
                 <a-radio value="DESC">降序</a-radio>
               </a-radio-group>
@@ -91,7 +113,7 @@
 
             <!-- 分页设置 -->
             <a-form-item label="分页设置">
-              <a-input-number v-model="simpleQuery.page" placeholder="页码" style="width: 100px"/>
+              <a-input-number v-model="simpleQuery.pageNum" placeholder="页码" style="width: 100px"/>
               <a-input-number v-model="simpleQuery.pageSize" placeholder="每页条数"
                               style="width: 100px; margin-left: 10px"/>
             </a-form-item>
@@ -112,7 +134,7 @@
         <!-- 操作按钮 -->
         <div class="actions">
           <a-button type="primary" @click="runQuery">运行查询</a-button>
-          <a-button @click="clearQuery">清空</a-button>
+<!--          <a-button @click="clearQuery">清空</a-button>-->
         </div>
 
         <!-- 查询结果 -->
@@ -125,8 +147,8 @@
           />
         </div>
       </div>
-
-      <a-modal v-model:visible="addCustomizedFieldModalVisible" @ok="handleOkAddCusField" @cancel="handleCancelAddCustFieldModal">
+      <a-modal v-model:visible="addCustomizedFieldModalVisible" @ok="handleOkAddCusField"
+               @cancel="handleCancelAddCustFieldModal">
         <template #title>
           添加自定义查询字段
         </template>
@@ -141,30 +163,28 @@
 import {ref} from "vue";
 import Container from "../../components/Container.vue";
 
+const addCustomizedFieldModalVisible = ref(false);
+const customField = ref("");
+
 const queryMode = ref("simple");
 const simpleQuery = ref({
+  dscId: null,
+  dbName: "",
   tableName: "",
-  fields: [],
-  conditions: [],
-  orderBy: "",
-  order: "ASC",
-  page: 1,
+  selectColumns: [],
+  computedExpressions: [],
+  // "whereConditions": {"price": { "operator": ">", "value": 100 }},
+  whereConditions: {},
+  // "orderBy": { "create_time": "DESC" },
+  orderBy: {},
+  pageNum: 1,
   pageSize: 10,
 });
+
 const advancedQuery = ref({sql: ""});
 const resultColumns = ref([]);
 const resultData = ref([]);
 const pagination = ref({total: 0, current: 1, pageSize: 10});
-const addCustomizedFieldModalVisible = ref(false)
-const customField = ref('')
-
-// TODO mock数据
-const tableOptions = ref([
-  {label: "用户表", value: "users"},
-  {label: "订单表", value: "orders"},
-  {label: "产品表", value: "products"},
-]);
-const fieldOptions = ref([]);
 
 const aggregateFieldOptions = ref([
   {label: "普通字段", value: "normal"},
@@ -173,14 +193,54 @@ const aggregateFieldOptions = ref([
   {label: "MAX", value: "max"},
   {label: "MIN", value: "min"},
 ]);
+
+// 常用条件查询
 const operatorOptions = ref([
-  {label: "=", value: "="},
-  {label: ">", value: ">"},
-  {label: "<", value: "<"},
-  {label: "LIKE", value: "LIKE"},
+  { label: "=", value: "=" },
+  { label: ">", value: ">" },
+  { label: "<", value: "<" },
+  { label: ">=", value: ">=" },
+  { label: "<=", value: "<=" },
+  { label: "!=", value: "!=" },
+  { label: "LIKE", value: "LIKE" },
+  { label: "IN", value: "IN" },
+  { label: "BETWEEN", value: "BETWEEN" },
+  { label: "IS NULL", value: "IS NULL" },
+  { label: "IS NOT NULL", value: "IS NOT NULL" },
 ]);
 
-const tempField = ref({field: "", aggregate: ""});
+
+const tableOptions = ref([
+  {label: "用户表", value: "users"},
+  {label: "订单表", value: "orders"},
+  {label: "产品表", value: "products"},
+]);
+
+const fieldOptions = ref([]);
+const tempField = ref({field: "", aggregate: "normal"});
+
+const addCustomizedField = () => {
+  customField.value = ''
+  addCustomizedFieldModalVisible.value = true
+
+}
+
+const handleOkAddCusField = () => {
+  if (customField.value.trim() != "") {
+    simpleQuery.value.selectColumns.push(customField.value.trim());
+    customField.value = "";
+    addCustomizedFieldModalVisible.value = false;
+  }
+};
+
+const handleCancelAddCustFieldModal = () => {
+  customField.value = "";
+  addCustomizedFieldModalVisible.value = false;
+};
+
+const formatFieldLabel = (field: string) => {
+  return `<span>${field}</span>`;
+};
 
 const onTableChange = (tableName: string) => {
   fieldOptions.value = [
@@ -191,71 +251,47 @@ const onTableChange = (tableName: string) => {
 };
 
 const addField = () => {
-  if (tempField.value.field || tempField.value.aggregate) {
-    // TODO fields 格式应该是{fieldName:"",aggregate}
-    simpleQuery.value.fields.push({...tempField.value});
-    tempField.value = {field: "", aggregate: ""};
+  if (!tempField.value.field) return;
+  if (tempField.value.aggregate === "normal") {
+    simpleQuery.value.selectColumns.push(tempField.value.field);
+  } else {
+    simpleQuery.value.computedExpressions.push({ expression: `${tempField.value.aggregate}(${tempField.value.field})` });
   }
 };
 
-const removeField = (index: number) => {
-  simpleQuery.value.fields.splice(index, 1);
-};
-
-const formatFieldLabel = (field: { field: string; aggregate: string }) => {
-  if(aggregate=='normal'){
-    return field;
-  }else{
-    field.aggregate
-      ? `${field.aggregate.toUpperCase()}(${field.field})`
-      : field.field;
+const removeField = (index: number, isComputed: boolean) => {
+  if (isComputed) {
+    simpleQuery.value.computedExpressions.splice(index, 1);
+  } else {
+    simpleQuery.value.selectColumns.splice(index, 1);
+  }
 };
 
 const addCondition = () => {
-  simpleQuery.value.conditions.push({field: "", operator: "=", value: ""});
+  const field = "";
+  simpleQuery.value.whereConditions[field] = {operator: "=", value: ""};
 };
 
-const removeCondition = (index: number) => {
-  simpleQuery.value.conditions.splice(index, 1);
+const removeCondition = (field: string) => {
+  delete simpleQuery.value.whereConditions[field];
 };
 
-const runQuery = () => {
-  console.log("运行查询", queryMode.value === "simple" ? simpleQuery.value : advancedQuery.value.sql);
-};
-
-const clearQuery = () => {
-  if (queryMode.value === "simple") {
-    Object.assign(simpleQuery.value, {
-      tableName: "",
-      fields: [],
-      conditions: [],
-      orderBy: "",
-      order: "ASC",
-      page: 1,
-      pageSize: 10,
-    });
-  } else {
-    advancedQuery.value.sql = "";
+const updateCondition = (field: string, key: "operator" | "value", value: string) => {
+  if (simpleQuery.value.whereConditions[field]) {
+    simpleQuery.value.whereConditions[field][key] = value;
   }
 };
 
-const addCustomizedField = ()=>{
-  customField.value=''
-  addCustomizedFieldModalVisible.value=true
+const updateOrderBy = (field: string, order: "ASC" | "DESC") => {
+  simpleQuery.value.orderBy = {[field]: order};
+};
 
-}
-
-const handleOkAddCusField = ()=>{
-  customField.value=''
-  simpleQuery.value.fields.push({...tempField.value});
-}
-
-
-const handleCancelAddCustFieldModal = ()=>{
-  customField.value=''
-  addCustomizedFieldModalVisible.value = false
-}
+const runQuery = () => {
+  const queryPayload = queryMode.value === "simple" ? simpleQuery.value : advancedQuery.value.sql;
+  console.log("运行查询", queryPayload);
+};
 </script>
+
 
 <style scoped>
 .query-page {
