@@ -63,38 +63,50 @@
             <!-- 条件设置 -->
             <div class="conditions">
               <div class="condition-header">
-                <span>条件设置：</span>
+                <span style="width: 7%">条件设置：</span>
+
+                <a-select
+                    v-model="tempField.field"
+                    placeholder="请选择字段"
+                    :options="fieldOptions"
+                    style="width: 150px"
+                />
+                <!-- 聚合字段选择 -->
+                <a-select
+                    placeholder="条件"
+                    :options="operatorOptions"
+                    style="width: 120px; margin-left: 10px"
+                />
+                <a-select
+                    v-model="conditionValueType"
+                    :options="valueTypeOptions"
+                    class="value-type-selector"
+                    style="width: 80px"
+                />
+                <!-- 动态输入组件 -->
+                <template v-if="conditionValueType === 'value'">
+                  <a-input
+                      v-model="simpleQuery.whereConditions.value"
+                      placeholder="输入值"
+                      class="value-input"
+                  />
+                </template>
+                <template v-else>
+                  <a-select
+                      v-model="simpleQuery.whereConditions.value"
+                      :options="fieldOptions"
+                      placeholder="选择字段"
+                      class="field-select"
+                  />
+                </template>
                 <a-button type="primary" @click="addCondition">添加条件</a-button>
+                <a-button type="primary" @click="addCustCondition">添加自定义条件</a-button>
+              </div>
+              <div class="condition-list">
+                <span> 已选择条件: </span>
+
               </div>
 
-              <!-- 遍历 simpleQuery.conditions 展示条件 -->
-              <div v-for="(condition, index) in simpleQuery.whereConditions" :key="'condition_' + index" class="condition-row">
-<!--                <a-select-->
-<!--                    v-model="condition.field"-->
-<!--                    placeholder="字段"-->
-<!--                    :options="fieldOptions"-->
-<!--                    style="width: 150px"-->
-<!--                />-->
-<!--                <a-select-->
-<!--                    v-model="condition.operator"-->
-<!--                    placeholder="操作符"-->
-<!--                    :options="operatorOptions"-->
-<!--                    style="width: 120px"-->
-<!--                />-->
-<!--                <a-input-->
-<!--                    v-model="condition.value"-->
-<!--                    placeholder="值"-->
-<!--                    style="width: 150px"-->
-<!--                />-->
-                <a-button
-                    type="text"
-                    status="danger"
-                    @click="removeCondition(index)"
-                    style="padding-left: 10px;"
-                >
-                  删除
-                </a-button>
-              </div>
             </div>
 
             <!-- 排序规则 -->
@@ -155,6 +167,26 @@
         <div>自定义字段,比如CONCAT(field1, ' ', field2)这种格式</div>
         <a-input v-model="customField"></a-input>
       </a-modal>
+
+      <a-modal v-model:visible="addCustomizedConditionModalVisible" @ok="handleOkAddCusCondition"
+               @cancel="handleCancelAddCustConditionModal">
+        <template #title>
+          添加自定义条件
+        </template>
+        <div>自定义条件,比如CONCAT(field1, ' ', field2)这种格式</div>
+        <div style="display: flex;flex-direction:column;gap: 10px;margin-top: 20px">
+          <a-input placeholder="自定义条件"></a-input>
+          <a-select
+              placeholder="条件"
+              :options="operatorOptions"
+              style="width: 120px; margin-left: 10px"
+          />
+
+          <a-input placeholder="自定义条件"></a-input>
+
+        </div>
+
+      </a-modal>
     </template>
   </container>
 </template>
@@ -164,7 +196,9 @@ import {ref} from "vue";
 import Container from "../../components/Container.vue";
 
 const addCustomizedFieldModalVisible = ref(false);
+const addCustomizedConditionModalVisible = ref(false)
 const customField = ref("");
+const conditionValueType = ref('value')
 
 const queryMode = ref("simple");
 const simpleQuery = ref({
@@ -193,6 +227,11 @@ const aggregateFieldOptions = ref([
   {label: "MAX", value: "max"},
   {label: "MIN", value: "min"},
 ]);
+
+const valueTypeOptions = [
+  { label: '值', value: 'value' },
+  { label: '字段', value: 'field' }
+]
 
 // 常用条件查询
 const operatorOptions = ref([
@@ -286,6 +325,20 @@ const updateOrderBy = (field: string, order: "ASC" | "DESC") => {
   simpleQuery.value.orderBy = {[field]: order};
 };
 
+const addCustCondition  = () => {
+  addCustomizedConditionModalVisible.value = true
+}
+
+const handleOkAddCusCondition = () =>{
+  // 添加自定义条件
+  addCustomizedConditionModalVisible.value = false
+}
+
+
+const handleCancelAddCustConditionModal = () => {
+  addCustomizedConditionModalVisible.value = false
+}
+
 const runQuery = () => {
   const queryPayload = queryMode.value === "simple" ? simpleQuery.value : advancedQuery.value.sql;
   console.log("运行查询", queryPayload);
@@ -337,12 +390,20 @@ const runQuery = () => {
 
 .conditions {
   margin-top: 20px;
+
 }
 
 .condition-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: start;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.condition-list{
+  display: flex;
+  justify-content: start;
   margin-bottom: 10px;
 }
 
