@@ -146,6 +146,12 @@ declare namespace API {
         updatedTime: Date
     }
 
+    type whereCondition = {
+        operator: string
+        valueType: string
+        value: string
+    }
+
 
 }
 

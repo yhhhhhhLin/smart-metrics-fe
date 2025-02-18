@@ -66,7 +66,7 @@
                 <span style="width: 7%">条件设置：</span>
 
                 <a-select
-                    v-model="tempField.field"
+                    v-model="tempCondition1"
                     placeholder="请选择字段"
                     :options="fieldOptions"
                     style="width: 150px"
@@ -75,25 +75,26 @@
                 <a-select
                     placeholder="条件"
                     :options="operatorOptions"
+                    v-model="tempConditionOperator"
                     style="width: 120px; margin-left: 10px"
                 />
                 <a-select
-                    v-model="conditionValueType"
+                    v-model="tempConditionValueType"
                     :options="valueTypeOptions"
                     class="value-type-selector"
                     style="width: 80px"
                 />
                 <!-- 动态输入组件 -->
-                <template v-if="conditionValueType === 'value'">
+                <template v-if="tempConditionValueType === 'value'">
                   <a-input
-                      v-model="simpleQuery.whereConditions.value"
+                      v-model="tempConditionValue"
                       placeholder="输入值"
                       class="value-input"
                   />
                 </template>
                 <template v-else>
                   <a-select
-                      v-model="simpleQuery.whereConditions.value"
+                      v-model="tempConditionValue"
                       :options="fieldOptions"
                       placeholder="选择字段"
                       class="field-select"
@@ -104,6 +105,7 @@
               </div>
               <div class="condition-list">
                 <span> 已选择条件: </span>
+                <div v-for="[key,value] in simpleQuery.whereConditions">{{key}} {{value.operator}} {{value.value}}</div>
 
               </div>
 
@@ -198,7 +200,11 @@ import Container from "../../components/Container.vue";
 const addCustomizedFieldModalVisible = ref(false);
 const addCustomizedConditionModalVisible = ref(false)
 const customField = ref("");
-const conditionValueType = ref('value')
+
+const tempCondition1 = ref('')
+const tempConditionOperator = ref('')
+const tempConditionValue = ref('')
+const tempConditionValueType = ref('value')
 
 const queryMode = ref("simple");
 const simpleQuery = ref({
@@ -207,8 +213,8 @@ const simpleQuery = ref({
   tableName: "",
   selectColumns: [],
   computedExpressions: [],
-  // "whereConditions": {"price": { "operator": ">", "value": 100 }},
-  whereConditions: {},
+  // "whereConditions": {"price": { "operator": ">","valueType": "value", "value": 100 }},
+  whereConditions: new Map<string, API.whereCondition>(),
   // "orderBy": { "create_time": "DESC" },
   orderBy: {},
   pageNum: 1,
@@ -306,9 +312,19 @@ const removeField = (index: number, isComputed: boolean) => {
   }
 };
 
+// 添加条件
 const addCondition = () => {
-  const field = "";
-  simpleQuery.value.whereConditions[field] = {operator: "=", value: ""};
+  simpleQuery.value.whereConditions.set(tempCondition1.value, {
+    operator: tempConditionOperator.value,
+    valueType: tempConditionValueType.value,
+    value: tempConditionValue.value
+  });
+
+  tempCondition1.value = '';
+  tempConditionOperator.value = '';
+  tempConditionValueType.value = 'value';
+  tempConditionValue.value = '';
+
 };
 
 const removeCondition = (field: string) => {
@@ -405,6 +421,7 @@ const runQuery = () => {
   display: flex;
   justify-content: start;
   margin-bottom: 10px;
+  gap: 10px;
 }
 
 .condition-row {
