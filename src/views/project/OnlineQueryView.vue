@@ -112,18 +112,34 @@
             </div>
 
             <!-- 排序规则 -->
-            <a-form-item label="排序">
-              <a-select
-                  v-model="simpleQuery.orderBy"
-                  placeholder="选择排序字段"
-                  :options="fieldOptions"
-                  style="width: 150px"
-              />
-              <a-radio-group v-model="simpleQuery.orderBy" style="margin-left: 10px">
-                <a-radio value="ASC">升序</a-radio>
-                <a-radio value="DESC">降序</a-radio>
-              </a-radio-group>
-            </a-form-item>
+            <div class="order-by">
+
+              <a-form-item label="排序">
+                <a-select
+                    v-model="tempOrderField"
+                    placeholder="选择排序字段"
+                    :options="fieldOptions"
+                    style="width: 150px"
+                    allow-create
+                />
+                <a-radio-group v-model="tempOrderMethod" style="margin-left: 10px">
+                  <a-radio value="ASC">升序</a-radio>
+                  <a-radio value="DESC">降序</a-radio>
+                </a-radio-group>
+                <a-button type="primary" @click="addOrder">添加规则</a-button>
+
+              </a-form-item>
+
+              <div class="selected-fields">
+                <p>已添加条件：</p>
+
+                <div v-for="[orderField, orderMethod] in simpleQuery.orderBy" :key="'order_' + orderField" class="selected-field">
+                  <span>{{ orderField }}: {{ orderMethod }}</span>
+                  <a-button type="text" status="danger" @click="removeOrderField(orderField)" style="padding-left: 10px;">删除</a-button>
+                </div>
+              </div>
+            </div>
+
 
             <!-- 分页设置 -->
             <a-form-item label="分页设置">
@@ -177,14 +193,15 @@
         </template>
         <div>自定义条件,比如CONCAT(field1, ' ', field2)这种格式</div>
         <div style="display: flex;flex-direction:column;gap: 10px;margin-top: 20px">
-          <a-input placeholder="自定义条件"></a-input>
+          <a-input placeholder="自定义条件" v-model="tempCondition1"></a-input>
           <a-select
               placeholder="条件"
               :options="operatorOptions"
               style="width: 120px; margin-left: 10px"
+              v-model="tempConditionOperator"
           />
 
-          <a-input placeholder="自定义条件"></a-input>
+          <a-input placeholder="自定义条件" v-model="tempConditionValue"></a-input>
 
         </div>
 
@@ -194,8 +211,9 @@
 </template>
 
 <script setup lang="ts">
-import {ref} from "vue";
+import {onMounted, ref} from "vue";
 import Container from "../../components/Container.vue";
+import {columns, tables} from "../../services/datasource/datasource.ts";
 
 const addCustomizedFieldModalVisible = ref(false);
 const addCustomizedConditionModalVisible = ref(false)
@@ -205,6 +223,8 @@ const tempCondition1 = ref('')
 const tempConditionOperator = ref('')
 const tempConditionValue = ref('')
 const tempConditionValueType = ref('value')
+const tempOrderField = ref('')
+const tempOrderMethod = ref('ASC')
 
 const queryMode = ref("simple");
 const simpleQuery = ref({
@@ -216,7 +236,7 @@ const simpleQuery = ref({
   // "whereConditions": {"price": { "operator": ">","valueType": "value", "value": 100 }},
   whereConditions: new Map<string, API.whereCondition>(),
   // "orderBy": { "create_time": "DESC" },
-  orderBy: {},
+  orderBy: new Map<string,string>(),
   pageNum: 1,
   pageSize: 10,
 });
@@ -263,6 +283,44 @@ const tableOptions = ref([
 
 const fieldOptions = ref([]);
 const tempField = ref({field: "", aggregate: "normal"});
+const projectId = ref('');
+const projectDscId = ref('')
+
+onMounted(()=>{
+  projectId.value = sessionStorage.getItem('projectId')||'1'
+  projectDscId.value = sessionStorage.getItem('projectDscId') || '1'
+  // 获取所有表
+  fetchTables()
+})
+
+const fetchTables = () => {
+  tableOptions.value = []
+  tables({dscId: projectDscId.value}).then((resp) => {
+    resp.data.forEach(item => {
+      tableOptions.value.push({label: item.tableName, value: item.tableName})
+
+    })
+  }).catch((error) => {
+    console.log(error)
+  })
+
+}
+
+const onTableChange = (tableName: string) => {
+  fetchTableColumns(tableName)
+};
+
+const fetchTableColumns = (tableName: string) => {
+  columns({dscId: projectDscId.value,tableName: tableName}).then((resp) => {
+    resp.data.forEach((column)=>{
+      fieldOptions.value.push({label: column.columnName, value: column.columnName})
+
+    })
+    console.log(resp)
+  })
+
+
+}
 
 const addCustomizedField = () => {
   customField.value = ''
@@ -287,13 +345,6 @@ const formatFieldLabel = (field: string) => {
   return `<span>${field}</span>`;
 };
 
-const onTableChange = (tableName: string) => {
-  fieldOptions.value = [
-    {label: `${tableName}_字段1`, value: `${tableName}_field1`},
-    {label: `${tableName}_字段2`, value: `${tableName}_field2`},
-    {label: `${tableName}_字段3`, value: `${tableName}_field3`},
-  ];
-};
 
 const addField = () => {
   if (!tempField.value.field) return;
@@ -346,13 +397,33 @@ const addCustCondition  = () => {
 }
 
 const handleOkAddCusCondition = () =>{
-  // 添加自定义条件
+  simpleQuery.value.whereConditions.set(tempCondition1.value, {
+    operator: tempConditionOperator.value,
+    valueType: tempConditionValueType.value,
+    value: tempConditionValue.value
+  });
+
+  tempCondition1.value = '';
+  tempConditionOperator.value = '';
+  tempConditionValueType.value = 'value';
+  tempConditionValue.value = '';
   addCustomizedConditionModalVisible.value = false
 }
 
 
 const handleCancelAddCustConditionModal = () => {
   addCustomizedConditionModalVisible.value = false
+}
+
+const addOrder = ()=>{
+  simpleQuery.value.orderBy.set(tempOrderField.value,tempOrderMethod.value);
+  tempOrderField.value = ''
+  tempOrderMethod.value = 'ASC'
+}
+
+const removeOrderField = (removeOrderField: string) => {
+  simpleQuery.value.orderBy.delete(removeOrderField);
+
 }
 
 const runQuery = () => {

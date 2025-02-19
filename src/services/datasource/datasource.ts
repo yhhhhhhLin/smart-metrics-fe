@@ -46,3 +46,15 @@ export function pageProject(info: API.ProjectPageDto) {
 export function updateProjectIsTopStatus(info: API.IdAndStatusDto) {
     return post<boolean>("/dsc/project/top", info)
 }
+
+export function tables(info: API.SearchTablesDto){
+    return post<API.DbTableVO[]>('/dsc/db/tables', info);
+}
+
+export function columns(info: API.SearchColumnsDto){
+    return post<API.DBTableColumnVO[]>('/dsc/db/columns', info);
+}
+
+export function simpleSearch(info: API.SimpleSearchDto){
+    return post<API.DBSearchResultVO>('/dsc/db/simpleSearch', info);
+}

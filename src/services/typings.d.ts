@@ -152,6 +152,58 @@ declare namespace API {
         value: string
     }
 
+    type SearchTablesDto = {
+        dscId: number
+        dbName: string
+        // 模糊查询table名
+        tableName: string
+    }
+
+    type DbTableVO = {
+        dbName: string
+        tableName: string
+    }
+
+    type SearchColumnsDto = {
+        dscId: number
+        dbName: string
+        tableName: string
+        // 用来字段模糊查询用
+        columnName: string
+    }
+
+    type DBTableColumnVO = {
+        dscId : number
+        dbName : string
+        tableName: string
+        columnName: string
+        dataType: string
+        columnType: string
+        isNullable: boolean
+        defaultValue: string
+        columnComment: string
+
+    }
+
+    type SearchCondition = {
+        operator: string
+        valueType: string
+        value: any
+    }
+
+    type SimpleSearchDto = {
+        dscId: number
+        dbName: string
+        tableName: string
+        selectColumns: string[]
+        computedExpressions: string[]
+        whereConditions: Map<string, API.SearchCondition>
+        orderBy: Map<string,string>
+        pageNum: number
+        pageSize: number
+    }
+
+
 
 }
 

@@ -25,7 +25,7 @@
             </template>
 
             <template #projectName="{record}">
-              <a-link href="javascript:void(0)" @click="goToProjectOverviewPage(record.id)">{{record.projectName}}</a-link>
+              <a-link href="javascript:void(0)" @click="goToProjectOverviewPage(record.id,record.dscId)">{{record.projectName}}</a-link>
             </template>
           </a-table>
         </div>
@@ -216,9 +216,10 @@ const updateStatus = (project: API.DscProjectVO) => {
 
 }
 
-const goToProjectOverviewPage = (projectId:number)=>{
+const goToProjectOverviewPage = (projectId:number,dscId:number)=>{
 
   sessionStorage.setItem("projectId", projectId.toString());
+  sessionStorage.setItem("projectDscId",dscId)
   router.push({
         path: "/project/overview"
       }
