@@ -54,8 +54,8 @@
               </div>
 
               <!-- 展示聚合字段 computedExpressions -->
-              <div v-for="(expression, index) in simpleQuery.computedExpressions" :key="'computed_' + index" class="selected-field">
-                <span v-html="formatFieldLabel(expression.expression)"></span>
+              <div v-for="expression in simpleQuery.computedExpressions" :key="'computed_' + index" class="selected-field">
+                <span>{{expression}}</span>
                 <a-button type="text" status="danger" @click="removeField(index, true)" style="padding-left: 10px;">删除</a-button>
               </div>
             </div>
@@ -105,7 +105,10 @@
               </div>
               <div class="condition-list">
                 <span> 已选择条件: </span>
-                <div v-for="[key,value] in simpleQuery.whereConditions">{{key}} {{value.operator}} {{value.value}}</div>
+                <div v-for="[key,value] in simpleQuery.whereConditions">
+                  {{key}} {{value.operator}} {{value.value}}
+                  <a-button type="text" status="danger" @click="removeCondition(key)" style="padding-left: 10px;">删除</a-button>
+                </div>
 
               </div>
 
@@ -131,7 +134,7 @@
               </a-form-item>
 
               <div class="selected-fields">
-                <p>已添加条件：</p>
+                <p>已添加排序条件：</p>
 
                 <div v-for="[orderField, orderMethod] in simpleQuery.orderBy" :key="'order_' + orderField" class="selected-field">
                   <span>{{ orderField }}: {{ orderMethod }}</span>
@@ -213,7 +216,8 @@
 <script setup lang="ts">
 import {onMounted, ref} from "vue";
 import Container from "../../components/Container.vue";
-import {columns, tables} from "../../services/datasource/datasource.ts";
+import {columns, simpleSearch, tables} from "../../services/datasource/datasource.ts";
+import {Notification} from "@arco-design/web-vue";
 
 const addCustomizedFieldModalVisible = ref(false);
 const addCustomizedConditionModalVisible = ref(false)
@@ -289,6 +293,7 @@ const projectDscId = ref('')
 onMounted(()=>{
   projectId.value = sessionStorage.getItem('projectId')||'1'
   projectDscId.value = sessionStorage.getItem('projectDscId') || '1'
+  simpleQuery.value.dscId = projectDscId.value
   // 获取所有表
   fetchTables()
 })
@@ -351,7 +356,7 @@ const addField = () => {
   if (tempField.value.aggregate === "normal") {
     simpleQuery.value.selectColumns.push(tempField.value.field);
   } else {
-    simpleQuery.value.computedExpressions.push({ expression: `${tempField.value.aggregate}(${tempField.value.field})` });
+    simpleQuery.value.computedExpressions.push(`${tempField.value.aggregate}(${tempField.value.field})` );
   }
 };
 
@@ -379,7 +384,7 @@ const addCondition = () => {
 };
 
 const removeCondition = (field: string) => {
-  delete simpleQuery.value.whereConditions[field];
+  simpleQuery.value.whereConditions.delete(field)
 };
 
 const updateCondition = (field: string, key: "operator" | "value", value: string) => {
@@ -427,8 +432,24 @@ const removeOrderField = (removeOrderField: string) => {
 }
 
 const runQuery = () => {
-  const queryPayload = queryMode.value === "simple" ? simpleQuery.value : advancedQuery.value.sql;
-  console.log("运行查询", queryPayload);
+  const payload = {
+    ...simpleQuery.value,
+    whereConditions: Object.fromEntries(simpleQuery.value.whereConditions),
+    orderBy: Object.fromEntries(simpleQuery.value.orderBy)
+  };
+
+  simpleSearch(payload).then((resp) => {
+    console.log(resp)
+    Notification.success({
+      title: '系统提示',
+      content: '查询成功',
+      closable: true
+    })
+  }).catch((error)=>{
+    console.log(error)
+
+  })
+  console.log("运行查询", simpleQuery);
 };
 </script>
 

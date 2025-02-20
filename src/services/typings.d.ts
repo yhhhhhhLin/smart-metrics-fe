@@ -197,10 +197,21 @@ declare namespace API {
         tableName: string
         selectColumns: string[]
         computedExpressions: string[]
-        whereConditions: Map<string, API.SearchCondition>
-        orderBy: Map<string,string>
+        whereConditions
+        orderBy
         pageNum: number
         pageSize: number
+    }
+
+    type DBSearchResultVO = {
+        dscId: number
+        dbName: string
+        tableName: string
+        columnNames: string[]
+        data: Map<string, string>[]
+        totalCount: number
+        success: boolean
+        errorMessage: string
     }
 
 
