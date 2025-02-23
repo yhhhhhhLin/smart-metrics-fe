@@ -516,13 +516,6 @@ const runQuery = () => {
   gap: 10px;
 }
 
-.condition-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 10px;
-}
-
 .results {
   margin-top: 20px;
 }
