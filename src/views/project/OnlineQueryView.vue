@@ -114,6 +114,31 @@
 
             </div>
 
+            <!-- 条件设置 -->
+            <div class="group-by">
+              <div class="group-by-header">
+                <span style="width: 5%">分组设置：</span>
+
+                <a-select
+                    v-model="tempGroupByField"
+                    placeholder="请选择字段"
+                    :options="fieldOptions"
+                    allow-create
+                    style="width: 150px"
+                />
+                <a-button type="primary" @click="addGroupBy">添加分组条件</a-button>
+              </div>
+              <div class="group-by-list">
+                <span> 已选择分组字段: </span>
+                <div v-for="field in simpleQuery.groupByColumns">
+                  {{field}}
+                  <a-button type="text" status="danger" @click="removeCondition(key)" style="padding-left: 10px;">删除</a-button>
+                </div>
+
+              </div>
+
+            </div>
+
             <!-- 排序规则 -->
             <div class="order-by">
 
@@ -230,6 +255,8 @@ const tempConditionValueType = ref('value')
 const tempOrderField = ref('')
 const tempOrderMethod = ref('ASC')
 
+const tempGroupByField = ref('')
+
 const queryMode = ref("simple");
 const simpleQuery = ref({
   dscId: null,
@@ -239,6 +266,7 @@ const simpleQuery = ref({
   computedExpressions: [],
   // "whereConditions": {"price": { "operator": ">","valueType": "value", "value": 100 }},
   whereConditions: new Map<string, API.whereCondition>(),
+  groupByColumns: [],
   // "orderBy": { "create_time": "DESC" },
   orderBy: new Map<string,string>(),
   pageNum: 1,
@@ -380,7 +408,6 @@ const addCondition = () => {
   tempConditionOperator.value = '';
   tempConditionValueType.value = 'value';
   tempConditionValue.value = '';
-
 };
 
 const removeCondition = (field: string) => {
@@ -392,6 +419,17 @@ const updateCondition = (field: string, key: "operator" | "value", value: string
     simpleQuery.value.whereConditions[field][key] = value;
   }
 };
+
+/**
+ * 添加普通分组字段
+ */
+const addGroupBy = () =>{
+  if (tempGroupByField.value.trim() != "") {
+    simpleQuery.value.groupByColumns.push(tempGroupByField.value.trim());
+    tempGroupByField.value = "";
+  }
+}
+
 
 const updateOrderBy = (field: string, order: "ASC" | "DESC") => {
   simpleQuery.value.orderBy = {[field]: order};
@@ -515,6 +553,26 @@ const runQuery = () => {
   margin-bottom: 10px;
   gap: 10px;
 }
+
+.group-by {
+  margin-top: 20px;
+}
+
+.group-by-header {
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.group-by-list{
+  display: flex;
+  justify-content: start;
+  margin-bottom: 10px;
+  gap: 10px;
+}
+
 
 .results {
   margin-top: 20px;

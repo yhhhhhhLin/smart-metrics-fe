@@ -198,6 +198,7 @@ declare namespace API {
         selectColumns: string[]
         computedExpressions: string[]
         whereConditions
+        groupByColumns
         orderBy
         pageNum: number
         pageSize: number
