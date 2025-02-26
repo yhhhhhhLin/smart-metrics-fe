@@ -21,9 +21,11 @@
                         @change="onTableChange"/>
             </a-form-item>
 
-            <!-- 查询字段管理 -->
-            <a-form-item label="查询字段">
-              <div class="fields-container">
+            <!-- 查询字段设置 -->
+            <div class="field-select">
+              <div class="field-select-header">
+                <span style="width: 5.5%">查询字段设置：</span>
+
                 <!-- 普通字段选择 -->
                 <a-select
                     v-model="tempField.field"
@@ -40,30 +42,30 @@
                 />
                 <a-button type="primary" @click="addField" style="margin-left: 10px">添加字段</a-button>
                 <a-button type="primary" @click="addCustomizedField" style="margin-left: 10px">添加自定义字段</a-button>
-              </div>
-            </a-form-item>
 
-            <!-- 展示选择的字段 -->
-            <div class="selected-fields">
-              <p>已选择字段：</p>
+              </div>
+              <div class="field-select-list">
+                <span > 已选择字段: </span>
 
-              <!-- 展示普通字段 selectColumns -->
-              <div v-for="(field, index) in simpleQuery.selectColumns" :key="'select_' + index" class="selected-field">
-                <span v-html="formatFieldLabel(field)"></span>
-                <a-button type="text" status="danger" @click="removeField(index, false)" style="padding-left: 10px;">删除</a-button>
+                <div v-for="(field, index) in simpleQuery.selectColumns" :key="'select_' + index">
+                  {{field}}
+                  <a-button type="text" status="danger" @click="removeField(index, false)" style="padding-left: 10px;">删除</a-button>
+                </div>
+
+                <!-- 展示聚合字段 computedExpressions -->
+                <div v-for="expression in simpleQuery.computedExpressions" :key="'computed_' + expression">
+                  <span>{{expression}}</span>
+                  <a-button type="text" status="danger" @click="removeField(expression, true)" style="padding-left: 10px;">删除</a-button>
+                </div>
+
               </div>
 
-              <!-- 展示聚合字段 computedExpressions -->
-              <div v-for="expression in simpleQuery.computedExpressions" :key="'computed_' + index" class="selected-field">
-                <span>{{expression}}</span>
-                <a-button type="text" status="danger" @click="removeField(index, true)" style="padding-left: 10px;">删除</a-button>
-              </div>
             </div>
 
             <!-- 条件设置 -->
             <div class="conditions">
               <div class="condition-header">
-                <span style="width: 7%">条件设置：</span>
+                <span style="width: 6%">条件设置：</span>
 
                 <a-select
                     v-model="tempCondition1"
@@ -117,7 +119,7 @@
             <!-- 条件设置 -->
             <div class="group-by">
               <div class="group-by-header">
-                <span style="width: 5%">分组设置：</span>
+                <span style="width: 4%">分组设置：</span>
 
                 <a-select
                     v-model="tempGroupByField"
@@ -129,7 +131,7 @@
                 <a-button type="primary" @click="addGroupBy">添加分组条件</a-button>
               </div>
               <div class="group-by-list">
-                <span> 已选择分组字段: </span>
+                <div> 已选择分组字段: </div>
                 <div v-for="field in simpleQuery.groupByColumns">
                   {{field}}
                   <a-button type="text" status="danger" @click="removeCondition(key)" style="padding-left: 10px;">删除</a-button>
@@ -140,9 +142,12 @@
             </div>
 
             <!-- 排序规则 -->
-            <div class="order-by">
 
-              <a-form-item label="排序">
+            <!-- 条件设置 -->
+            <div class="order-by">
+              <div class="order-by-header">
+                <span style="width: 4%">排序设置：</span>
+
                 <a-select
                     v-model="tempOrderField"
                     placeholder="选择排序字段"
@@ -156,19 +161,17 @@
                 </a-radio-group>
                 <a-button type="primary" @click="addOrder">添加规则</a-button>
 
-              </a-form-item>
-
-              <div class="selected-fields">
-                <p>已添加排序条件：</p>
+              </div>
+              <div class="order-by-list">
+                <div> 已选择排序字段: </div>
 
                 <div v-for="[orderField, orderMethod] in simpleQuery.orderBy" :key="'order_' + orderField" class="selected-field">
                   <span>{{ orderField }}: {{ orderMethod }}</span>
                   <a-button type="text" status="danger" @click="removeOrderField(orderField)" style="padding-left: 10px;">删除</a-button>
                 </div>
               </div>
+
             </div>
-
-
             <!-- 分页设置 -->
             <a-form-item label="分页设置">
               <a-input-number v-model="simpleQuery.pageNum" placeholder="页码" style="width: 100px"/>
@@ -192,7 +195,7 @@
         <!-- 操作按钮 -->
         <div class="actions">
           <a-button type="primary" @click="runQuery">运行查询</a-button>
-<!--          <a-button @click="clearQuery">清空</a-button>-->
+          <a-button @click="clearQuery">清空</a-button>
         </div>
 
         <!-- 查询结果 -->
@@ -228,9 +231,7 @@
               style="width: 120px; margin-left: 10px"
               v-model="tempConditionOperator"
           />
-
           <a-input placeholder="自定义条件" v-model="tempConditionValue"></a-input>
-
         </div>
 
       </a-modal>
@@ -374,11 +375,6 @@ const handleCancelAddCustFieldModal = () => {
   addCustomizedFieldModalVisible.value = false;
 };
 
-const formatFieldLabel = (field: string) => {
-  return `<span>${field}</span>`;
-};
-
-
 const addField = () => {
   if (!tempField.value.field) return;
   if (tempField.value.aggregate === "normal") {
@@ -386,6 +382,10 @@ const addField = () => {
   } else {
     simpleQuery.value.computedExpressions.push(`${tempField.value.aggregate}(${tempField.value.field})` );
   }
+
+  tempField.value.field = ''
+  tempField.value.aggregate = ''
+
 };
 
 const removeField = (index: number, isComputed: boolean) => {
@@ -477,6 +477,15 @@ const runQuery = () => {
   };
 
   simpleSearch(payload).then((resp) => {
+    // resultColumns
+    // resultData
+    resultData.value = resp.data.data;
+    resultColumns.value = resp.data.columnNames.map(col => ({
+      title: col.replace(/_/g, ' '),
+      dataIndex: col,
+      key: col
+    }));
+
     console.log(resp)
     Notification.success({
       title: '系统提示',
@@ -489,6 +498,17 @@ const runQuery = () => {
   })
   console.log("运行查询", simpleQuery);
 };
+
+const clearQuery = ()=>{
+  simpleQuery.value.tableName = ''
+  simpleQuery.value.selectColumns = []
+  simpleQuery.value.computedExpressions = []
+  simpleQuery.value.whereConditions = new Map()
+  simpleQuery.value.groupByColumns = []
+  simpleQuery.value.orderBy = new Map()
+  simpleQuery.value.pageNum = 1
+  simpleQuery.value.pageSize = 10
+}
 </script>
 
 
@@ -507,12 +527,6 @@ const runQuery = () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-
-.fields-container {
-  display: flex;
-  align-items: center;
-  gap: 10px;
 }
 
 .selected-fields {
@@ -550,6 +564,7 @@ const runQuery = () => {
 .condition-list{
   display: flex;
   justify-content: start;
+  align-items: center;
   margin-bottom: 10px;
   gap: 10px;
 }
@@ -570,11 +585,59 @@ const runQuery = () => {
   display: flex;
   justify-content: start;
   margin-bottom: 10px;
+  align-items: center;
+  gap: 10px;
+}
+
+.order-by{
+  margin-top: 10px;
+}
+
+.field-select {
+  margin-top: 10px;
+
+}
+
+.field-select-header {
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.field-select-list{
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  margin-bottom: 10px;
+  gap: 10px;
+}
+
+.order-by {
+  margin-top: 10px;
+  margin-bottom: 10px;
+
+}
+
+.order-by-header {
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.order-by-list{
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  margin-bottom: 10px;
   gap: 10px;
 }
 
 
 .results {
-  margin-top: 20px;
+  margin-bottom: 20px;
 }
 </style>
