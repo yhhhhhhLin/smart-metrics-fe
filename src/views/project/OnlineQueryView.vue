@@ -184,12 +184,22 @@
         <!-- 高级查询模式 -->
         <div v-else class="advanced-query">
           <p>高级查询支持 SQL 语句及多表连接查询</p>
-          <a-textarea
-              v-model="advancedQuery.sql"
-              rows="8"
-              placeholder="请输入 SQL 查询语句"
-              style="width: 100%"
-          />
+          <div class="advanced-query-main-table-select">
+            <span>请选择主表</span>
+            <a-select v-model="advancedQuery.mainTableName" placeholder="请选择主表" :options="tableOptions"
+                      @change="onTableChange"/>
+          </div>
+
+          <div class="advanced-query-sub-table-add">
+            <a-link @click="clickAddSubTable">
+              <template #icon>
+                <icon-plus-circle />
+              </template>
+              添加关联表
+            </a-link>
+
+          </div>
+
         </div>
 
         <!-- 操作按钮 -->
@@ -235,6 +245,14 @@
         </div>
 
       </a-modal>
+
+      <a-modal v-model:visible="addSubTableModalVisible" @ok="handleOkAddSubTable"
+               @cancel="handleCancelAddSubTable">
+        <template #title>
+          添加关联表
+        </template>
+
+      </a-modal>
     </template>
   </container>
 </template>
@@ -274,10 +292,24 @@ const simpleQuery = ref({
   pageSize: 10,
 });
 
-const advancedQuery = ref({sql: ""});
+const advancedQuery = ref({
+  dscId: null,
+  dbName: "",
+  mainTableName: "",
+  mainTableAlias: "t0",
+  selectColumns: [],
+  computedExpressions: [],
+  whereConditions: new Map<string, API.whereCondition>(),
+  joinConditions: <Array<API.JoinCondition>>[],
+  orderBy: new Map<string, string>(),
+  pageNum: 1,
+  pageSize: 10,
+});
+
 const resultColumns = ref([]);
 const resultData = ref([]);
 const pagination = ref({total: 0, current: 1, pageSize: 10});
+const addSubTableModalVisible = ref(false);
 
 const aggregateFieldOptions = ref([
   {label: "普通字段", value: "normal"},
@@ -509,6 +541,20 @@ const clearQuery = ()=>{
   simpleQuery.value.pageNum = 1
   simpleQuery.value.pageSize = 10
 }
+
+const clickAddSubTable = ()=>{
+  addSubTableModalVisible.value = true
+}
+
+const handleOkAddSubTable = ()=>{
+  // 添加关联表
+  // 初始化
+}
+
+const handleCancelAddSubTable = ()=>{
+  // 初始化
+}
+
 </script>
 
 
@@ -639,5 +685,23 @@ const clearQuery = ()=>{
 
 .results {
   margin-bottom: 20px;
+}
+
+.advanced-query{
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.advanced-query-main-table-select{
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 10px;
+}
+
+.advanced-query-sub-table-add{
+  display: flex;
+  justify-content: start;
 }
 </style>

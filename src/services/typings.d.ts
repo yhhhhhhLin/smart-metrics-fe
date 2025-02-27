@@ -215,6 +215,13 @@ declare namespace API {
         errorMessage: string
     }
 
+    type JoinCondition = {
+        joinTable: string;
+        joinTableAlias: string;
+        joinType: string;
+        onCondition: string;
+    }
+
 
 
 }
