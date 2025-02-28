@@ -200,6 +200,31 @@
 
           </div>
 
+          <div class="advanced-query-join-table-list">
+            <a-table :columns="joinTableListColumns" />
+          </div>
+
+          <div class="advanced-query-selected-field">
+            <span>查询字段</span>
+
+          </div>
+
+          <div class="advanced-query-group-by">
+            <span>分组设置</span>
+
+          </div>
+
+          <div class="advanced-query-order-by">
+            <span>排序设置</span>
+
+          </div>
+
+          <div class="advanced-query-page">
+            <span>排序设置</span>
+          </div>
+
+
+
         </div>
 
         <!-- 操作按钮 -->
@@ -251,6 +276,50 @@
         <template #title>
           添加关联表
         </template>
+        <div class="add_sub_table_modal">
+
+          <div class="add_sub_table_modal_item">
+            <span>选择左表</span>
+            <a-select v-model="tempLeftTable" placeholder="左表" :options="leftTable"
+                      @change="onChangeLeftTable"/>
+          </div>
+          <div class="add_sub_table_modal_item">
+            <span>关联关系</span>
+            <a-select placeholder="请选择关联关系" v-model="tempJoinType" :options = "tableJoinType">
+
+            </a-select>
+
+          </div>
+
+          <div class="add_sub_table_modal_item">
+            <span>选择数据库</span>
+            <a-select v-model="tempJoinTableDB"></a-select>
+          </div>
+
+          <div class="add_sub_table_modal_item">
+            <span>选择关联表</span>
+            <div style="display: flex;gap: 5px;align-items: center">
+              <a-select v-model="tempJoinTable" placeholder="请选择关联表" :options="tableOptions"
+                        @change="onJoinTableChange"/>
+              <span>AS</span>
+              <a-input v-model="tempJoinTableAlias" placeholder="请输入别名"></a-input>
+
+            </div>
+          </div>
+
+          <div class="add_sub_table_modal_item">
+            <span>关联键设置</span>
+            <div style="display: flex;align-items: center;gap: 5px">
+              <a-select ></a-select>
+              <span>=</span>
+              <a-select></a-select>
+            </div>
+
+
+          </div>
+
+
+        </div>
 
       </a-modal>
     </template>
@@ -258,7 +327,7 @@
 </template>
 
 <script setup lang="ts">
-import {onMounted, ref} from "vue";
+import {computed, onMounted, ref} from "vue";
 import Container from "../../components/Container.vue";
 import {columns, simpleSearch, tables} from "../../services/datasource/datasource.ts";
 import {Notification} from "@arco-design/web-vue";
@@ -311,6 +380,12 @@ const resultData = ref([]);
 const pagination = ref({total: 0, current: 1, pageSize: 10});
 const addSubTableModalVisible = ref(false);
 
+const tableJoinType = ref([
+  {label: "left join", value: "left join"},
+  {label: "right join", value: "right join"},
+  {label: "inner join", value: "inner join"},
+]);
+
 const aggregateFieldOptions = ref([
   {label: "普通字段", value: "normal"},
   {label: "AVG", value: "avg"},
@@ -346,10 +421,61 @@ const tableOptions = ref([
   {label: "产品表", value: "products"},
 ]);
 
+const joinTableListColumns =  [
+  {
+    title: '表别名',
+    dataIndex: 'name',
+  },
+  {
+    title: '数据库',
+    dataIndex: 'salary',
+  },
+  {
+    title: '表名',
+    dataIndex: 'address',
+  },
+  {
+    title: '关联方式',
+    dataIndex: 'email',
+  },
+  {
+    title: '关联条件',
+    dataIndex: 'email2',
+  },
+  {
+    title: '操作'
+  }
+];
+
 const fieldOptions = ref([]);
 const tempField = ref({field: "", aggregate: "normal"});
 const projectId = ref('');
 const projectDscId = ref('')
+const tempLeftTable = ref('')
+const tempJoinType = ref('')
+const tempJoinTable = ref('')
+const tempJoinTableAlias = ref('')
+const tempJoinTableDB = ref('')
+
+const leftTable = computed(()=>{
+  // 将主表和关联表添加进来，格式label:表名（别名） value:表名
+  const tables = [
+    {
+      label: `${advancedQuery.value.mainTableName} (${advancedQuery.value.mainTableAlias})`,
+      value: advancedQuery.value.mainTableName
+    }
+  ];
+
+  // 遍历 joinConditions，构造关联表信息
+  advancedQuery.value.joinConditions.forEach(condition => {
+    tables.push({
+      label: `${condition.joinTable} (${condition.joinTableAlias})`,
+      value: condition.joinTable
+    });
+  });
+
+  return tables;
+})
 
 onMounted(()=>{
   projectId.value = sessionStorage.getItem('projectId')||'1'
@@ -543,7 +669,17 @@ const clearQuery = ()=>{
 }
 
 const clickAddSubTable = ()=>{
-  addSubTableModalVisible.value = true
+  // 校验是否选择主表
+  if(advancedQuery.value.mainTableName == ''){
+    Notification.warning({
+      title: '系统提示',
+      content: '请先选择主表',
+      closable: true
+    })
+  }else{
+    addSubTableModalVisible.value = true
+    // TODO 对temp值进行初始化
+  }
 }
 
 const handleOkAddSubTable = ()=>{
@@ -553,6 +689,26 @@ const handleOkAddSubTable = ()=>{
 
 const handleCancelAddSubTable = ()=>{
   // 初始化
+}
+
+const onChangeLeftTable = () =>{
+  // 根据左表获取所有columns
+  // tempLeftTable.value.value
+}
+
+const onJoinTableChange = ()=>{
+  // 获取行
+  // tempJoinTable.value.value
+}
+
+const fetchTableColumn = (tableName: any)=>{
+
+
+}
+
+
+const fetchDB = ()=>{
+
 }
 
 </script>
@@ -704,4 +860,20 @@ const handleCancelAddSubTable = ()=>{
   display: flex;
   justify-content: start;
 }
+
+.add_sub_table_modal {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.add_sub_table_modal_item {
+  display: flex;
+  flex-direction: column;
+}
+
+.advanced-query-join-table-list {
+
+}
+
 </style>
