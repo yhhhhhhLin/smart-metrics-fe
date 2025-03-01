@@ -222,6 +222,16 @@ declare namespace API {
         onCondition: string;
     }
 
+    type DatabaseVO = {
+        dscId: number
+        dbName: string
+    }
+
+    type SearchDatabasesDto = {
+        dscId: number
+        dbName: string
+    }
+
 
 
 }

@@ -47,6 +47,11 @@ export function updateProjectIsTopStatus(info: API.IdAndStatusDto) {
     return post<boolean>("/dsc/project/top", info)
 }
 
+export function dbs(info: API.SearchDatabasesDto){
+    return post<API.DatabaseVO[]>('/dsc/db/dbs', info);
+
+}
+
 export function tables(info: API.SearchTablesDto){
     return post<API.DbTableVO[]>('/dsc/db/tables', info);
 }

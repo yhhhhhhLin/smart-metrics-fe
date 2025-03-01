@@ -293,14 +293,14 @@
 
           <div class="add_sub_table_modal_item">
             <span>选择数据库</span>
-            <a-select v-model="tempJoinTableDB"></a-select>
+            <a-select v-model="tempJoinTableDB" :options="databasesOptions" placeholder="选择数据库" @change="onChangeJoinTableDatabase"></a-select>
           </div>
 
           <div class="add_sub_table_modal_item">
             <span>选择关联表</span>
             <div style="display: flex;gap: 5px;align-items: center">
-              <a-select v-model="tempJoinTable" placeholder="请选择关联表" :options="tableOptions"
-                        @change="onJoinTableChange"/>
+              <a-select v-model="tempJoinTable" placeholder="请选择关联表" :options="joinTableOptions"
+                        @change="onChangeRightTable"/>
               <span>AS</span>
               <a-input v-model="tempJoinTableAlias" placeholder="请输入别名"></a-input>
 
@@ -310,9 +310,9 @@
           <div class="add_sub_table_modal_item">
             <span>关联键设置</span>
             <div style="display: flex;align-items: center;gap: 5px">
-              <a-select ></a-select>
+              <a-select :options="joinTableModalLeftColumns" placeholder="选择左表" v-model="tempJoinTableModelLeftTableColumn"></a-select>
               <span>=</span>
-              <a-select></a-select>
+              <a-select :options="joinTableModalRightColumns" placeholder="选择右表" v-model="tempJoinTableModelRightTableColumn"></a-select>
             </div>
 
 
@@ -329,7 +329,7 @@
 <script setup lang="ts">
 import {computed, onMounted, ref} from "vue";
 import Container from "../../components/Container.vue";
-import {columns, simpleSearch, tables} from "../../services/datasource/datasource.ts";
+import {columns, dbs, simpleSearch, tables} from "../../services/datasource/datasource.ts";
 import {Notification} from "@arco-design/web-vue";
 
 const addCustomizedFieldModalVisible = ref(false);
@@ -344,6 +344,9 @@ const tempOrderField = ref('')
 const tempOrderMethod = ref('ASC')
 
 const tempGroupByField = ref('')
+
+const tempJoinTableModelLeftTableColumn = ref('')
+const tempJoinTableModelRightTableColumn = ref('')
 
 const queryMode = ref("simple");
 const simpleQuery = ref({
@@ -421,6 +424,14 @@ const tableOptions = ref([
   {label: "产品表", value: "products"},
 ]);
 
+const databasesOptions = ref([
+  {label: "dbname", value: "dbname"},
+])
+
+const joinTableOptions = ref([
+  {label: "用户表", value: "users"},
+]);
+
 const joinTableListColumns =  [
   {
     title: '表别名',
@@ -456,6 +467,8 @@ const tempJoinType = ref('')
 const tempJoinTable = ref('')
 const tempJoinTableAlias = ref('')
 const tempJoinTableDB = ref('')
+const joinTableModalLeftColumns = ref([{label: '',value: ''}])
+const joinTableModalRightColumns = ref([{label: '',value: ''}])
 
 const leftTable = computed(()=>{
   // 将主表和关联表添加进来，格式label:表名（别名） value:表名
@@ -490,6 +503,19 @@ const fetchTables = () => {
   tables({dscId: projectDscId.value}).then((resp) => {
     resp.data.forEach(item => {
       tableOptions.value.push({label: item.tableName, value: item.tableName})
+
+    })
+  }).catch((error) => {
+    console.log(error)
+  })
+
+}
+
+const fetchTablesByDbName = (dbName: string) => {
+  joinTableOptions.value = []
+  tables({dscId: projectDscId.value,dbName:dbName}).then((resp) => {
+    resp.data.forEach(item => {
+      joinTableOptions.value.push({label: item.tableName, value: item.tableName})
 
     })
   }).catch((error) => {
@@ -677,13 +703,40 @@ const clickAddSubTable = ()=>{
       closable: true
     })
   }else{
+    fetchDatabases()
     addSubTableModalVisible.value = true
-    // TODO 对temp值进行初始化
+    tempLeftTable.value = ''
+    tempJoinType.value = ''
+    tempJoinTableDB.value = ''
+    tempJoinTable.value = ''
+    tempJoinTableAlias.value = ''
+    tempJoinTableModelLeftTableColumn.value = ''
+    tempJoinTableModelRightTableColumn.value = ''
   }
+}
+
+const fetchDatabases = ()=>{
+  databasesOptions.value = []
+  dbs({dscId:projectDscId.value}).then((resp) => {
+    resp.data.forEach(item => {
+      databasesOptions.value.push({label: item.dbName, value: item.dbName})
+    })
+  }).catch((error)=>{
+    console.log(error)
+  })
 }
 
 const handleOkAddSubTable = ()=>{
   // 添加关联表
+  // tempLeftTable
+  // tempJoinType
+  // tempJoinTableDB
+  // tempJoinTable
+  // tempJoinTableAlias
+  // tempJoinTableModelLeftTableColumn
+  // tempJoinTableModelRightTableColumn
+  // 添加到高级查询参数中
+
   // 初始化
 }
 
@@ -691,25 +744,47 @@ const handleCancelAddSubTable = ()=>{
   // 初始化
 }
 
-const onChangeLeftTable = () =>{
+const onChangeLeftTable = async () =>{
   // 根据左表获取所有columns
   // tempLeftTable.value.value
+  const cols = await fetchColumns('', tempLeftTable.value)
+
+  joinTableModalLeftColumns.value = [];
+  cols.forEach(item => {
+    joinTableModalLeftColumns.value.push({label: item.columnName, value: item.columnName})
+  })
 }
 
-const onJoinTableChange = ()=>{
-  // 获取行
-  // tempJoinTable.value.value
-}
+const onChangeRightTable = async () => {
+  const cols = await fetchColumns(tempJoinTableDB.value, tempJoinTable.value)
 
-const fetchTableColumn = (tableName: any)=>{
-
-
-}
-
-
-const fetchDB = ()=>{
+  joinTableModalRightColumns.value = [];
+  cols.forEach(item => {
+    joinTableModalRightColumns.value.push({label: item.columnName, value: item.columnName})
+  })
 
 }
+
+const fetchColumns = async (dbName: string, tableName: string): Promise<API.SearchColumnsDto[]>=>{
+  try {
+    const resp = await columns({ dscId: projectDscId.value, dbName, tableName });
+    if (resp.code === 0) {
+      return resp.data;
+    } else {
+      console.error(`获取列信息失败，错误码: ${resp.code}, 消息: ${resp.message}`);
+      return [];
+    }
+  } catch (error) {
+    console.error('获取列信息时发生异常:', error);
+    return [];
+  }
+
+}
+
+const onChangeJoinTableDatabase = () =>{
+  fetchTablesByDbName(tempJoinTableDB.value);
+}
+
 
 </script>
 
