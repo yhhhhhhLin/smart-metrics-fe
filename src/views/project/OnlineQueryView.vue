@@ -201,7 +201,11 @@
           </div>
 
           <div class="advanced-query-join-table-list">
-            <a-table :columns="joinTableListColumns" />
+            <a-table :columns="joinTableListColumns" :data="advancedQuery.joinConditions" >
+              <template #optional="{ record }">
+                <a-button @click="delTableJoinCondition(record)">删除</a-button>
+              </template>
+            </a-table>
           </div>
 
           <div class="advanced-query-selected-field">
@@ -302,7 +306,7 @@
               <a-select v-model="tempJoinTable" placeholder="请选择关联表" :options="joinTableOptions"
                         @change="onChangeRightTable"/>
               <span>AS</span>
-              <a-input v-model="tempJoinTableAlias" placeholder="请输入别名"></a-input>
+              <a-input v-model="tempJoinTableAlias" placeholder="请输入别名" @change="onChangeJoinTableAlias"></a-input>
 
             </div>
           </div>
@@ -329,7 +333,14 @@
 <script setup lang="ts">
 import {computed, onMounted, ref} from "vue";
 import Container from "../../components/Container.vue";
-import {columns, dbs, simpleSearch, tables} from "../../services/datasource/datasource.ts";
+import {
+  addDatasource,
+  columns,
+  dbs,
+  getDataSource,
+  simpleSearch,
+  tables
+} from "../../services/datasource/datasource.ts";
 import {Notification} from "@arco-design/web-vue";
 
 const addCustomizedFieldModalVisible = ref(false);
@@ -435,26 +446,27 @@ const joinTableOptions = ref([
 const joinTableListColumns =  [
   {
     title: '表别名',
-    dataIndex: 'name',
+    dataIndex: 'joinTableAlias',
   },
   {
     title: '数据库',
-    dataIndex: 'salary',
+    dataIndex: 'joinTableDB',
   },
   {
     title: '表名',
-    dataIndex: 'address',
+    dataIndex: 'joinTable',
   },
   {
-    title: '关联方式',
-    dataIndex: 'email',
+    title: '关联类型',
+    dataIndex: 'joinType',
   },
   {
     title: '关联条件',
-    dataIndex: 'email2',
+    dataIndex: 'onCondition',
   },
   {
-    title: '操作'
+    title: '操作',
+    slotName: 'optional'
   }
 ];
 
@@ -463,6 +475,8 @@ const tempField = ref({field: "", aggregate: "normal"});
 const projectId = ref('');
 const projectDscId = ref('')
 const tempLeftTable = ref('')
+const tempLeftTableAlias = ref('')
+const tempLeftTableDB = ref('')
 const tempJoinType = ref('')
 const tempJoinTable = ref('')
 const tempJoinTableAlias = ref('')
@@ -471,11 +485,11 @@ const joinTableModalLeftColumns = ref([{label: '',value: ''}])
 const joinTableModalRightColumns = ref([{label: '',value: ''}])
 
 const leftTable = computed(()=>{
-  // 将主表和关联表添加进来，格式label:表名（别名） value:表名
+  // 将主表和关联表添加进来，格式label:表名（别名） value:别名
   const tables = [
     {
       label: `${advancedQuery.value.mainTableName} (${advancedQuery.value.mainTableAlias})`,
-      value: advancedQuery.value.mainTableName
+      value: advancedQuery.value.mainTableName,
     }
   ];
 
@@ -495,8 +509,18 @@ onMounted(()=>{
   projectDscId.value = sessionStorage.getItem('projectDscId') || '1'
   simpleQuery.value.dscId = projectDscId.value
   // 获取所有表
+  fetchDscInfo()
   fetchTables()
 })
+
+const fetchDscInfo = () => {
+  getDataSource(projectDscId.value).then((resp) => {
+    advancedQuery.value.dbName = resp.data.databaseName
+    simpleQuery.value.dbName = resp.data.databaseName
+  }).catch((error)=>{
+    console.log(error)
+  })
+}
 
 const fetchTables = () => {
   tableOptions.value = []
@@ -526,6 +550,7 @@ const fetchTablesByDbName = (dbName: string) => {
 
 const onTableChange = (tableName: string) => {
   fetchTableColumns(tableName)
+
 };
 
 const fetchTableColumns = (tableName: string) => {
@@ -728,16 +753,24 @@ const fetchDatabases = ()=>{
 
 const handleOkAddSubTable = ()=>{
   // 添加关联表
-  // tempLeftTable
-  // tempJoinType
-  // tempJoinTableDB
-  // tempJoinTable
-  // tempJoinTableAlias
-  // tempJoinTableModelLeftTableColumn
-  // tempJoinTableModelRightTableColumn
   // 添加到高级查询参数中
+  const joinCondition:API.JoinCondition = {
+    joinTableDB: tempJoinTableDB.value,
+    joinTable : tempJoinTable.value,
+    joinTableAlias: tempJoinTableAlias.value,
+    joinType: tempJoinType.value,
+    onCondition: `${tempLeftTableAlias.value}.${tempJoinTableModelLeftTableColumn.value} = ${tempJoinTableAlias.value}.${tempJoinTableModelRightTableColumn.value}`
+  }
+  advancedQuery.value.joinConditions.push(joinCondition)
 
   // 初始化
+  tempLeftTableAlias.value = ''
+  tempJoinType.value = ''
+  tempJoinTableDB.value = ''
+  tempJoinTable.value = ''
+  tempJoinTableAlias.value = ''
+  tempJoinTableModelLeftTableColumn.value = ''
+  tempJoinTableModelRightTableColumn.value = ''
 }
 
 const handleCancelAddSubTable = ()=>{
@@ -745,14 +778,47 @@ const handleCancelAddSubTable = ()=>{
 }
 
 const onChangeLeftTable = async () =>{
+  tempLeftTableAlias.value = getTableAlias(tempLeftTable.value)
+
+  tempLeftTableDB.value = getTableDB(tempLeftTableAlias.value, tempLeftTable.value)
+
   // 根据左表获取所有columns
   // tempLeftTable.value.value
-  const cols = await fetchColumns('', tempLeftTable.value)
+  // TODO 需要把对应数据也发过去
+  const cols = await fetchColumns(tempLeftTableDB.value, tempLeftTable.value)
 
   joinTableModalLeftColumns.value = [];
   cols.forEach(item => {
     joinTableModalLeftColumns.value.push({label: item.columnName, value: item.columnName})
   })
+}
+
+const getTableDB = (tableAlias,tableName):string => {
+  if(tableAlias == 't0'){
+    return advancedQuery.value.dbName
+  }
+
+  const joinCondition = advancedQuery.value.joinConditions.find((joinCondition) =>
+    joinCondition.joinTableAlias == tableAlias && joinCondition.joinTable == tableName
+  )
+
+  return joinCondition?joinCondition.joinTableDB:''
+}
+
+
+const getTableAlias = (tableName):string=>{
+  // TODO 判断是否主表,可能有不同数据库相同表名情况
+  if(advancedQuery.value.mainTableName == tableName){
+    return advancedQuery.value.mainTableAlias
+  }
+
+  const joinCondition = advancedQuery.value.joinConditions.find(
+      (joinCondition) => joinCondition.joinTable === tableName
+  )
+
+  // 如果找到了，返回别名；否则返回表名
+  return joinCondition ? joinCondition.joinTableAlias : tableName
+
 }
 
 const onChangeRightTable = async () => {
@@ -783,6 +849,41 @@ const fetchColumns = async (dbName: string, tableName: string): Promise<API.Sear
 
 const onChangeJoinTableDatabase = () =>{
   fetchTablesByDbName(tempJoinTableDB.value);
+}
+
+const onChangeJoinTableAlias = () =>{
+  // 判断别名不能重复
+  // tempJoinTableAlias
+  let needNotification = false
+  if(tempJoinTableAlias.value == 't0'){
+    needNotification = true
+  }
+  const joinCondition = advancedQuery.value.joinConditions.find((joinCondition)=> joinCondition.joinTableAlias == tempJoinTableAlias.value)
+
+  if(needNotification || joinCondition){
+    Notification.warning({
+      title: '系统提示',
+      content: '别名不能重复',
+      closable: true
+    })
+  }
+}
+
+const delTableJoinCondition = (joinCondition: API.JoinCondition) => {
+  // 根据对应的表别名删除对应条件
+  const index = advancedQuery.value.joinConditions.findIndex(
+      (condition) => joinCondition.joinTableAlias == condition.joinTableAlias
+  )
+
+  if (index !== -1) {
+    advancedQuery.value.joinConditions.splice(index, 1)
+    Notification.success({
+      title: '系统提示',
+      content: '删除成功',
+      closable: true
+    })
+  }
+
 }
 
 

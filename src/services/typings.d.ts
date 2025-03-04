@@ -216,6 +216,7 @@ declare namespace API {
     }
 
     type JoinCondition = {
+        joinTableDB: string;
         joinTable: string;
         joinTableAlias: string;
         joinType: string;

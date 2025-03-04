@@ -1,4 +1,4 @@
-import {post} from "../../request";
+import {get, post} from "../../request";
 
 // TODO: 先都不加api
 
@@ -13,6 +13,10 @@ export function addDatasource(info: API.DatasourceAdd) {
 
 export function pageDataSource(pageInfo: API.DatasourcePage) {
     return post<API.Page<API.DscInfoVO>>('/dsc/dsc/page', pageInfo);
+}
+
+export function getDataSource(dscId:any) {
+    return get<API.DscInfoVO>('/dsc/dsc/'+dscId);
 }
 
 export function listDataSource(pageInfo: API.DatasourcePage) {
