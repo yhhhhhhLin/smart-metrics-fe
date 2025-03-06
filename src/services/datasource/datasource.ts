@@ -67,3 +67,7 @@ export function columns(info: API.SearchColumnsDto){
 export function simpleSearch(info: API.SimpleSearchDto){
     return post<API.DBSearchResultVO>('/dsc/db/simpleSearch', info);
 }
+
+export function advancedSearch(info: API.AdvancedSearchDto){
+    return post<API.DBSearchResultVO>('/dsc/db/advancedSearch', info);
+}

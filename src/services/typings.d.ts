@@ -204,6 +204,21 @@ declare namespace API {
         pageSize: number
     }
 
+    type AdvancedSearchDto = {
+        dscId: number
+        dbName: string
+        mainTableName: string
+        mainTableAlias: string
+        selectColumns: string[]
+        computedExpressions: string[]
+        whereConditions
+        joinConditions: API.JoinCondition
+        groupByColumns
+        orderBy
+        pageNum: number
+        pageSize: number
+    }
+
     type DBSearchResultVO = {
         dscId: number
         dbName: string
@@ -232,6 +247,8 @@ declare namespace API {
         dscId: number
         dbName: string
     }
+
+
 
 
 
