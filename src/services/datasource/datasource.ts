@@ -71,3 +71,18 @@ export function simpleSearch(info: API.SimpleSearchDto){
 export function advancedSearch(info: API.AdvancedSearchDto){
     return post<API.DBSearchResultVO>('/dsc/db/advancedSearch', info);
 }
+
+export function executeSql(info: API.ExecuteSqlDto){
+    return post<API.DBSearchResultVO>('/dsc/db/executeSql', info);
+}
+
+export function getSimpleSearchSql(info: API.SimpleSearchDto){
+    return post<string>('/dsc/db/getSimpleSearchSql', info);
+}
+
+export function getAdvancedSearchSql(info: API.AdvancedSearchDto){
+    return post<string>('/dsc/db/getAdvancedSearchSql', info);
+}
+
+
+

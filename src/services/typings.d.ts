@@ -248,6 +248,11 @@ declare namespace API {
         dbName: string
     }
 
+    type ExecuteSqlDto = {
+        dscId: number
+        sql: string
+    }
+
 
 
 

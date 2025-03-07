@@ -359,23 +359,50 @@
                               style="width: 100px; margin-left: 10px"/>
             </div>
           </div>
+
+          <div class="advanced-query-item">
+            <a-collapse >
+              <a-collapse-item header="sql方式获取数据" key="1">
+                直接执行sql
+                <a-textarea placeholder="请输入要执行的SQL语句" v-model="sqlQuery.sql" auto-size />
+              </a-collapse-item>
+            </a-collapse>
+          </div>
+
         </div>
+
 
         <!-- 操作按钮 -->
         <div class="actions">
-          <a-button type="primary" @click="runQuery">运行查询</a-button>
-          <a-button @click="clearQuery">清空</a-button>
-          <a-button>获取查询sql</a-button>
+          <div class="action-left">
+            <a-popconfirm content="检测到有填写自定义sql，请选择获取数据方式"
+                          okText="正常查询" cancelText="执行自定义sql" :popup-visible="runQueryPopVisible" @ok="runNormalAdvQuery" @cancel = "runCustomSqlAdvQuery">
+              <a-button type="primary" @click="runQuery">运行查询</a-button>
+            </a-popconfirm>
+            <a-button @click="clearQuery">清空</a-button>
+            <a-button @click="getQuerySql">获取查询sql</a-button>
+          </div>
+
+          <div class="action-right">
+            <a-button @click="addToMetrics" type="outline">添加成指标</a-button>
+          </div>
         </div>
 
         <!-- 查询结果 -->
-        <div class="results">
-          <a-table
-              :columns="resultColumns"
-              :data="resultData"
-              :pagination="pagination"
-              style="margin-top: 20px"
-          />
+        <div class="result">
+          <a-tabs default-active-key="1" :active-key="resultKey">
+            <a-tab-pane key="1" title="查询结果">
+                <a-table
+                    :columns="resultColumns"
+                    :data="resultData"
+                    :pagination="pagination"
+                    style="margin-top: 20px"
+                />
+            </a-tab-pane>
+            <a-tab-pane key="2" title="sql">
+              {{resultSql}}
+            </a-tab-pane>
+          </a-tabs>
         </div>
       </div>
       <a-modal v-model:visible="addCustomizedFieldModalVisible" @ok="handleOkAddCusField"
@@ -498,8 +525,8 @@ import Container from "../../components/Container.vue";
 import {
   advancedSearch,
   columns,
-  dbs,
-  getDataSource,
+  dbs, executeSql, getAdvancedSearchSql,
+  getDataSource, getSimpleSearchSql,
   simpleSearch,
   tables
 } from "../../services/datasource/datasource.ts";
@@ -534,6 +561,9 @@ const addAdvCustomizedConditionModalVisible = ref(false)
 const advTempOrderField = ref('')
 const advTempOrderMethod = ref('ASC')
 
+const resultKey =ref('1')
+const runQueryPopVisible = ref(false)
+
 const queryMode = ref("simple");
 const simpleQuery = ref({
   dscId: null,
@@ -565,8 +595,11 @@ const advancedQuery = ref({
   pageSize: 10,
 });
 
+const sqlQuery = ref({dscId: null, sql: ''})
+
 const resultColumns = ref([]);
 const resultData = ref([]);
+const resultSql = ref('')
 const pagination = ref({total: 0, current: 1, pageSize: 10});
 const addSubTableModalVisible = ref(false);
 
@@ -721,6 +754,7 @@ onMounted(() => {
   projectDscId.value = sessionStorage.getItem('projectDscId') || '1'
   simpleQuery.value.dscId = projectDscId.value
   advancedQuery.value.dscId = projectDscId.value
+  sqlQuery.value.dscId = projectDscId.value
   // 获取所有表
   fetchDscInfo()
   fetchTables()
@@ -998,6 +1032,7 @@ const removeAdvOrderField = (removeOrderField: string) => {
 }
 
 const runQuery = () => {
+  resultKey.value = '1'
   if (queryMode.value == 'simple') {
     const payload = {
       ...simpleQuery.value,
@@ -1029,26 +1064,52 @@ const runQuery = () => {
 
     })
   } else {
+    // 判断自定义输入框是否有值
+    if(sqlQuery.value.sql != ''){
+      runQueryPopVisible.value = true
+    }else{
+      runNormalAdvQuery()
+    }
+  }
+}
+
+const getQuerySql = () =>{
+  resultKey.value = '2'
+  if (queryMode.value == 'simple') {
+    const payload = {
+      ...simpleQuery.value,
+      whereConditions: Object.fromEntries(simpleQuery.value.whereConditions),
+      orderBy: Object.fromEntries(simpleQuery.value.orderBy)
+    };
+
+
+    getSimpleSearchSql(payload).then((resp) => {
+      // resultColumns
+      // resultData
+      resultSql.value = resp.data;
+
+      console.log(resp)
+      Notification.success({
+        title: '系统提示',
+        content: '查询成功',
+        closable: true
+      })
+    }).catch((error) => {
+      console.log(error)
+
+    })
+  } else {
     const payload = {
       ...advancedQuery.value,
       whereConditions: Object.fromEntries(advancedQuery.value.whereConditions),
       orderBy: Object.fromEntries(advancedQuery.value.orderBy)
     };
 
-    // TODO 判断是简单查询还是高级查询，调用对应接口
 
-
-    advancedSearch(payload).then((resp) => {
+    getAdvancedSearchSql(payload).then((resp) => {
       // resultColumns
       // resultData
-      resultData.value = resp.data.data;
-      resultColumns.value = resp.data.columnNames.map(col => ({
-        title: col.replace(/_/g, ' '),
-        dataIndex: col,
-        key: col
-      }));
-
-      console.log(resp)
+      resultSql.value = resp.data;
       Notification.success({
         title: '系统提示',
         content: '查询成功',
@@ -1059,6 +1120,7 @@ const runQuery = () => {
       console.log(error)
     })
   }
+
 }
 
 const clearQuery = () => {
@@ -1146,6 +1208,9 @@ const delAdvTableSelectOption = (tableName, tableAlias) => {
   if (index !== -1) {
     advFieldOptions.value.splice(index, 1)
   }
+}
+
+const delSelectedFieldConditionAndOrderBy = (tableName, tableAlias) =>{
 
 
 }
@@ -1257,7 +1322,8 @@ const delTableJoinCondition = (joinCondition: API.JoinCondition) => {
     // 删除还需要把对应的字段选择中对应表删除
     delAdvTableSelectOption(joinCondition.joinTable, joinCondition.joinTableAlias)
 
-    // TODO 还要删除后续的条件分组和排序的相关字段
+    // TODO 还要删除后续展示选择的字段，条件分组和排序的相关字段
+    delSelectedFieldConditionAndOrderBy(joinCondition.joinTable,joinCondition.joinTableAlias)
 
     Notification.success({
       title: '系统提示',
@@ -1289,6 +1355,67 @@ const loadMoreSelectItem = async (option, done) => {
     console.error('解析失败' + option.label);
   }
 };
+
+const runNormalAdvQuery = ()=>{
+  runQueryPopVisible.value = false
+  const payload = {
+    ...advancedQuery.value,
+    whereConditions: Object.fromEntries(advancedQuery.value.whereConditions),
+    orderBy: Object.fromEntries(advancedQuery.value.orderBy)
+  };
+
+  advancedSearch(payload).then((resp) => {
+    // resultColumns
+    // resultData
+    resultData.value = resp.data.data;
+    resultColumns.value = resp.data.columnNames.map(col => ({
+      title: col.replace(/_/g, ' '),
+      dataIndex: col,
+      key: col
+    }));
+
+    console.log(resp)
+    Notification.success({
+      title: '系统提示',
+      content: '查询成功',
+      closable: true
+    })
+
+  }).catch((error) => {
+    console.log(error)
+  })
+}
+
+const runCustomSqlAdvQuery = () => {
+  executeSql(sqlQuery.value).then((resp) => {
+    resultData.value = resp.data.data;
+    resultColumns.value = resp.data.columnNames.map(col => ({
+      title: col.replace(/_/g, ' '),
+      dataIndex: col,
+      key: col
+    }));
+
+    console.log(resp)
+    Notification.success({
+      title: '系统提示',
+      content: '查询成功',
+      closable: true
+    })
+
+  })
+
+  runQueryPopVisible.value = false
+
+
+}
+
+const addToMetrics = () => {
+  // 判断查询模式
+
+  // 判断表参数是否全
+
+  // 跳转页面
+}
 
 </script>
 
@@ -1324,9 +1451,22 @@ const loadMoreSelectItem = async (option, done) => {
 
 .actions {
   display: flex;
-  gap: 10px;
+  justify-content: space-between;
   margin-top: 20px;
 }
+
+.action-left{
+  display: flex;
+  gap: 10px;
+}
+
+.action-right{
+  display: flex;
+  gap: 10px;
+  margin-right: 10%;
+}
+
+
 
 .conditions {
   margin-top: 20px;
