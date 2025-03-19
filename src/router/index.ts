@@ -1,6 +1,5 @@
 import {createRouter, createWebHistory} from "vue-router";
 import HomeView from "../views/HomeView.vue";
-import Home2View from "../views/Home2View.vue";
 import ProjectIndexView from "../views/project/ProjectIndexView.vue";
 import OverviewView from "../views/project/OverviewView.vue";
 import OnlineQueryView from "../views/project/OnlineQueryView.vue";
@@ -10,7 +9,6 @@ import IndexApplicationView from "../views/project/IndexApplicationView.vue";
 import ProjectManagerView from "../views/project/ProjectManagerView.vue";
 import ProjectManagerIndexView from "../views/projectManager/ProjectManagerIndexView.vue";
 import ProjectListView from "../views/projectManager/ProjectListView.vue";
-import HomeView3 from "../views/HomeView3.vue";
 import DataSourceListView from "../views/dataSourceManager/DataSourceListView.vue";
 import DataSourceManagerIndexView from "../views/dataSourceManager/DataSourceManagerIndexView.vue";
 import DataSourceAddView from "../views/dataSourceManager/DataSourceAddView.vue";
@@ -19,10 +17,44 @@ import DataSourceAlarmListView from "../views/dataSourceManager/DataSourceAlarmL
 import UserIndex from "../views/user/UserIndex.vue";
 import UserLoginView from "../views/user/UserLoginView.vue";
 import UserRegisterView from "../views/user/UserRegisterView.vue";
+import IndexManagerIndexView from "../views/project/IndexManagerIndexView.vue";
+import IndexManagementView from "../views/project/IndexManagementView.vue";
+import DataManagementIndexView from "../views/project/DataManagementIndexView.vue";
+import DimensionManagementView from "../views/project/DimensionManagementView.vue";
+import StatisticalPeriodView from "../views/project/StatisticalPeriodView.vue";
 
 export const dataSourceRootPath = '/datasource'
 export const projectManagerRootPath = '/projectManager'
 export const projectRootPath = '/project'
+
+export const indexManagementRoutes = [
+    {
+        index: "0",
+        path: "index-develop",
+        name: "指标开发",
+        component: IndexManagementView,
+    },
+    {
+        index: "1",
+        path: "data-management",
+        name: "数据管理",
+        component: DataManagementIndexView,
+        children: [
+            {
+                index: "1-1",
+                path: "dimension-management",
+                name: "维度管理",
+                component: DimensionManagementView,
+            },
+            {
+                index: "1-2",
+                path: "statistical-period",
+                name: "统计周期",
+                component: StatisticalPeriodView,
+            },
+        ],
+    },
+];
 
 // 选择详细目录后的菜单列表
 export const projectRoutes = [
@@ -43,6 +75,13 @@ export const projectRoutes = [
         path: 'index-market',
         name: '指标市场',
         component: IndexMarketView
+    },
+    {
+        index: '3',
+        path: 'index-management',
+        name: '指标中心',
+        component: IndexManagerIndexView,
+        children: indexManagementRoutes,
     },
     {
         index: '3',

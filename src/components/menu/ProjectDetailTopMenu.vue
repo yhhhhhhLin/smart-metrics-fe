@@ -30,7 +30,12 @@ const getFullPath = (path: string) => {
 
 
 const clickMenu = (path: string) => {
-  router.push(path)
+  // 如果是指标管理页面，直接跳转到对应子路径第一个
+  if (path === getFullPath("index-management")) {
+    router.push(getFullPath("index-management/index-develop"));
+  } else {
+    router.push(path);
+  }
 }
 
 </script>
