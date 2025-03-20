@@ -32,7 +32,9 @@
       <!-- 侧边栏 -->
       <div class="left-menu-container" v-if="props.sidebarType !== -1">
         <div class="sidebar">
-          <div v-if="props.sidebarType === 1">会有侧边栏的</div>
+          <div v-if="props.sidebarType === 1">
+            <index-manager-left-menu :default="props.leftMenuSelected"></index-manager-left-menu>
+          </div>
         </div>
       </div>
 
@@ -55,12 +57,14 @@ import ProjectManagerTopMenu from "./menu/ProjectManagerTopMenu.vue";
 import ProjectDetailTopMenu from "./menu/ProjectDetailTopMenu.vue";
 import DataSourceManagerTopMenu from "./menu/DataSourceManagerTopMenu.vue";
 import UserTopInfo from "./userinfo/UserTopInfo.vue";
+import IndexManagerLeftMenu from "./menu/IndexManagerLeftMenu.vue";
 
 const props = defineProps({
   navbarDefault: String,
   needDropDown: { type: Boolean, default: false },
   topMenuType: { type: Number, default: 1 },
   topMenuSelected: { type: String, default: "0" },
+  leftMenuSelected: { type: String, default: "0" },
   sidebarType: { type: Number, default: -1 },
 });
 </script>
@@ -120,21 +124,19 @@ const props = defineProps({
   height: 64px;
 }
 
-/* 主体布局 */
 .main-container {
   display: flex;
-  height: calc(100vh - 64px - 30px); /* 减去 header 和 footer */
-  margin-top: 64px; /* 避免被顶部遮挡 */
+  height: calc(100vh - 64px - 30px);
+  margin-top: 64px;
 }
 
-/* 侧边栏固定 */
 .left-menu-container {
   width: 240px;
-  height: calc(100vh - 64px); /* 让侧边栏占据 header 下面的全部空间 */
+  height: calc(100vh - 64px);
   position: fixed;
   top: 64px;
   left: 0;
-  background-color: #f7f9fc;
+  background-color: #FFFFFF;
   border-right: 1px solid #e0e4e8;
 }
 
@@ -144,8 +146,8 @@ const props = defineProps({
   padding: 16px;
   background-color: #f1f6fb;
   overflow-y: auto;
-  height: calc(100vh - 64px - 30px); /* 避免 footer 覆盖 */
-  margin-left: 240px; /* 确保内容不会被侧边栏遮挡 */
+  height: calc(100vh - 64px - 30px);
+  margin-left: 240px;
 }
 
 /* 如果没有侧边栏，则主内容区域占满整个页面 */

@@ -26,28 +26,31 @@ import StatisticalPeriodView from "../views/project/StatisticalPeriodView.vue";
 export const dataSourceRootPath = '/datasource'
 export const projectManagerRootPath = '/projectManager'
 export const projectRootPath = '/project'
+export const indexManagerRootPath = 'index-management'
 
 export const indexManagementRoutes = [
     {
-        index: "0",
         path: "index-develop",
         name: "指标开发",
         component: IndexManagementView,
+        meta: {
+            icon: 'icon-home',
+        },
     },
     {
-        index: "1",
         path: "data-management",
         name: "数据管理",
         component: DataManagementIndexView,
+        meta: {
+            icon: 'icon-bar-chart',
+        },
         children: [
             {
-                index: "1-1",
                 path: "dimension-management",
                 name: "维度管理",
                 component: DimensionManagementView,
             },
             {
-                index: "1-2",
                 path: "statistical-period",
                 name: "统计周期",
                 component: StatisticalPeriodView,
