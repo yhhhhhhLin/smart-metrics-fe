@@ -9,12 +9,12 @@
           />
           <a-tree :data="treeData">
             <template #title="nodeData">
-              <template v-if="index = getMatchIndex(nodeData?.title), index < 0">{{ nodeData?.title }}</template>
+              <template v-if="metricsDirSearchKeyIndex = getMatchIndex(nodeData?.title), metricsDirSearchKeyIndex < 0">{{ nodeData?.title }}</template>
               <span v-else>
-          {{ nodeData?.title?.substr(0, index) }}
+          {{ nodeData?.title?.substr(0, metricsDirSearchKeyIndex) }}
           <span style="color: var(--color-primary-light-4);">
-            {{ nodeData?.title?.substr(index, searchKey.length) }}
-          </span>{{ nodeData?.title?.substr(index + searchKey.length) }}
+            {{ nodeData?.title?.substr(metricsDirSearchKeyIndex, metricDirSearchKey.length) }}
+          </span>{{ nodeData?.title?.substr(metricsDirSearchKeyIndex + metricDirSearchKey.length) }}
         </span>
             </template>
           </a-tree>
@@ -35,6 +35,7 @@ import {computed, onMounted, ref} from "vue";
 import {getMetricDirTree} from "../../services/metric/metric.ts";
 
 const metricDirSearchKey = ref('')
+const metricsDirSearchKeyIndex = ref()
 
 onMounted(()=>{
   // 获取目录数据
