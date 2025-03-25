@@ -253,6 +253,12 @@ declare namespace API {
         sql: string
     }
 
+    type AddOrUpdateMetricsDirDto = {
+        id: number
+        parentId: number
+        name: string
+    }
+
 
 
 

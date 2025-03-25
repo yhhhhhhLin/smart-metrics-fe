@@ -5,3 +5,19 @@ import {get, post} from "../../request";
 export function getMetricDirTree() {
     return get<any[]>('/metric/metrics_dir/tree');
 }
+
+export function addMetricDir(info: API.AddOrUpdateMetricsDirDto) {
+    return post<boolean>('/metric/metrics_dir/add', info);
+}
+
+export function updateMetricDir(info: API.AddOrUpdateMetricsDirDto) {
+    return post<boolean>('/metric/metrics_dir/update', info);
+}
+
+export function delMetricDir(id: number) {
+    return get<boolean>('/metric/metrics_dir/del/'+id);
+}
+
+
+
+
