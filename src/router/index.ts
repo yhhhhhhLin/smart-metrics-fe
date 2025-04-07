@@ -22,6 +22,7 @@ import IndexManagementView from "../views/project/IndexManagementView.vue";
 import DataManagementIndexView from "../views/project/DataManagementIndexView.vue";
 import DimensionManagementView from "../views/project/DimensionManagementView.vue";
 import StatisticalPeriodView from "../views/project/StatisticalPeriodView.vue";
+import BusinessManagementView from "../views/project/BusinessManagementView.vue";
 
 export const dataSourceRootPath = '/datasource'
 export const projectManagerRootPath = '/projectManager'
@@ -49,6 +50,11 @@ export const indexManagementRoutes = [
                 path: "dimension-management",
                 name: "维度管理",
                 component: DimensionManagementView,
+            },
+            {
+                path: "business-management",
+                name: "业务限定",
+                component: BusinessManagementView,
             },
             {
                 path: "statistical-period",

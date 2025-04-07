@@ -1,19 +1,19 @@
 <template>
   <container :top-menu-type="2" :top-menu-selected="'/project/index-management'"
-             :left-menu-selected="'/project/index-management/data-management/dimension-management'" :sidebarType="1">
+             :left-menu-selected="'/project/index-management/data-management/business-management'" :sidebarType="1">
     <template #content>
-      <div class="dim-manager-container">
-        <div class="dim-manager-content">
-          <div class="dim-manager-header">
-            <a-input-search :style="{width:'260px'}" placeholder="请输入维度名称"/>
+      <div class="bus-manager-container">
+        <div class="bus-manager-content">
+          <div class="bus-manager-header">
+            <a-input-search :style="{width:'260px'}" placeholder="请输入业务限定名称"/>
 
-            <a-button type="primary"> 新增指标维度</a-button>
+            <a-button type="primary"> 新增业务限定</a-button>
 
           </div>
-          <div class="dim-manager-mid">
+          <div class="bus-manager-mid">
             <a-table :scroll="scrollPercent" :scrollbar="true" :columns="indexDimTableColumns" :data="indexData">
               <template #optional="{ record }">
-                <div class="dim-list-optional">
+                <div class="index-list-optional">
                   <a-button type="text" @click="$modal.info({ title:'Name', content:record.name })">发布</a-button>
                   <a-button type="text" @click="$modal.info({ title:'Name', content:record.name })">编辑</a-button>
                 </div>
@@ -23,8 +23,6 @@
           </div>
         </div>
       </div>
-
-
 
     </template>
   </container>
@@ -36,29 +34,29 @@ import {onMounted, reactive} from "vue";
 
 
 onMounted(() => {
-  // 获取所有维度
-
+  // 获取所有业务限定
+  
 });
 
 const indexDimTableColumns = [
   {
-    title: '维度名称',
+    title: '业务限定名称',
     dataIndex: 'name',
     fixed: 'left',
     width: 200,
   },
   {
-    title: '维度标识',
+    title: '业务限定标识',
     dataIndex: 'salary',
     width: 150,
   },
   {
-    title: '属性数量',
+    title: '业务限定表述',
     dataIndex: 'address',
     width: 120,
   },
   {
-    title: '维度描述',
+    title: '使用指标数',
     dataIndex: 'email',
     width: 120,
   },
@@ -130,7 +128,7 @@ const scrollPercent = {
 
 <style>
 
-.dim-manager-container {
+.bus-manager-container {
   background-color: #f1f6fb;
   display: flex;
   flex-grow: 1;
@@ -138,7 +136,7 @@ const scrollPercent = {
   height: calc(100vh - 120px);
 }
 
-.bus-manager-content {
+.dim-manager-content {
   background-color: #FFFFFF;
   height: 100%;
   width: 100%;
@@ -157,7 +155,7 @@ const scrollPercent = {
   margin: 0 10px 10px 10px;
 }
 
-.dim-list-optional {
+.index-list-optional {
   gap: 5px;
   display: flex;
 }
