@@ -7,7 +7,7 @@
           <div class="dim-manager-header">
             <a-input-search :style="{width:'260px'}" placeholder="请输入维度名称"/>
 
-            <a-button type="primary"> 新增指标维度</a-button>
+            <a-button type="primary" @click="toDimAddOrUpdate(0)"> 新增指标维度</a-button>
 
           </div>
           <div class="dim-manager-mid">
@@ -33,6 +33,7 @@
 <script setup lang="ts">
 import Container from "../../components/Container.vue";
 import {onMounted, reactive} from "vue";
+import router from "../../router";
 
 
 onMounted(() => {
@@ -125,6 +126,15 @@ const scrollPercent = {
   x: '120%',
   y: '100%'
 };
+
+// 0为新增指标 1为编辑指标
+const toDimAddOrUpdate = (typeNum: number)=>{
+  sessionStorage.setItem("dimAddOrUpdateStatus", typeNum)
+  router.push({
+    name: '维度新增或修改',
+  });
+
+}
 
 </script>
 

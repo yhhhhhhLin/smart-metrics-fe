@@ -23,6 +23,7 @@ import DataManagementIndexView from "../views/project/DataManagementIndexView.vu
 import DimensionManagementView from "../views/project/DimensionManagementView.vue";
 import StatisticalPeriodView from "../views/project/StatisticalPeriodView.vue";
 import BusinessManagementView from "../views/project/BusinessManagementView.vue";
+import DimensionAddOrUpdateView from "../views/project/DimensionAddOrUpdateView.vue";
 
 export const dataSourceRootPath = '/datasource'
 export const projectManagerRootPath = '/projectManager'
@@ -50,6 +51,14 @@ export const indexManagementRoutes = [
                 path: "dimension-management",
                 name: "维度管理",
                 component: DimensionManagementView,
+            },
+            {
+                path: "dimension-management/dim-add-or-update",
+                name: "维度新增或修改",
+                component: DimensionAddOrUpdateView,
+                meta: {
+                    hidden: true,
+                }
             },
             {
                 path: "business-management",

@@ -12,7 +12,7 @@
           {{ route.name }}
         </template>
         <a-menu-item
-            v-for="child in route.children"
+            v-for="child in route.children.filter(c => !c.meta?.hidden)"
             :key="getFullPath(route.path, child.path)"
             @click="clickMenu(getFullPath(route.path, child.path))"
         >
