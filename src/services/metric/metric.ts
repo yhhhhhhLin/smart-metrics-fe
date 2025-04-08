@@ -18,6 +18,14 @@ export function delMetricDir(id: number) {
     return get<boolean>('/metric/metrics_dir/del/'+id);
 }
 
+export function addDimension(info: API.DimAddOrUpdateDto){
+    return post<boolean>('/metric/dim/add', info)
+}
+
+export function pageDimensions(info: API.PageDimDto){
+    return post<API.Page<API.DimensionVO>>('/metric/dim/page',info)
+}
+
 
 
 

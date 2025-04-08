@@ -17,13 +17,13 @@
               <div class="step-content-title">基础信息</div>
               <a-form layout="vertical" class="form-section">
                 <a-form-item label="维度对象名称">
-                  <a-input v-model:value="dimForm.dimensionName" placeholder="请输入维度对象名称"/>
+                  <a-input v-model="dimForm.name" placeholder="请输入维度对象名称"/>
                 </a-form-item>
                 <a-form-item label="维度对象标识">
-                  <a-input v-model:value="dimForm.dimensionCode" placeholder="请输入维度对象标识"/>
+                  <a-input v-model="dimForm.code" placeholder="请输入维度对象标识"/>
                 </a-form-item>
                 <a-form-item label="维度对象描述">
-                  <a-textarea v-model:value="dimForm.dimensionDesc" placeholder="请输入维度对象描述" rows="3"/>
+                  <a-textarea v-model="dimForm.description" placeholder="请输入维度对象描述" rows="3"/>
                 </a-form-item>
               </a-form>
             </div>
@@ -32,18 +32,12 @@
 
             <div class="step-section">
               <div class="step-content-title">主维表信息</div>
-              <a-form layout="vertical" class="form-section">
+              <a-form layout='vertical'>
                 <a-form-item label="选择数据库">
-                  <a-select v-model:value="dimForm.database" placeholder="请选择数据库">
-                    <a-select-option value="db1">数据库1</a-select-option>
-                    <a-select-option value="db2">数据库2</a-select-option>
-                  </a-select>
+                  <a-select v-model="dimForm.database" placeholder="请选择数据库" :options="projectDatabasesOptions" @change="onDatabaseChange"/>
                 </a-form-item>
                 <a-form-item label="选择表">
-                  <a-select v-model:value="dimForm.table" placeholder="请选择表">
-                    <a-select-option value="table1">表1</a-select-option>
-                    <a-select-option value="table2">表2</a-select-option>
-                  </a-select>
+                  <a-select v-model="dimForm.table" placeholder="请选择表" :options="projectTablesOptions" />
                 </a-form-item>
               </a-form>
             </div>
@@ -52,32 +46,23 @@
           <div v-if="currentStep === 2" class="step-section">
             <div class="step-content-title">维度属性设置</div>
 
-            <a-table :columns="tableFieldColumns" :dataSource="fieldFormList" :pagination="false" bordered>
-              <template #bodyCell="{ column, record }">
-                <template v-if="column.dataIndex === 'fieldName'">
-                  <span>{{ record.fieldName }}</span>
-                </template>
-                <template v-else-if="column.dataIndex === 'attributeName'">
-                  <a-input v-model:value="record.attributeName" placeholder="请输入属性名称"/>
-                </template>
-                <template v-else-if="column.dataIndex === 'attributeCode'">
-                  <a-input v-model:value="record.attributeCode" placeholder="请输入属性标识"/>
-                </template>
-                <template v-else-if="column.dataIndex === 'fieldType'">
-                  <span>{{ record.fieldType }}</span>
-                </template>
-                <template v-else-if="column.dataIndex === 'attributeDesc'">
-                  <a-input v-model:value="record.attributeDesc" placeholder="请输入属性描述"/>
-                </template>
+            <a-table :columns="tableFieldColumns" :data="fieldFormList" :pagination="false" bordered>
+              <template #attributeName="{ record, rowIndex }">
+                <a-input v-model="record.attributeName" placeholder="请输入属性名称"/>
+              </template>
+              <template #attributeCode="{ record, rowIndex }">
+                <a-input v-model="record.columnName" placeholder="请输入属性标识"/>
+              </template>
+              <template #attributeDesc="{ record, rowIndex }">
+                <a-input v-model="record.attributeDesc" placeholder="请输入属性描述" />
               </template>
             </a-table>
           </div>
         </div>
-
         <a-divider/>
 
         <div class="step-button">
-          <a-button v-if="currentStep === 1" @click="toNextStep">下一步</a-button>
+          <a-button v-if="currentStep === 1" @click="router.push({name: '维度管理'})">取消</a-button>
           <a-button v-if="currentStep === 2" @click="currentStep = 1">上一步</a-button>
           <a-button type="primary" v-if="currentStep === 1" @click="toNextStep">下一步</a-button>
           <a-button type="primary" v-if="currentStep === 2">完成</a-button>
@@ -90,50 +75,93 @@
 <script setup lang="ts">
 import Container from "../../components/Container.vue";
 import {onMounted, ref} from "vue";
+import {columns, dbs, tables} from "../../services/datasource/datasource.ts";
+import router from "../../router";
 
 const currentStep = ref(1);
 
+const projectId = ref()
+const projectDscId = ref()
+const projectDatabasesOptions = ref([])
+const projectTablesOptions = ref([])
+
 const dimForm = ref({
-  dimensionName: '',
-  dimensionCode: '',
-  dimensionDesc: '',
+  name: '',
+  code: '',
+  description: '',
   database: '',
   table: ''
 });
 
-const tableFields = ref([
-  {fieldName: 'id', fieldType: 'int'},
-  {fieldName: 'name', fieldType: 'varchar'},
-  {fieldName: 'created_at', fieldType: 'timestamp'},
-  {fieldName: 'created_at', fieldType: 'timestamp'},
-  {fieldName: 'created_at', fieldType: 'timestamp'},
-  {fieldName: 'created_at', fieldType: 'timestamp'}
-])
 
-const fieldFormList = ref(tableFields.value.map(f => ({
-  fieldName: f.fieldName,
-  fieldType: f.fieldType,
-  attributeName: '',
-  attributeCode: '',
-  attributeDesc: ''
-})))
+const fieldFormList = ref()
 
 const tableFieldColumns = [
-  {title: '字段名称', dataIndex: 'fieldName'},
-  {title: '属性名称', dataIndex: 'attributeName'},
-  {title: '属性标识', dataIndex: 'attributeCode'},
-  {title: '字段类型', dataIndex: 'fieldType'},
-  {title: '属性描述', dataIndex: 'attributeDesc'},
+  {title: '字段名称', dataIndex: 'columnName'},
+  {title: '属性名称', dataIndex: 'attributeName',slotName: 'attributeName'},
+  {title: '属性标识', dataIndex: 'attributeCode', slotName: 'attributeCode'},
+  {title: '字段类型', dataIndex: 'dataType'},
+  {title: '属性描述', dataIndex: 'attributeDesc', slotName: 'attributeDesc'},
 ]
 
 onMounted(() => {
-  const dimAddOrUpdateStatus = sessionStorage.getItem("dimAddOrUpdateStatus");
-  console.log("新增或修改指标维度状态码", +dimAddOrUpdateStatus);
-  // 获取这个数据源所有数据库
+
+  projectId.value = sessionStorage.getItem('projectId') || '1'
+  projectDscId.value = sessionStorage.getItem('projectDscId') || '1'
+
+  // 获取所有数据库
+  fetchDbs()
+
+
 });
+
+const fetchDbs = () =>{
+  dbs({dscId: projectDscId.value}).then(resp=>{
+    projectDatabasesOptions.value = []
+    resp.data.forEach((database) => {
+      projectDatabasesOptions.value.push({label: database.dbName, value: database.dbName})
+
+    })
+
+  }).catch((error)=>{
+    console.log(error)
+  })
+
+}
+
+const onDatabaseChange = () =>{
+
+  projectTablesOptions.value = []
+  tables({dscId: projectDscId.value,dbName:dimForm.value.database}).then((resp)=>{
+    resp.data.forEach((table) => {
+      projectTablesOptions.value.push({label: table.tableName, value: table.tableName})
+    })
+  }).catch((error)=>{
+    console.log(error)
+  })
+
+}
+
 
 const toNextStep = () => {
   currentStep.value = 2;
+
+  // 根据当前的数据库和表获取表中所有字段
+  columns({dscId: projectDscId.value,dbName:dimForm.value.database,tableName:dimForm.value.table})
+      .then((resp) => {
+        const fields = resp.data
+        fieldFormList.value = fields.map(field => ({
+          columnName: field.columnName,
+          dataType: field.dataType,
+          attributeName: '',
+          attributeCode: '',
+          attributeDesc: field.columnComment || ''
+        }));
+
+      }).catch((error)=>{
+        console.log(error)
+      })
+
 }
 </script>
 

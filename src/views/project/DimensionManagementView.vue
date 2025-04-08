@@ -32,14 +32,31 @@
 
 <script setup lang="ts">
 import Container from "../../components/Container.vue";
-import {onMounted, reactive} from "vue";
+import {onMounted, reactive, ref} from "vue";
 import router from "../../router";
+import {pageDimensions} from "../../services/metric/metric.ts";
 
+const projectId = ref()
+const projectDscId = ref()
+
+const pageDimensionForm = ref({"pageSize": 10,currentPage: 1, dimObjectName: ''})
 
 onMounted(() => {
-  // 获取所有维度
-
+  projectId.value = sessionStorage.getItem('projectId') || '1'
+  projectDscId.value = sessionStorage.getItem('projectDscId') || '1'
+  // TODO 获取所有维度
+  fetchDimension()
 });
+
+const fetchDimension = () =>{
+  pageDimensions(pageDimensionForm.value).then(resp=>{
+
+  }).catch(err=>{
+    console.log(err)
+  })
+
+
+}
 
 const indexDimTableColumns = [
   {

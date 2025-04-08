@@ -259,9 +259,49 @@ declare namespace API {
         name: string
     }
 
+    type DimAddOrUpdateDto = {
+        id?: number
+        name: string
+        code: string
+        description?: string
+        dscId: number
+        databaseName: string
+        tableName: string
+        dimAttributes: DimAttrAddDto[]
+    }
 
+    type DimAttrAddDto = {
+        id: number
+        attributeName: string
+        attributeCode: string
+        attributeDesc?: string
+        columnName: string
+        dataType: string
+    }
 
+    type PageDimDto = {
+        dimObjectName: string
+        dimAttrName: string
+        pageSize: number
+        currentPage: number
+    }
 
+    type DimensionAttrVO = {
+        dimensionAttributeName: string
+        dimensionAttributeId: string
+        dimensionAttributeDesc?: string
+        tableField: string
+        updatedTime: string
+    }
+
+    type DimensionVO = {
+        dimensionObjectName: string
+        dimensionObjectId: string
+        dimensionObjectDesc?: string
+        dimAttrNum: number
+        dimensionAttr: DimensionAttrVO[]
+        updatedTime: string
+    }
 
 }
 
