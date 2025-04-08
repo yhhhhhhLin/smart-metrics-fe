@@ -46,7 +46,7 @@
           <div class="index-manager-header">
             <a-input-search :style="{width:'260px'}" placeholder="请输入指标名称"/>
 
-            <a-button type="primary"> 新增指标 </a-button>
+            <a-button type="primary" @click="showIndexTypeDialog = true"> 新增指标 </a-button>
 
           </div>
           <div class="index-manager-mid">
@@ -71,6 +71,18 @@
       >
         <a-input v-model="addDirForm.name" placeholder="请输入目录名称" style="margin-bottom: 12px" />
       </a-modal>
+
+      <a-modal
+          :visible="showIndexTypeDialog"
+          title="请选择指标类型"
+          @cancel="showIndexTypeDialog = false"
+          :footer="false"
+      >
+        <div class="index-type-options">
+          <div class="index-type-button" @click="selectIndexType(0)">普通指标</div>
+          <div class="index-type-button" @click="selectIndexType(1)">复合指标</div>
+        </div>
+      </a-modal>
     </template>
   </container>
 </template>
@@ -80,9 +92,12 @@ import Container from "../../components/Container.vue";
 import {computed, onMounted, reactive, ref} from "vue";
 import {getMetricDirTree, addMetricDir, delMetricDir} from "../../services/metric/metric.ts";
 import {Notification} from "@arco-design/web-vue";
+import router from "../../router";
 
 const metricDirSearchKey = ref('');
 const metricsDirSearchKeyIndex = ref(-1);
+
+const showIndexTypeDialog = ref(false)
 
 let originMetricDirTreeData = ref<any[]>([]);
 
@@ -277,6 +292,25 @@ const scrollPercent = {
   y: '100%'
 };
 
+// 0为新增指标 1为编辑指标
+const toIndexAddOrUpdate = (typeNum: number)=>{
+  sessionStorage.setItem("dimAddOrUpdateStatus", typeNum)
+  router.push({
+    name: '指标新增或修改',
+  });
+
+}
+
+// 0普通指标 1复合指标
+const selectIndexType = (type: number)=>{
+  if(type == 0){
+    router.push({name: '普通指标创建或修改'})
+  }else{
+    router.push({name: '复合指标创建或修改'})
+  }
+
+}
+
 </script>
 
 <style>
@@ -337,5 +371,33 @@ const scrollPercent = {
 .index-list-optional{
   gap: 5px;
   display: flex;
+}
+
+.index-type-options {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 20px;
+}
+
+.index-type-button {
+  width: 120px;
+  height: 100px;
+  font-size: 16px;
+  font-weight: 500;
+  border: 1px solid #d9d9d9;
+  border-radius: 8px;
+  background-color: #fafafa;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.index-type-button:hover {
+  border-color: #1890ff;
+  background-color: #e6f7ff;
+  color: #1890ff;
+  box-shadow: 0 0 6px rgba(24, 144, 255, 0.3);
 }
 </style>

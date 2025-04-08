@@ -292,9 +292,11 @@ declare namespace API {
         dimensionAttributeDesc?: string
         tableField: string
         updatedTime: string
+        attrId: number
     }
 
     type DimensionVO = {
+        id: number
         dimensionObjectName: string
         dimensionObjectId: string
         dimensionObjectDesc?: string

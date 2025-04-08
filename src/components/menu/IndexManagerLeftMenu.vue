@@ -4,7 +4,7 @@
       @menu-item-click="clickMenu"
       :selected-keys="selectedKeys"
   >
-    <div v-for="route in indexManagementRoutes" :key="route.path">
+    <div v-for="route in indexManagementRoutes.filter(c => !c.meta?.hidden)" :key="route.path">
       <!-- 有子路由情况 -->
       <a-sub-menu v-if="route.children" :key="route.path">
         <template #title>

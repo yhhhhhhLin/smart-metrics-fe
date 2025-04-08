@@ -26,6 +26,10 @@ export function pageDimensions(info: API.PageDimDto){
     return post<API.Page<API.DimensionVO>>('/metric/dim/page',info)
 }
 
+export function listDimensions(info: API.PageDimDto){
+    return post<API.DimensionVO[]>('/metric/dim/list',info)
+}
+
 
 
 

@@ -24,6 +24,10 @@ import DimensionManagementView from "../views/project/DimensionManagementView.vu
 import StatisticalPeriodView from "../views/project/StatisticalPeriodView.vue";
 import BusinessManagementView from "../views/project/BusinessManagementView.vue";
 import DimensionAddOrUpdateView from "../views/project/DimensionAddOrUpdateView.vue";
+import IndexAddOrUpdateView from "../views/project/NormalIndexAddOrUpdateView.vue";
+import normalIndexAddOrUpdateView from "../views/project/NormalIndexAddOrUpdateView.vue";
+import NormalIndexAddOrUpdateView from "../views/project/NormalIndexAddOrUpdateView.vue";
+import CompositeIndexAddOrUpdateView from "../views/project/CompositeIndexAddOrUpdateView.vue";
 
 export const dataSourceRootPath = '/datasource'
 export const projectManagerRootPath = '/projectManager'
@@ -38,6 +42,22 @@ export const indexManagementRoutes = [
         meta: {
             icon: 'icon-home',
         },
+    },
+    {
+        path: "index-develop/normal-index-add-or-update",
+        name: "普通指标创建或修改",
+        component: NormalIndexAddOrUpdateView,
+        meta: {
+            hidden: true,
+        }
+    },
+    {
+        path: "index-develop/com-index-add-or-update",
+        name: "复合指标创建或修改",
+        component: CompositeIndexAddOrUpdateView,
+        meta: {
+            hidden: true,
+        }
     },
     {
         path: "data-management",

@@ -34,10 +34,10 @@
               <div class="step-content-title">主维表信息</div>
               <a-form layout='vertical'>
                 <a-form-item label="选择数据库">
-                  <a-select v-model="dimForm.database" placeholder="请选择数据库" :options="projectDatabasesOptions" @change="onDatabaseChange"/>
+                  <a-select v-model="dimForm.databaseName" placeholder="请选择数据库" :options="projectDatabasesOptions" @change="onDatabaseChange"/>
                 </a-form-item>
                 <a-form-item label="选择表">
-                  <a-select v-model="dimForm.table" placeholder="请选择表" :options="projectTablesOptions" />
+                  <a-select v-model="dimForm.tableName" placeholder="请选择表" :options="projectTablesOptions" />
                 </a-form-item>
               </a-form>
             </div>
@@ -46,7 +46,7 @@
           <div v-if="currentStep === 2" class="step-section">
             <div class="step-content-title">维度属性设置</div>
 
-            <a-table :columns="tableFieldColumns" :data="fieldFormList" :pagination="false" bordered>
+            <a-table row-key="columnName" :columns="tableFieldColumns" :data="fieldFormList" :pagination="false" bordered :row-selection="rowSelection"  v-model:selectedKeys="selectedColumnName">
               <template #attributeName="{ record, rowIndex }">
                 <a-input v-model="record.attributeName" placeholder="请输入属性名称"/>
               </template>
@@ -65,7 +65,7 @@
           <a-button v-if="currentStep === 1" @click="router.push({name: '维度管理'})">取消</a-button>
           <a-button v-if="currentStep === 2" @click="currentStep = 1">上一步</a-button>
           <a-button type="primary" v-if="currentStep === 1" @click="toNextStep">下一步</a-button>
-          <a-button type="primary" v-if="currentStep === 2">完成</a-button>
+          <a-button type="primary" v-if="currentStep === 2" @click="onClickFinishAdd">完成</a-button>
         </div>
       </div>
     </template>
@@ -74,9 +74,11 @@
 
 <script setup lang="ts">
 import Container from "../../components/Container.vue";
-import {onMounted, ref} from "vue";
+import {onMounted, reactive, ref} from "vue";
 import {columns, dbs, tables} from "../../services/datasource/datasource.ts";
 import router from "../../router";
+import {addDimension} from "../../services/metric/metric.ts";
+import {Notification} from "@arco-design/web-vue";
 
 const currentStep = ref(1);
 
@@ -84,17 +86,19 @@ const projectId = ref()
 const projectDscId = ref()
 const projectDatabasesOptions = ref([])
 const projectTablesOptions = ref([])
+const selectedColumnName = ref([])
 
 const dimForm = ref({
   name: '',
   code: '',
   description: '',
-  database: '',
-  table: ''
+  databaseName: '',
+  dscId: '',
+  tableName: '',
+  dimAttributes: []
 });
 
-
-const fieldFormList = ref()
+const fieldFormList = ref([])
 
 const tableFieldColumns = [
   {title: '字段名称', dataIndex: 'columnName'},
@@ -108,6 +112,7 @@ onMounted(() => {
 
   projectId.value = sessionStorage.getItem('projectId') || '1'
   projectDscId.value = sessionStorage.getItem('projectDscId') || '1'
+  dimForm.value.dscId = projectDscId.value
 
   // 获取所有数据库
   fetchDbs()
@@ -132,7 +137,7 @@ const fetchDbs = () =>{
 const onDatabaseChange = () =>{
 
   projectTablesOptions.value = []
-  tables({dscId: projectDscId.value,dbName:dimForm.value.database}).then((resp)=>{
+  tables({dscId: projectDscId.value,dbName:dimForm.value.databaseName}).then((resp)=>{
     resp.data.forEach((table) => {
       projectTablesOptions.value.push({label: table.tableName, value: table.tableName})
     })
@@ -147,7 +152,7 @@ const toNextStep = () => {
   currentStep.value = 2;
 
   // 根据当前的数据库和表获取表中所有字段
-  columns({dscId: projectDscId.value,dbName:dimForm.value.database,tableName:dimForm.value.table})
+  columns({dscId: projectDscId.value,dbName:dimForm.value.databaseName,tableName:dimForm.value.tableName})
       .then((resp) => {
         const fields = resp.data
         fieldFormList.value = fields.map(field => ({
@@ -163,6 +168,51 @@ const toNextStep = () => {
       })
 
 }
+
+
+const onClickFinishAdd = () => {
+  // TODO 参数校验
+
+  dimForm.value.dimAttributes = [];
+
+  const selectedColumnsSet = new Set(selectedColumnName.value);
+
+  fieldFormList.value.forEach(field => {
+    if (selectedColumnsSet.has(field.columnName)) {
+      dimForm.value.dimAttributes.push({
+        columnName: field.columnName,
+        attributeName: field.attributeName,
+        attributeCode: field.attributeCode,
+        attributeDesc: field.attributeDesc,
+        dataType: field.dataType,
+      });
+    }
+  });
+
+  addDimension(dimForm.value).then(resp=>{
+    if(resp.data){
+      Notification.success({
+        title: '系统提示',
+        content: '添加成功',
+        closable: true
+      })
+    }
+    router.push({name: '维度管理'})
+  }).catch((error=>{
+    console.log(error)
+  }))
+
+  console.log('Dim Form:', dimForm.value);
+  console.log('Dim Attributes:', dimForm.value.dimAttributes);
+
+  // 在这里可以继续进行数据提交等后续操作
+};
+
+const rowSelection = reactive({
+  type: 'checkbox',
+  showCheckedAll: true,
+  onlyCurrent: false,
+});
 </script>
 
 <style scoped>
