@@ -84,6 +84,9 @@ export const indexManagementRoutes = [
                 path: "business-management",
                 name: "业务限定",
                 component: BusinessManagementView,
+                meta: {
+                    hidden: true,
+                }
             },
             {
                 path: "statistical-period",

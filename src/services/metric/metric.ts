@@ -30,6 +30,14 @@ export function listDimensions(info: API.PageDimDto){
     return post<API.DimensionVO[]>('/metric/dim/list',info)
 }
 
+export function listISP(){
+    return get<API.StatisticalPeriod[]>('/metric/sp/list')
+}
+
+export function tryCalculate(info){
+    return post<API.NormalTryCalculateVO>('/metric/tryCalculate',info)
+}
+
 
 
 

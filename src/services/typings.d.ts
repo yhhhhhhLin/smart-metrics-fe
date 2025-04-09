@@ -305,6 +305,30 @@ declare namespace API {
         updatedTime: string
     }
 
+    type BizLimitDto = {
+        name: string
+        desc: string
+        columnName: string
+        operator: string
+        value: string
+
+    }
+
+    type StatisticalPeriod = {
+        id: number
+        name: string
+        description: string
+        statCycle?: string
+        createdTime: Date
+    }
+
+    type NormalTryCalculateVO = {
+        status: number
+        createTableSql: string
+        // TODO
+        tableStructure: any[]
+    }
+
 }
 
 

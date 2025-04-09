@@ -52,28 +52,33 @@
           </div>
 
           <div v-if="currentStep === 2" class="step-section">
-<!--            tableFieldColumns-->
-            <a-table row-key="key" :columns="indexDimChangeColumns" :data="fieldList" :pagination="false" bordered :row-selection="rowSelection"  v-model:selectedKeys="selectDimKeys">
+            <!--            tableFieldColumns-->
+            <a-table row-key="key" :columns="indexDimChangeColumns" :data="fieldList" :pagination="false" bordered
+                     :row-selection="rowSelection" v-model:selectedKeys="selectDimKeys">
               <template #attributeDesc="{ record, rowIndex }">
                 <a-input v-model="record.attributeDesc" placeholder="请输入描述"/>
               </template>
               <template #relDimObject="{ record, rowIndex }">
-                <a-select v-model="record.id" placeholder="请输入关联维度对象" :options="dimensionObjectOptions"></a-select>
+                <a-select v-model="record.id" placeholder="请输入关联维度对象"
+                          :options="dimensionObjectOptions"></a-select>
               </template>
               <template #relDimAttr="{ record, rowIndex }">
-                <a-select v-model="record.attrId" placeholder="请输入关联维度属性"  :options="dimensionAttrMap[record.id] || []" ></a-select>
+                <a-select v-model="record.attrId" placeholder="请输入关联维度属性"
+                          :options="dimensionAttrMap.get(record.id) || []"></a-select>
               </template>
             </a-table>
 
           </div>
 
           <div v-if="currentStep === 3" class="step-section">
-            <a-table row-key="key" :columns="indexMeasureChangeColumns" :data="fieldListExceptDim" :pagination="false" bordered :row-selection="rowSelection"  v-model:selectedKeys="selectMeasureKey">
+            <a-table row-key="key" :columns="indexMeasureChangeColumns" :data="fieldListExceptDim" :pagination="false"
+                     bordered :row-selection="rowSelection" v-model:selectedKeys="selectMeasureKey">
               <template #attributeDesc="{ record, rowIndex }">
                 <a-input v-model="record.attributeDesc" placeholder="请输入描述"/>
               </template>
               <template #relDimObject="{ record, rowIndex }">
-                <a-select v-model="record.relDimObject" placeholder="请输入关联维度对象" :options="dimensionObjectOptions"></a-select>
+                <a-select v-model="record.relDimObject" placeholder="请输入关联维度对象"
+                          :options="dimensionObjectOptions"></a-select>
               </template>
               <template #relDimAttr="{ record, rowIndex }">
                 <a-select v-model="record.relDimAttr" placeholder="请输入关联维度属性"></a-select>
@@ -85,12 +90,14 @@
             <div class="add-index-four-content">
               <div class="add-index-four-content-left">
                 <div class="add-index-four-content-left-item">
-                  <div class="add-index-four-content-left-item-title">度量字段</div>
-                  <a-table row-key="columnName" :columns="indexDimAndMeasureSelectColumns" :data="indexForm.dimensions" :pagination="false" bordered></a-table>
+                  <div class="add-index-four-content-left-item-title">非度量字段</div>
+                  <a-table row-key="columnName" :columns="indexDimAndMeasureSelectColumns" :data="indexForm.dimensions"
+                           :pagination="false" bordered></a-table>
                 </div>
                 <div class="add-index-four-content-left-item">
-                  <div class="add-index-four-content-left-item-title">非度量字段</div>
-                  <a-table row-key="columnName" :columns="indexDimAndMeasureSelectColumns" :data="indexForm.measures" :pagination="false" bordered></a-table>
+                  <div class="add-index-four-content-left-item-title">度量字段</div>
+                  <a-table row-key="columnName" :columns="indexDimAndMeasureSelectColumns" :data="indexForm.measures"
+                           :pagination="false" bordered></a-table>
                 </div>
 
               </div>
@@ -153,46 +160,134 @@
                 <!-- 派生维度 -->
                 <a-col :span="11">
                   <a-form-item label="派生维度选择" name="derivedDimensions">
-                    <a-input></a-input>
+                    <a-select :style="{width:'360px'}" multiple
+                              :scrollbar="scrollbar" v-model="indexForm.derivedDimensionAttrIds">
+                      <a-option v-for="dim in indexForm.dimensions" :value="dim.attrId" :key="dim.attrId">
+                        {{ formatDimByAttrIdAndColumnName(dim.attrId, dim.columnName) }}
+                        <!--                        {{dim}}-->
+                      </a-option>
+                    </a-select>
                   </a-form-item>
                 </a-col>
 
                 <!-- 时间维度 -->
                 <a-col :span="11">
                   <a-form-item label="时间维度选择" name="timeDimension">
-                    <a-input></a-input>
+                    <a-select placeholder="请选择时间维度" v-model="indexForm.timeDimensionAttrId">
+                      <a-option v-for="dim in indexForm.dimensions" :value="dim.attrId" :key="dim.attrId">
+                        {{ formatDimByAttrIdAndColumnName(dim.attrId, dim.columnName) }}
+                      </a-option>
+                    </a-select>
                   </a-form-item>
                 </a-col>
 
                 <!-- 统计周期 -->
                 <a-col :span="11">
                   <a-form-item label="统计周期选择" name="statCycle">
-                    <a-input></a-input>
+                    <a-select :options="iSPOptions" v-model="indexForm.statisticalPeriodId"></a-select>
                   </a-form-item>
                 </a-col>
 
-                <!-- 业务限定 -->
-                <a-col :span="11">
-                  <a-form-item label="业务限定选择" name="bizLimit">
-                    <a-input></a-input>
-                  </a-form-item>
-                </a-col>
-
-                <!-- 计量单位 -->
                 <a-col :span="11">
                   <a-form-item label="计量单位选择" name="unit">
-                    <a-input placeholder="请输入计量单位，如：个、次、元" />
+                    <a-input placeholder="请输入计量单位，如：个、次、元" v-model="indexForm.unit"/>
                   </a-form-item>
                 </a-col>
 
-<!--                还要新增一些比如指标目录 负责人-->
+                <a-col :span="11">
+                  <a-form-item label="指标目录" name="metricDir" v-model="indexForm.metricDir">
+                    <CustomTreeSelect
+                        v-model="indexForm.metricDir"
+                        :treeData="catalogTree"
+                    />
+                  </a-form-item>
+                </a-col>
+
+                <a-col :span="11">
+                  <a-form-item label="负责人" name="unit" v-model="indexForm.dutyId">
+                    <a-select placeholder="责任人"></a-select>
+                  </a-form-item>
+                </a-col>
+
+                <a-col :span="24">
+                  <div class="add-biz-model-filler-list">
+                    已经添加的业务限定名称:
+                    <div class="add-biz-model-filler-list-items">
+                      <div class="add-biz-model-filler-list-item" v-for="(filter, index) in indexForm.bizLimits"
+                           :key="index">
+                        <span>{{ filter.name }}</span>
+
+                        <a-button size="mini" @click="removeBizLimit(index) ">删除</a-button>
+                      </div>
+
+                    </div>
+
+                  </div>
+                </a-col>
+
+
+                <a-col :span="24">
+                  <a-collapse>
+                    <a-collapse-item header="业务限定添加" key="1">
+                      <div class="add-biz-model">
+                        <div class="add-biz-model-name-and-desc">
+                          <div class="add-biz-model-name-and-desc-item">
+                            <span>业务限定名称</span>
+
+                            <a-input v-model="tempBizName"></a-input>
+                          </div>
+                          <div class="add-biz-model-name-and-desc-item">
+                            <span>业务限定描述</span>
+                            <a-input v-model="tempBizDesc"></a-input>
+                          </div>
+                        </div>
+
+                        <div class="add-biz-model-filler">
+                          <span>过滤条件</span>
+                          <div class="add-biz-model-filler-add-items">
+                            <div class="add-biz-model-filler-add-item">
+                              <a-select placeholder="请选择字段" v-model="tempBizSelectColumn" allow-create>
+                                <template v-for="(fields, groupLabel) in bizSelectFieldGroup" :key="groupLabel">
+                                  <a-optgroup :label="groupLabel">
+                                    <a-option
+                                        v-for="field in fields"
+                                        :key="field.key"
+                                        :value="field.key"
+                                    >
+                                      {{ field.columnName }}（{{ field.attributeDesc }}）
+                                    </a-option>
+                                  </a-optgroup>
+                                </template>
+                              </a-select>
+                            </div>
+                            <div class="add-biz-model-filler-add-item">
+                              <a-select placeholder="请选择规则" v-model="tempBizSelectRule"
+                                        :options="operators"></a-select>
+
+                            </div>
+                            <div class="add-biz-model-filler-add-item">
+                              <a-input placeholder="请添加值" v-model="tempBizValue"></a-input>
+                            </div>
+                            <div class="add-biz-model-filler-add-item">
+                              <a-button type="text" @click="onAddBizRule">添加</a-button>
+                            </div>
+
+
+                          </div>
+                        </div>
+
+                      </div>
+                    </a-collapse-item>
+                  </a-collapse>
+                </a-col>
+
 
               </a-row>
             </a-form>
           </div>
 
-          <div v-if="currentStep === 5" class="step-section">
-            加工信息填写，这里还要预览创建的指标表信息和插入表sql等等
+          <div v-if="currentStep === 6" class="step-section">
+            调度信息什么的和展示指标表结构和插入相关sql就好了
           </div>
 
 
@@ -202,7 +297,10 @@
         <div class="step-button">
           <a-button v-if="currentStep === 1" @click="router.push({name: '指标开发'})">取消</a-button>
           <a-button v-if="currentStep >=2" @click="currentStep--">上一步</a-button>
-          <a-button v-if="currentStep != 10" type="primary" @click="currentStepAdd">下一步</a-button>
+          <a-button v-if="currentStep ==5" type="outline" @click="onTryCalculate">试计算</a-button>
+          <a-button v-if="currentStep ==6" type="outline" @click="onPreview">预览</a-button>
+          <a-button v-if="currentStep != 6" type="primary" @click="currentStepAdd">下一步</a-button>
+          <a-button v-if="currentStep == 6" type="primary" @click="onFinishAddNormalIndex">完成</a-button>
         </div>
       </div>
 
@@ -255,7 +353,39 @@
         </div>
       </a-modal>
 
+      <a-modal v-model:visible="tryCalculateVisible" @ok="tryCalculateVisible=false"
+               @cancel="tryCalculateVisible = false">
+        <template #title>
+          试计算
+        </template>
+        <div>
+          <a-button type="link" @click="showSQL = !showSQL" style="margin-bottom: 12px;">
+            {{ showSQL ? '查看表结构' : '查看创建表SQL' }}
+          </a-button>
 
+          <div v-if="showSQL">
+            这里是创建表sql
+            <!--            <pre>{{ createTableSQL }}</pre>-->
+          </div>
+          <div v-else>
+            <a-descriptions bordered column="1" title="表结构">
+              这里是表结构
+              <a-descriptions-item v-for="(column, index) in tableStructure" :key="index" :label="column.name">
+                类型：{{ column.type }}，备注：{{ column.comment || '无' }}
+              </a-descriptions-item>
+            </a-descriptions>
+          </div>
+        </div>
+      </a-modal>
+
+      <a-modal v-model:visible="previewVisible" @ok="previewVisible=false" @cancel="previewVisible = false">
+        <template #title>
+          预览
+        </template>
+        <div>
+          <pre>这里是执行任务sql</pre>
+        </div>
+      </a-modal>
     </template>
   </container>
 </template>
@@ -266,7 +396,8 @@ import {computed, onMounted, reactive, ref} from "vue";
 import router from "../../router";
 import {columns, dbs, tables} from "../../services/datasource/datasource.ts";
 import {Notification} from "@arco-design/web-vue";
-import {listDimensions} from "../../services/metric/metric.ts";
+import {getMetricDirTree, listDimensions, listISP, tryCalculate} from "../../services/metric/metric.ts";
+import CustomTreeSelect from "../../components/CustomTreeSelect.vue";
 
 const currentStep = ref(1);
 
@@ -276,6 +407,7 @@ const projectDscId = ref()
 const databasesOptions = ref([])
 const tableOptions = ref([])
 const addRelTableModalVisible = ref(false);
+const scrollbar = ref(true);
 
 const tempLeftTable = ref('')
 const tempJoinType = ref('')
@@ -295,13 +427,24 @@ const joinTableOptions = ref([
 ]);
 const joinTableModalRightColumns = ref([{label: '', value: ''}])
 const dimensionObjectOptions = ref([])
-const dimensionAttrMap = ref({})
+// const dimensionAttrMap = ref({})
+const dimensionAttrMap = ref(new Map());
 const selectDimKeys = ref([])
 const selectMeasureKey = ref([])
 
+const tempBizName = ref('')
+const tempBizDesc = ref()
+const tempBizSelectColumn = ref('')
+const tempBizSelectRule = ref('')
+const tempBizValue = ref('')
+
+const tryCalculateVisible = ref(false)
+const previewVisible = ref(false)
+const showSQL = ref(true)
 
 
 const indexForm = ref({
+  dscId: '',
   mainDatabaseName: '',
   mainTableName: '',
   mainTableAlias: 't0',
@@ -314,19 +457,32 @@ const indexForm = ref({
   indexCalculation: '',
   nullValue: 0,
   precision: 0,
-  derivedDimensions: [],
-  timeDimension: '',
-  statCycle: '',
-  bizLimit: '',
-  unit: ''
+  derivedDimensionAttrIds: [],
+  timeDimensionAttrId: '',
+  statisticalPeriodId: '',
+  unit: '',
+  metricDir: '',
+  dutyId: '',
+  bizLimits: <Array<API.BizLimitDto>>[]
 
 })
 
+const operators = [
+  {label: '等于', value: '='},
+  {label: '不等于', value: '!='},
+  {label: '大于', value: '>'},
+  {label: '小于', value: '<'},
+  {label: '包含', value: 'in'},
+  {label: '模糊匹配', value: 'like'}
+]
+
+const iSPOptions = ref([{label: '', value: ''}])
+const catalogTree = ref([])
 
 const indexDimChangeColumns = [
   {title: '字段名称', dataIndex: 'columnName'},
   {title: '描述', dataIndex: 'attributeDesc', slotName: 'attributeDesc'},
-  {title: '关联维度对象', dataIndex: 'id',slotName: 'relDimObject'},
+  {title: '关联维度对象', dataIndex: 'id', slotName: 'relDimObject'},
   {title: '关联维度属性', dataIndex: 'attrId', slotName: 'relDimAttr'},
   {title: '字段类型', dataIndex: 'dataType'},
   {title: '数据库', dataIndex: 'databaseName'},
@@ -390,10 +546,29 @@ const joinTableListColumns = [
     slotName: 'optional'
   }
 ];
+
+const bizSelectFieldGroup = computed(() => {
+  // 根据当前选中的所有维度，分组成map key:dbName.tableName value:[fields]
+  // indexForm.value.dimensions
+  const fields = indexForm.value.dimensions || [];
+
+  const grouped = fields.reduce((acc, field) => {
+    const groupKey = `${field.databaseName}.${field.tableName}`;
+    if (!acc[groupKey]) {
+      acc[groupKey] = [];
+    }
+    acc[groupKey].push(field);
+    return acc;
+  }, {} as Record<string, typeof fields>);
+
+  return grouped;
+
+})
 onMounted(() => {
 
   projectId.value = sessionStorage.getItem('projectId') || '1'
   projectDscId.value = sessionStorage.getItem('projectDscId') || '1'
+  indexForm.value.dscId = projectDscId.value
 
   fetchDBs()
 
@@ -593,31 +768,42 @@ const handleOkAddRelTable = () => {
   tempJoinTableModelRightTableColumn.value = ''
 }
 
+const onFinishAddNormalIndex = () => {
+  console.log(indexForm.value)
+
+}
+
 const currentStepAdd = () => {
   currentStep.value++;
 
   if (currentStep.value === 2) {
     // 获取前面步骤选择表的所有字段
     toStep2Action()
-  }else if(currentStep.value === 3){
+  } else if (currentStep.value === 3) {
     toStep3Action()
-  }else if(currentStep.value === 4){
+  } else if (currentStep.value === 4) {
     toStep4Action()
+  } else if (currentStep.value == 5) {
+    toStep5Action()
   }
 };
 
-const toStep2Action = async ()=>{
+const toStep2Action = async () => {
   const tables = [];
-  tables.push({ dbName: indexForm.value.mainDatabaseName, tableName: indexForm.value.mainTableName, tableAlias: indexForm.value.mainTableAlias });
+  tables.push({
+    dbName: indexForm.value.mainDatabaseName,
+    tableName: indexForm.value.mainTableName,
+    tableAlias: indexForm.value.mainTableAlias
+  });
   indexForm.value.joinConditions.forEach(condition => {
-    tables.push({ dbName: condition.joinTableDB, tableName: condition.joinTable, tableAlias: condition.joinTableAlias });
+    tables.push({dbName: condition.joinTableDB, tableName: condition.joinTable, tableAlias: condition.joinTableAlias});
   });
   const newFieldList = [];
   for (const table of tables) {
     const cols = await fetchColumns(table.dbName, table.tableName);
     for (const col of cols) {
       newFieldList.push({
-        key: col.dbName+"."+col.tableName+"."+col.columnName,
+        key: col.dbName + "." + col.tableName + "." + col.columnName,
         columnName: col.columnName,
         attributeDesc: col.columnComment,
         dataType: col.dataType,
@@ -638,8 +824,8 @@ const toStep2Action = async ()=>{
 
 }
 
-const fetchDimObjectsAndAttr = ()=>{
-  listDimensions({}).then(resp=>{
+const fetchDimObjectsAndAttr = () => {
+  listDimensions({}).then(resp => {
     dimensionObjectOptions.value = []
     dimensionObjectOptions.value = resp.data.map(obj => ({
       label: obj.dimensionObjectName,
@@ -647,20 +833,20 @@ const fetchDimObjectsAndAttr = ()=>{
     }));
 
     resp.data.forEach(obj => {
-      dimensionAttrMap.value[obj.id] = obj.dimensionAttr.map(attr => ({
+      dimensionAttrMap.value.set(obj.id, obj.dimensionAttr.map(attr => ({
         label: attr.dimensionAttributeName,
         value: attr.attrId,
         desc: attr.dimensionAttributeDesc
-      }));
+      })));
     });
 
-  }).catch((error)=>{
+  }).catch((error) => {
     console.log(error)
   })
 
 }
 
-const toStep3Action = ()=>{
+const toStep3Action = () => {
   // 将选中的维度添加到form中
   indexForm.value.dimensions = []
   indexForm.value.dimensions = fieldList.value.filter(item => selectDimKeys.value.includes(item.key));
@@ -669,10 +855,96 @@ const toStep3Action = ()=>{
   fieldListExceptDim.value = fieldList.value.filter(item => !selectDimKeys.value.includes(item.key));
 }
 
-const toStep4Action = ()=>{
+const toStep4Action = () => {
   // 将选中的度量添加到form中
   indexForm.value.measures = []
   indexForm.value.measures = fieldListExceptDim.value.filter(item => selectMeasureKey.value.includes(item.key));
+}
+
+const toStep5Action = () => {
+  // 获取所有指标统计周期
+  fetchSP()
+
+  // 获取所有指标目录
+  fetchIndexDir()
+
+  // 获取所有用户信息
+}
+
+const fetchSP = () => {
+  listISP().then((resp) => {
+    iSPOptions.value = []
+    resp.data.forEach((sp) => {
+      iSPOptions.value.push({label: sp.name, value: sp.id})
+    })
+  }).catch((error) => {
+    console.log(error)
+  })
+
+}
+
+const fetchIndexDir = () => {
+  getMetricDirTree().then((resp) => {
+    catalogTree.value = []
+    resp.data.forEach(r => {
+      catalogTree.value.push(r)
+    })
+  }).catch((error => {
+    console.log(error)
+  }))
+
+}
+
+const formatDimByAttrIdAndColumnName = (attrId, columnName) => {
+
+  const targetId = Number(attrId);
+  for (const [key, entries] of dimensionAttrMap.value) {
+    for (const entry of entries) {
+      // 严格类型比较（确保类型一致）
+      if (entry.value === targetId) {
+        return `${entry.label}(${columnName})`;
+      }
+    }
+  }
+  return 'nono!!!'
+}
+
+const onAddBizRule = () => {
+  const tempBizLimit: API.BizLimitDto = {
+    name: tempBizName.value,
+    desc: tempBizDesc.value,
+    columnName: tempBizSelectColumn.value,
+    operator: tempBizSelectRule.value,
+    value: tempBizValue.value
+  }
+  indexForm.value.bizLimits.push((tempBizLimit))
+
+}
+
+const removeBizLimit = (index) => {
+  indexForm.value.bizLimits.splice(index, 1)
+}
+
+const onTryCalculate = () => {
+// 试计算 创建表和表结构
+  tryCalculateVisible.value = true
+
+  tryCalculate(indexForm.value).then((resp) => {
+    console.log(resp.data)
+
+  }).catch(error=>{
+    console.log(error)
+  })
+
+  console.log(indexForm.value)
+}
+
+const onPreview = () => {
+  // 预览
+  previewVisible.value = true
+  // 插入表语句
+
+  console.log(JSON.stringify(indexForm.value, null, 2))
 }
 
 </script>
@@ -694,6 +966,8 @@ const toStep4Action = ()=>{
 
 .step-content {
   flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .add-index-first-content {
@@ -717,6 +991,7 @@ const toStep4Action = ()=>{
   display: flex;
   justify-content: center;
   gap: 20px;
+
 }
 
 .step-section {
@@ -733,35 +1008,36 @@ const toStep4Action = ()=>{
   display: flex;
 }
 
-.add-index-four-content{
+.add-index-four-content {
   display: flex;
   gap: 10px;
 }
 
-.add-index-four-content-left{
+.add-index-four-content-left {
   display: flex;
   flex-direction: column;
   gap: 50px;
   width: 42%;
   height: 100%;
 }
-.add-index-four-content-left-item{
+
+.add-index-four-content-left-item {
   display: flex;
   flex-direction: column;
   gap: 5px;
 }
 
-.add-index-four-content-left-item-title{
+.add-index-four-content-left-item-title {
   display: flex;
   justify-content: start;
 }
 
-.add-index-four-content-right{
+.add-index-four-content-right {
   width: 58%;
   height: 100%;
 }
 
-.add-index-four-content-right-form{
+.add-index-four-content-right-form {
   display: flex;
   flex-direction: column;
   gap: 15px;
@@ -769,31 +1045,78 @@ const toStep4Action = ()=>{
   margin-top: 5%;
 }
 
-.add-index-four-content-right-item{
+.add-index-four-content-right-item {
   display: flex;
   flex-direction: column;
   gap: 5px;
 }
 
-.add-index-four-content-right-item-x{
+.add-index-four-content-right-item-x {
   display: flex;
   gap: 5px;
 }
-.add-index-four-content-right-item-x-item{
+
+.add-index-four-content-right-item-x-item {
   display: flex;
   gap: 5px;
   width: 25%;
 }
 
-.add-index-four-content-right-item-title{
+.add-index-four-content-right-item-title {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
-.add-index-four-content-right-item-title-btn{
+
+.add-index-four-content-right-item-title-btn {
   display: flex;
   gap: 5px;
   align-items: center;
   justify-content: space-between;
 }
+
+.add-biz-model-filler-list {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 5px;
+}
+
+.add-biz-model-filler-list-items {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 5px;
+}
+
+.add-biz-model {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.add-biz-model-name-and-desc {
+  display: flex;
+  gap: 10px;
+}
+
+.add-biz-model-name-and-desc-item {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 5px;
+  width: 30%;
+}
+
+.add-biz-model-filler {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 5px;
+}
+
+.add-biz-model-filler-add-items {
+  display: flex;
+  gap: 10px;
+}
+
 </style>
