@@ -44,16 +44,34 @@
         </div>
         <div class="index-manager-content">
           <div class="index-manager-header">
-            <a-input-search :style="{width:'260px'}" placeholder="请输入指标名称"/>
+            <a-input-search :style="{width:'260px'}" v-model="pageMetricForm.metricName" placeholder="请输入指标名称" @search="fetchMetricPage"/>
 
             <a-button type="primary" @click="showIndexTypeDialog = true"> 新增指标 </a-button>
 
           </div>
           <div class="index-manager-mid">
-            <a-table :scroll="scrollPercent" :scrollbar="true" :columns="indexTableColumns" :data="indexData" >
+            <a-table :scroll="scrollPercent" :scrollbar="true" :columns="indexTableColumns" :data="metricsData" >
+              <template #metricName = "{record}">
+                {{record.metricName}}
+                <button @click="onAIClick(record)" style="margin-left: 8px; cursor: pointer;">
+                  🤖
+                </button>
+              </template>
+              <template #metricStatus="{ record }">
+                <div v-if="record.metricStatus == 0">
+                  未发布
+                </div>
+                <div v-else-if="record.metricStatus == 1">
+                  发布
+                </div>
+                <div v-else-if="record.metricStatus == 2">
+                  异常
+                </div>
+              </template>
               <template #optional="{ record }">
                 <div class="index-list-optional">
-                  <a-button type="text" @click="$modal.info({ title:'Name', content:record.name })">发布</a-button>
+                  <a-button v-if="record.metricStatus==0" type="text" @click="$modal.info({ title:'Name', content:record.name })">发布</a-button>
+                  <a-button v-else-if="record.metricStatus==1" type="text" @click="$modal.info({ title:'Name', content:record.name })">下线</a-button>
                   <a-button type="text" @click="$modal.info({ title:'Name', content:record.name })">编辑</a-button>
                 </div>
               </template>
@@ -90,7 +108,7 @@
 <script setup lang="ts">
 import Container from "../../components/Container.vue";
 import {computed, onMounted, reactive, ref} from "vue";
-import {getMetricDirTree, addMetricDir, delMetricDir} from "../../services/metric/metric.ts";
+import {getMetricDirTree, addMetricDir, delMetricDir, pageMetric} from "../../services/metric/metric.ts";
 import {Notification} from "@arco-design/web-vue";
 import router from "../../router";
 
@@ -106,6 +124,10 @@ const addDirForm = ref({
   name: '',
   parentId: null as null | number,
 });
+
+const pageMetricForm = ref({pageSize: 10, currentPage: 1, metricName: ''});
+
+const metricsData = ref([])
 
 const onAddDirClick = (parentId: number | null) => {
   addDirForm.value = { name: '', parentId };
@@ -179,8 +201,22 @@ const getMatchIndex = (title: string) => {
 
 onMounted(() => {
   fetchMetricDirTree();
+  fetchMetricPage()
   // TODO 获取所有指标
 });
+
+const fetchMetricPage = ()=>{
+  pageMetric(pageMetricForm.value).then(resp=>{
+    metricsData.value = []
+    resp.data.records.forEach(m=>{
+      metricsData.value.push(m)
+    })
+
+  }).catch(error=>{
+    console.log(error)
+  })
+
+}
 
 const clickDirEdit = ()=>{
 
@@ -204,48 +240,51 @@ const clickDirDel = async (nodeDirId)=>{
 const indexTableColumns = [
   {
     title: '指标名称',
-    dataIndex: 'name',
+    dataIndex: 'metricName',
     fixed: 'left',
+    slotName: 'metricName',
     width: 200,
   },
   {
     title: '指标标识',
-    dataIndex: 'salary',
+    dataIndex: 'metricCode',
     width: 150,
   },
   {
     title: '指标目录',
-    dataIndex: 'address',
+    dataIndex: 'metricDirName',
     width: 120,
   },
   {
     title: '指标类型',
-    dataIndex: 'email',
+    dataIndex: 'metricType',
     width: 120,
   },
   {
     title: '是否发布',
-    dataIndex: 'email',
+    dataIndex: 'metricStatus',
+    slotName: 'metricStatus',
     width: 120,
   },
   {
     title: '操作状态',
-    dataIndex: 'email',
+    dataIndex: 'metricStatus',
+    slotName: 'metricStatus',
     width: 120,
   },
   {
     title: '负责人',
-    dataIndex: 'email',
+    dataIndex: 'dutyUserName',
     width: 150,
   },
   {
     title: '更新人',
-    dataIndex: 'email',
+    dataIndex: 'updateUserName',
     width: 120,
   },
   {
     title: '更新时间',
-    dataIndex: 'email',
+    dataIndex: 'updateTime',
     width: 120,
   },
   {
@@ -255,51 +294,10 @@ const indexTableColumns = [
     width: 120,
   }
 ];
-const indexData = reactive([{
-  key: '1',
-  name: 'Jane Doe',
-  salary: 23000,
-  address: '32 Park Road, London',
-  email: 'jane.doe@example.com'
-}, {
-  key: '2',
-  name: 'Alisa Ross',
-  salary: 25000,
-  address: '35 Park Road, London',
-  email: 'alisa.ross@example.com'
-}, {
-  key: '3',
-  name: 'Kevin Sandra',
-  salary: 22000,
-  address: '31 Park Road, London',
-  email: 'kevin.sandra@example.com'
-}, {
-  key: '4',
-  name: 'Ed Hellen',
-  salary: 17000,
-  address: '42 Park Road, London',
-  email: 'ed.hellen@example.com'
-}, {
-  key: '5',
-  name: 'William Smith',
-  salary: 27000,
-  address: '62 Park Road, London',
-  email: 'william.smith@example.com'
-}]);
-
 const scrollPercent = {
   x: '120%',
   y: '100%'
 };
-
-// 0为新增指标 1为编辑指标
-const toIndexAddOrUpdate = (typeNum: number)=>{
-  sessionStorage.setItem("dimAddOrUpdateStatus", typeNum)
-  router.push({
-    name: '指标新增或修改',
-  });
-
-}
 
 // 0普通指标 1复合指标
 const selectIndexType = (type: number)=>{
@@ -309,6 +307,15 @@ const selectIndexType = (type: number)=>{
     router.push({name: '复合指标创建或修改'})
   }
 
+}
+
+const onAIClick = (record)=>{
+  router.push({
+    name: '平台ai助手',
+    query:{
+      metricsId: record.id,
+    }
+  })
 }
 
 </script>

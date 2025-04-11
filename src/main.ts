@@ -8,7 +8,18 @@ import {createPinia} from "pinia";
 import ArcoVueIcon from '@arco-design/web-vue/es/icon';
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 
+import githubTheme from '@kangc/v-md-editor/lib/theme/github.js';
+import VMdPreview from '@kangc/v-md-editor/lib/preview';
+import createCopyCodePlugin from '@kangc/v-md-editor/lib/plugins/copy-code/index';
+import hljs from 'highlight.js';
+import createEmojiPlugin from '@kangc/v-md-editor/lib/plugins/emoji/index';
 
+
+VMdPreview.use(githubTheme, {
+    Hljs: hljs,
+});
+VMdPreview.use(createCopyCodePlugin());
+VMdPreview.use(createEmojiPlugin());
 
 
 // 挂载到全局
@@ -21,4 +32,7 @@ app.config.globalProperties.$message = Message;
 app.use(router)
 app.use(pinia)
 app.use(ArcoVueIcon)
+
+app.use(VMdPreview);
+
 app.mount('#app');

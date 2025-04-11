@@ -38,6 +38,18 @@ export function tryCalculate(info){
     return post<API.NormalTryCalculateVO>('/metric/tryCalculate',info)
 }
 
+export function preview(info){
+    return post<API.NormalPreviewVO>('/metric/preview',info)
+}
+
+export function addNormalMetric(info){
+    return post<boolean>('/metric/addMetrics',info)
+}
+
+export function pageMetric(info: API.PageMetricDto){
+    return post<API.Page<API.IndexMetricVO>>('/metric/page',info)
+}
+
 
 
 

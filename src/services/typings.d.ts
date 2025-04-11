@@ -146,6 +146,23 @@ declare namespace API {
         updatedTime: Date
     }
 
+    type DscProjectDetailVO= {
+        id: number
+        dscId: number
+        createUserId:number
+        createdUserName:number
+        projectName: string
+        projectNameEn: string
+        projectDesc: string
+        databaseName: string
+        isTop: number
+        createdTime: Dateo
+        updatedTime: Date
+        dscUrl: string
+    }
+
+
+
     type whereCondition = {
         operator: string
         valueType: string
@@ -329,6 +346,41 @@ declare namespace API {
         tableStructure: any[]
     }
 
+    type NormalPreviewVO = {
+        status: number
+        executeSql: string
+    }
+
+    type SchedulingInfo = {
+        cycle: string
+        datetimeLocal: string
+
+    }
+
+    type PageMetricDto = {
+        pageSize: number
+        currentPage: number
+        metricName: string
+    }
+
+    type IndexMetricVO = {
+        id: number
+        metricName: string
+        metricCode: string
+        metricDescription: string
+        metricDirName: string
+        metricType: string
+        metricStatus: number
+        dutyUserName: string
+        updateUserName: string
+        updateTime: string
+    }
+
+
+    type GptMessageInfo = {
+        role: string
+        content: string
+    }
 }
 
 

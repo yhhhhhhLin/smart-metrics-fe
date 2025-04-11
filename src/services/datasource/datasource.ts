@@ -43,6 +43,10 @@ export function addDscProject(info: API.projectAddDto) {
     return post<boolean>("/dsc/project/add", info);
 }
 
+export function getProject(info) {
+    return post<API.DscProjectDetailVO>("/dsc/project/get", info);
+}
+
 export function pageProject(info: API.ProjectPageDto) {
     return post<API.Page<API.DscProjectVO>>("/dsc/project/page", info)
 }

@@ -287,7 +287,19 @@
           </div>
 
           <div v-if="currentStep === 6" class="step-section">
-            调度信息什么的和展示指标表结构和插入相关sql就好了
+            <div class="mb-4">
+              <label >调度周期</label>
+              <a-select v-model="indexForm.schedulingInfo.cycle" class="border rounded px-3 py-2 w-full">
+                <a-option value="daily">每日</a-option>
+                <a-option value="weekly">每周</a-option>
+                <a-option value="monthly">每月</a-option>
+              </a-select>
+            </div>
+
+            <div class="mb-4">
+              <label>执行日期时间</label>
+              <a-time-picker v-model="indexForm.schedulingInfo.datetimeLocal"/>
+            </div>
           </div>
 
 
@@ -359,21 +371,16 @@
           试计算
         </template>
         <div>
-          <a-button type="link" @click="showSQL = !showSQL" style="margin-bottom: 12px;">
+          <a-button type="text" @click="showSQL = !showSQL" style="margin-bottom: 12px;">
             {{ showSQL ? '查看表结构' : '查看创建表SQL' }}
           </a-button>
 
           <div v-if="showSQL">
-            这里是创建表sql
-            <!--            <pre>{{ createTableSQL }}</pre>-->
+            <pre>{{tryCalculateTableSql}}</pre>
           </div>
           <div v-else>
-            <a-descriptions bordered column="1" title="表结构">
-              这里是表结构
-              <a-descriptions-item v-for="(column, index) in tableStructure" :key="index" :label="column.name">
-                类型：{{ column.type }}，备注：{{ column.comment || '无' }}
-              </a-descriptions-item>
-            </a-descriptions>
+
+            <a-table :columns="tryCalculateTableStruColumn" :data="tryCalculateTableStruData" />
           </div>
         </div>
       </a-modal>
@@ -383,7 +390,7 @@
           预览
         </template>
         <div>
-          <pre>这里是执行任务sql</pre>
+          <pre>{{executeSql}}</pre>
         </div>
       </a-modal>
     </template>
@@ -396,7 +403,14 @@ import {computed, onMounted, reactive, ref} from "vue";
 import router from "../../router";
 import {columns, dbs, tables} from "../../services/datasource/datasource.ts";
 import {Notification} from "@arco-design/web-vue";
-import {getMetricDirTree, listDimensions, listISP, tryCalculate} from "../../services/metric/metric.ts";
+import {
+  addNormalMetric,
+  getMetricDirTree,
+  listDimensions,
+  listISP,
+  preview,
+  tryCalculate
+} from "../../services/metric/metric.ts";
 import CustomTreeSelect from "../../components/CustomTreeSelect.vue";
 
 const currentStep = ref(1);
@@ -463,8 +477,8 @@ const indexForm = ref({
   unit: '',
   metricDir: '',
   dutyId: '',
-  bizLimits: <Array<API.BizLimitDto>>[]
-
+  bizLimits: <Array<API.BizLimitDto>>[],
+  schedulingInfo: {cycle: '',datetimeLocal:''}
 })
 
 const operators = [
@@ -506,6 +520,24 @@ const indexDimAndMeasureSelectColumns = [
   {title: '表别名', dataIndex: 'tableAlias'},
   {title: '描述', dataIndex: 'attributeDesc'},
   {title: '字段类型', dataIndex: 'dataType'},
+]
+
+const tryCalculateTableSql = ref('')
+const tryCalculateTableStruData = ref([])
+const executeSql = ref('')
+const tryCalculateTableStruColumn = [
+  {
+    title: '字段名称',
+    dataIndex: 'columnName',
+  },
+  {
+    title: '数据类型',
+    dataIndex: 'dataType',
+  },
+  {
+    title: '描述',
+    dataIndex: 'desc',
+  },
 ]
 
 const rowSelection = reactive({
@@ -553,7 +585,7 @@ const bizSelectFieldGroup = computed(() => {
   const fields = indexForm.value.dimensions || [];
 
   const grouped = fields.reduce((acc, field) => {
-    const groupKey = `${field.databaseName}.${field.tableName}`;
+    const groupKey = `${field.tableAlias}.${field.tableName}`;
     if (!acc[groupKey]) {
       acc[groupKey] = [];
     }
@@ -770,6 +802,20 @@ const handleOkAddRelTable = () => {
 
 const onFinishAddNormalIndex = () => {
   console.log(indexForm.value)
+  addNormalMetric(indexForm.value).then(resp=>{
+    if(!resp.code){
+
+      Notification.success({
+        title: '系统提示',
+        content: '添加成功',
+        closable: true
+      })
+    }
+    router.push({name: '指标开发'})
+
+  }).catch(error=>{
+    console.log(error)
+  })
 
 }
 
@@ -930,6 +976,8 @@ const onTryCalculate = () => {
   tryCalculateVisible.value = true
 
   tryCalculate(indexForm.value).then((resp) => {
+    tryCalculateTableSql.value = resp.data.createTableSql
+    tryCalculateTableStruData.value = resp.data.tableStructure
     console.log(resp.data)
 
   }).catch(error=>{
@@ -942,6 +990,12 @@ const onTryCalculate = () => {
 const onPreview = () => {
   // 预览
   previewVisible.value = true
+  preview(indexForm.value).then((resp)=>{
+    executeSql.value = resp.data.executeSql
+
+  }).catch(error=>{
+    console.log(error)
+  })
   // 插入表语句
 
   console.log(JSON.stringify(indexForm.value, null, 2))

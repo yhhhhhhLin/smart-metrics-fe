@@ -28,6 +28,7 @@ import IndexAddOrUpdateView from "../views/project/NormalIndexAddOrUpdateView.vu
 import normalIndexAddOrUpdateView from "../views/project/NormalIndexAddOrUpdateView.vue";
 import NormalIndexAddOrUpdateView from "../views/project/NormalIndexAddOrUpdateView.vue";
 import CompositeIndexAddOrUpdateView from "../views/project/CompositeIndexAddOrUpdateView.vue";
+import ProjectAIView from "../views/project/ProjectAIView.vue";
 
 export const dataSourceRootPath = '/datasource'
 export const projectManagerRootPath = '/projectManager'
@@ -141,6 +142,12 @@ export const projectRoutes = [
         path: 'projectManager',
         name: '项目管理',
         component: ProjectManagerView
+    },
+    {
+        index: '6',
+        path: 'projectAI',
+        name: '平台ai助手',
+        component: ProjectAIView
     }
 ]
 
