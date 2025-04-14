@@ -38,8 +38,17 @@
                         </a-tooltip>
                       </div>
                     </template>
+
+
+                    <a-collapse v-if="message.reasoningContent && enableReasoning" style="margin-top: 10px;">
+                      <a-collapse-item key="1" header="展开查看深度思考内容">
+                        <v-md-preview :text="message.reasoningContent" @copy-code-success="handleCopyCodeSuccess"/>
+                      </a-collapse-item>
+                    </a-collapse>
                     <v-md-preview :text="message.content" @copy-code-success="handleCopyCodeSuccess"/>
+
                   </a-card>
+
                 </template>
               </div>
             </a-scrollbar>
@@ -59,6 +68,11 @@
                     清除聊天记录
                   </div>
                 </a-popconfirm>
+
+                <div class="setting-btn" @click="enableReasoning = !enableReasoning">
+                  <icon-codepen  size="18"/>
+                  {{ enableReasoning ? '关闭深度思考(R1)' : '开启深度思考(R1)' }}
+                </div>
               </div>
 
               <div class="msg-input">
@@ -99,7 +113,10 @@ const chatScrollbar = ref<any>(null);
 const token = localStorage.getItem('token');
 const storageKeyPre = 'gptMessages_';
 let newMessage = '';
+let newReasoningMessage = ''
 const metricsId = ref('')
+
+const enableReasoning = ref(true);
 
 
 onMounted(() => {
@@ -145,22 +162,32 @@ function handlerSendMessage() {
     headers: {
       "Content-Type": "application/json",
       "dscId":"1",
-      "metricsId": metricsId.value
+      "metricsId": metricsId.value,
+      "reasoner": enableReasoning.value.toString(),
       // "token": "123"
     },
     body: JSON.stringify(messages),
     onmessage(msg) {
       const oneMsg = JSON.parse(msg.data);
-      if (oneMsg.finish_reason === "stop") {
+      if (oneMsg.isEnd === "true") {
         isDisabledInput.value = false;
         buttonLoading.value = false;
         newMessage = '';
+        newReasoningMessage = '';
         return;
       }
 
-      const word = oneMsg.delta.content;
-      newMessage += word;
-      messages[msgLength] = {role: 'assistant', content: newMessage};
+      console.log(msg)
+
+
+      const contentWord = oneMsg?.content || '';
+      const reasoningContentWord = oneMsg?.reasoningContent || '';
+
+
+      newMessage = contentWord;
+      newReasoningMessage = reasoningContentWord
+
+      messages[msgLength] = {role: 'assistant',reasoningContent: newReasoningMessage ,content: newMessage};
     },
     onerror(err) {
       isDisabledInput.value = false;

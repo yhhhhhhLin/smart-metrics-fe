@@ -380,6 +380,7 @@ declare namespace API {
     type GptMessageInfo = {
         role: string
         content: string
+        reasoningContent: string
     }
 }
 
