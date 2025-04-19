@@ -8,19 +8,28 @@ import {createPinia} from "pinia";
 import ArcoVueIcon from '@arco-design/web-vue/es/icon';
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 
-import githubTheme from '@kangc/v-md-editor/lib/theme/github.js';
 import VMdPreview from '@kangc/v-md-editor/lib/preview';
+import '@kangc/v-md-editor/lib/style/preview.css';
+import githubTheme from '@kangc/v-md-editor/lib/theme/github.js';
+import '@kangc/v-md-editor/lib/theme/style/github.css';
 import createCopyCodePlugin from '@kangc/v-md-editor/lib/plugins/copy-code/index';
-import hljs from 'highlight.js';
+import '@kangc/v-md-editor/lib/plugins/copy-code/copy-code.css';
 import createEmojiPlugin from '@kangc/v-md-editor/lib/plugins/emoji/index';
+import createLineNumbertPlugin from '@kangc/v-md-editor/lib/plugins/line-number/index';
 
+// highlightjs
+import hljs from 'highlight.js';
+import json from 'highlight.js/lib/languages/json';
+
+hljs.registerLanguage('json', json);
 
 VMdPreview.use(githubTheme, {
     Hljs: hljs,
 });
+
 VMdPreview.use(createCopyCodePlugin());
 VMdPreview.use(createEmojiPlugin());
-
+VMdPreview.use(createLineNumbertPlugin());
 
 // 挂载到全局
 const app = createApp(App);
