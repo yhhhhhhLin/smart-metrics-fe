@@ -254,7 +254,7 @@ const handleClick = () => {
 const handleOk = () => {
   visible.value = false;
   addAlertRule(alarmForm).then((resp) => {
-    if(resp.code == 0){
+    if (resp.code == 0) {
       Notification.success({
         title: '系统提示',
         content: '添加成功',

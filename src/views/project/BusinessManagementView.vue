@@ -35,7 +35,7 @@ import {onMounted, reactive} from "vue";
 
 onMounted(() => {
   // 获取所有业务限定
-  
+
 });
 
 const indexDimTableColumns = [

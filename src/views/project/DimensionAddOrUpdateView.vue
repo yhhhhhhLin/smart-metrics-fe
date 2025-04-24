@@ -34,10 +34,11 @@
               <div class="step-content-title">主维表信息</div>
               <a-form layout='vertical'>
                 <a-form-item label="选择数据库">
-                  <a-select v-model="dimForm.databaseName" placeholder="请选择数据库" :options="projectDatabasesOptions" @change="onDatabaseChange"/>
+                  <a-select v-model="dimForm.databaseName" placeholder="请选择数据库" :options="projectDatabasesOptions"
+                            @change="onDatabaseChange"/>
                 </a-form-item>
                 <a-form-item label="选择表">
-                  <a-select v-model="dimForm.tableName" placeholder="请选择表" :options="projectTablesOptions" />
+                  <a-select v-model="dimForm.tableName" placeholder="请选择表" :options="projectTablesOptions"/>
                 </a-form-item>
               </a-form>
             </div>
@@ -46,7 +47,8 @@
           <div v-if="currentStep === 2" class="step-section">
             <div class="step-content-title">维度属性设置</div>
 
-            <a-table row-key="columnName" :columns="tableFieldColumns" :data="fieldFormList" :pagination="false" bordered :row-selection="rowSelection"  v-model:selectedKeys="selectedColumnName">
+            <a-table row-key="columnName" :columns="tableFieldColumns" :data="fieldFormList" :pagination="false"
+                     bordered :row-selection="rowSelection" v-model:selectedKeys="selectedColumnName">
               <template #attributeName="{ record, rowIndex }">
                 <a-input v-model="record.attributeName" placeholder="请输入属性名称"/>
               </template>
@@ -54,7 +56,7 @@
                 <a-input v-model="record.columnName" placeholder="请输入属性标识"/>
               </template>
               <template #attributeDesc="{ record, rowIndex }">
-                <a-input v-model="record.attributeDesc" placeholder="请输入属性描述" />
+                <a-input v-model="record.attributeDesc" placeholder="请输入属性描述"/>
               </template>
             </a-table>
           </div>
@@ -102,7 +104,7 @@ const fieldFormList = ref([])
 
 const tableFieldColumns = [
   {title: '字段名称', dataIndex: 'columnName'},
-  {title: '属性名称', dataIndex: 'attributeName',slotName: 'attributeName'},
+  {title: '属性名称', dataIndex: 'attributeName', slotName: 'attributeName'},
   {title: '属性标识', dataIndex: 'attributeCode', slotName: 'attributeCode'},
   {title: '字段类型', dataIndex: 'dataType'},
   {title: '属性描述', dataIndex: 'attributeDesc', slotName: 'attributeDesc'},
@@ -120,28 +122,28 @@ onMounted(() => {
 
 });
 
-const fetchDbs = () =>{
-  dbs({dscId: projectDscId.value}).then(resp=>{
+const fetchDbs = () => {
+  dbs({dscId: projectDscId.value}).then(resp => {
     projectDatabasesOptions.value = []
     resp.data.forEach((database) => {
       projectDatabasesOptions.value.push({label: database.dbName, value: database.dbName})
 
     })
 
-  }).catch((error)=>{
+  }).catch((error) => {
     console.log(error)
   })
 
 }
 
-const onDatabaseChange = () =>{
+const onDatabaseChange = () => {
 
   projectTablesOptions.value = []
-  tables({dscId: projectDscId.value,dbName:dimForm.value.databaseName}).then((resp)=>{
+  tables({dscId: projectDscId.value, dbName: dimForm.value.databaseName}).then((resp) => {
     resp.data.forEach((table) => {
       projectTablesOptions.value.push({label: table.tableName, value: table.tableName})
     })
-  }).catch((error)=>{
+  }).catch((error) => {
     console.log(error)
   })
 
@@ -152,7 +154,7 @@ const toNextStep = () => {
   currentStep.value = 2;
 
   // 根据当前的数据库和表获取表中所有字段
-  columns({dscId: projectDscId.value,dbName:dimForm.value.databaseName,tableName:dimForm.value.tableName})
+  columns({dscId: projectDscId.value, dbName: dimForm.value.databaseName, tableName: dimForm.value.tableName})
       .then((resp) => {
         const fields = resp.data
         fieldFormList.value = fields.map(field => ({
@@ -163,9 +165,9 @@ const toNextStep = () => {
           attributeDesc: field.columnComment || ''
         }));
 
-      }).catch((error)=>{
-        console.log(error)
-      })
+      }).catch((error) => {
+    console.log(error)
+  })
 
 }
 
@@ -189,8 +191,8 @@ const onClickFinishAdd = () => {
     }
   });
 
-  addDimension(dimForm.value).then(resp=>{
-    if(resp.data){
+  addDimension(dimForm.value).then(resp => {
+    if (resp.data) {
       Notification.success({
         title: '系统提示',
         content: '添加成功',
@@ -198,7 +200,7 @@ const onClickFinishAdd = () => {
       })
     }
     router.push({name: '维度管理'})
-  }).catch((error=>{
+  }).catch((error => {
     console.log(error)
   }))
 

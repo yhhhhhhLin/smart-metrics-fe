@@ -26,7 +26,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import {ref} from 'vue'
 import TreeNode from './TreeNode.vue'
 
 const props = defineProps({
@@ -47,13 +47,16 @@ const emitSelect = (node) => emit('select', node)
   padding: 6px 12px;
   cursor: pointer;
 }
+
 .node-content:hover {
   background: #f5f5f5;
 }
+
 .node-label.selected {
   color: #1890ff;
   font-weight: bold;
 }
+
 .expand-icon {
   width: 20px;
   display: inline-block;

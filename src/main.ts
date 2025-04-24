@@ -17,7 +17,6 @@ import '@kangc/v-md-editor/lib/plugins/copy-code/copy-code.css';
 import createEmojiPlugin from '@kangc/v-md-editor/lib/plugins/emoji/index';
 import createLineNumbertPlugin from '@kangc/v-md-editor/lib/plugins/line-number/index';
 
-// highlightjs
 import hljs from 'highlight.js';
 import json from 'highlight.js/lib/languages/json';
 

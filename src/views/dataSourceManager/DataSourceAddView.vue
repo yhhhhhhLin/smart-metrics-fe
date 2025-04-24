@@ -236,7 +236,7 @@ const connectTest = async () => {
   const password = datasourceConfigForm.password;
 
   try {
-    const resp = await testConnect({ url, username, password, datasourceTypeCode });
+    const resp = await testConnect({url, username, password, datasourceTypeCode});
     if (resp.data) {
       connectionTest.isConnectionSuccess = true;
       Notification.success({

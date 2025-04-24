@@ -15,9 +15,6 @@
 <script setup lang="ts">
 
 import container from "../../components/Container.vue";
-
-
-
 </script>
 
 <style scoped>
@@ -28,7 +25,7 @@ import container from "../../components/Container.vue";
   height: 100%;
 }
 
-.alarm-page-content{
+.alarm-page-content {
   background-color: #FFFFFF;
   flex-grow: 1;
   border-radius: 5px;

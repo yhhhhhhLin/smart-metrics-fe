@@ -28,23 +28,23 @@
 
       <!-- 点状图 Modal -->
       <a-modal v-model:visible="visible" title="水果销售额趋势" :width="800" @afterOpen="renderChart">
-        <div ref="chartRef" style="width: 100%; height: 400px" />
+        <div ref="chartRef" style="width: 100%; height: 400px"/>
       </a-modal>
 
       <!-- 搜索 Modal -->
       <a-modal v-model:visible="searchVisible" title="水果销售额查询" :width="800">
         <a-form :model="searchForm" layout="inline" @submit.prevent>
           <a-form-item label="日期">
-            <a-date-picker v-model="searchForm.date" placeholder="请选择日期" format="YYYY-MM-DD" />
+            <a-date-picker v-model="searchForm.date" placeholder="请选择日期" format="YYYY-MM-DD"/>
           </a-form-item>
           <a-form-item label="水果名称">
-            <a-input v-model="searchForm.fruitName" placeholder="输入水果名" allow-clear />
+            <a-input v-model="searchForm.fruitName" placeholder="输入水果名" allow-clear/>
           </a-form-item>
           <a-form-item>
             <a-button type="primary" @click="doSearch">查询</a-button>
           </a-form-item>
         </a-form>
-        <a-divider />
+        <a-divider/>
         <a-table
             :data="flattenedTableData"
             :columns="tableColumns"
@@ -59,9 +59,9 @@
 
 <script setup lang="ts">
 import Container from "../../components/Container.vue";
-import { onMounted, ref, nextTick, watch, computed } from "vue";
+import {computed, nextTick, onMounted, ref, watch} from "vue";
 import * as echarts from "echarts";
-import { pageMetric } from "../../services/metric/metric.ts";
+import {pageMetric} from "../../services/metric/metric.ts";
 
 const dimDataList = ref<any[]>([])
 const visible = ref(false)
@@ -86,43 +86,43 @@ const mockData = [
   {
     "t1_order_date": "2025-04-10",
     data: [
-      { fruit_daily_sales: 5, t0_product_name: "香蕉" },
-      { fruit_daily_sales: 6, t0_product_name: "橙子" },
-      { fruit_daily_sales: 7, t0_product_name: "牛奶" },
+      {fruit_daily_sales: 5, t0_product_name: "香蕉"},
+      {fruit_daily_sales: 6, t0_product_name: "橙子"},
+      {fruit_daily_sales: 7, t0_product_name: "牛奶"},
     ]
   },
   {
     "t1_order_date": "2025-04-09",
     data: [
-      { fruit_daily_sales: 8, t0_product_name: "面包" },
+      {fruit_daily_sales: 8, t0_product_name: "面包"},
     ]
   },
   {
     "t1_order_date": "2025-04-08",
     data: [
-      { fruit_daily_sales: 6, t0_product_name: "橙子" },
-      { fruit_daily_sales: 21, t0_product_name: "牛奶" },
-      { fruit_daily_sales: 8, t0_product_name: "面包" },
+      {fruit_daily_sales: 6, t0_product_name: "橙子"},
+      {fruit_daily_sales: 21, t0_product_name: "牛奶"},
+      {fruit_daily_sales: 8, t0_product_name: "面包"},
     ]
   },
   {
     "t1_order_date": "2025-04-07",
     data: [
-      { fruit_daily_sales: 5, t0_product_name: "香蕉" },
-      { fruit_daily_sales: 7, t0_product_name: "牛奶" },
+      {fruit_daily_sales: 5, t0_product_name: "香蕉"},
+      {fruit_daily_sales: 7, t0_product_name: "牛奶"},
     ]
   },
   {
     "t1_order_date": "2025-04-06",
     data: [
-      { fruit_daily_sales: 5, t0_product_name: "香蕉" },
-      { fruit_daily_sales: 6, t0_product_name: "橙子" },
+      {fruit_daily_sales: 5, t0_product_name: "香蕉"},
+      {fruit_daily_sales: 6, t0_product_name: "橙子"},
     ]
   }
 ]
 
 onMounted(() => {
-  pageMetric({ currentPage: 1, pageSize: 10 }).then((res) => {
+  pageMetric({currentPage: 1, pageSize: 10}).then((res) => {
     dimDataList.value = res.data.records;
   }).catch(err => {
     console.error(err)
@@ -143,7 +143,7 @@ const handleSearch = (item: any) => {
 }
 
 const doSearch = () => {
-  const { date, fruitName } = searchForm.value
+  const {date, fruitName} = searchForm.value
   filteredData.value = mockData.filter(group => {
     const dateMatch = !date || group.t1_order_date === date
     const fruitMatch = group.data.some(d =>
@@ -169,9 +169,9 @@ const flattenedTableData = computed(() =>
 )
 
 const tableColumns = [
-  { title: "日期", dataIndex: "date", key: "date" },
-  { title: "水果名称", dataIndex: "name", key: "name" },
-  { title: "销售额", dataIndex: "sales", key: "sales" }
+  {title: "日期", dataIndex: "date", key: "date"},
+  {title: "水果名称", dataIndex: "name", key: "name"},
+  {title: "销售额", dataIndex: "sales", key: "sales"}
 ]
 
 const renderChart = async () => {
@@ -205,7 +205,7 @@ const renderChart = async () => {
       name: '日期',
       nameLocation: 'middle',
       nameGap: 25,
-      axisLabel: { rotate: 30 }
+      axisLabel: {rotate: 30}
     },
     yAxis: {
       type: 'value',
@@ -234,9 +234,11 @@ const renderChart = async () => {
   padding: 20px;
   height: 100%;
 }
+
 .metric-card {
   width: 100%;
 }
+
 .clickable-title {
   cursor: pointer;
   color: var(--color-primary);

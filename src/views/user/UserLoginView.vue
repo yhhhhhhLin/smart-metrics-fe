@@ -58,7 +58,7 @@ import {Notification} from "@arco-design/web-vue";
 import {useUserInfoStore} from "../../store/userInfo.ts";
 
 const passwordVisibility = ref(false);
-const userLoginForm:API.UserLoginForm = reactive({
+const userLoginForm: API.UserLoginForm = reactive({
   userAccount: '',
   password: '',
   code: '',
@@ -71,8 +71,8 @@ const toRegisterPage = () => {
 }
 
 const onClickLogin = async () => {
-  userLogin(userLoginForm).then((resp) =>{
-    if(resp.code === 0){
+  userLogin(userLoginForm).then((resp) => {
+    if (resp.code === 0) {
       Notification.success({
         title: '系统提示',
         content: '登陆成功！',
@@ -85,7 +85,7 @@ const onClickLogin = async () => {
       router.push('/')
     }
 
-  }).catch((error)=>{
+  }).catch((error) => {
     console.log(error)
     Notification.error(error)
 

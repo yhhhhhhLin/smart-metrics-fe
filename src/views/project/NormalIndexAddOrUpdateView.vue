@@ -288,7 +288,7 @@
 
           <div v-if="currentStep === 6" class="step-section">
             <div class="mb-4">
-              <label >调度周期</label>
+              <label>调度周期</label>
               <a-select v-model="indexForm.schedulingInfo.cycle" class="border rounded px-3 py-2 w-full">
                 <a-option value="daily">每日</a-option>
                 <a-option value="weekly">每周</a-option>
@@ -376,11 +376,11 @@
           </a-button>
 
           <div v-if="showSQL">
-            <pre>{{tryCalculateTableSql}}</pre>
+            <pre>{{ tryCalculateTableSql }}</pre>
           </div>
           <div v-else>
 
-            <a-table :columns="tryCalculateTableStruColumn" :data="tryCalculateTableStruData" />
+            <a-table :columns="tryCalculateTableStruColumn" :data="tryCalculateTableStruData"/>
           </div>
         </div>
       </a-modal>
@@ -390,7 +390,7 @@
           预览
         </template>
         <div>
-          <pre>{{executeSql}}</pre>
+          <pre>{{ executeSql }}</pre>
         </div>
       </a-modal>
     </template>
@@ -478,7 +478,7 @@ const indexForm = ref({
   metricDir: '',
   dutyId: '',
   bizLimits: <Array<API.BizLimitDto>>[],
-  schedulingInfo: {cycle: '',datetimeLocal:''}
+  schedulingInfo: {cycle: '', datetimeLocal: ''}
 })
 
 const operators = [
@@ -802,8 +802,8 @@ const handleOkAddRelTable = () => {
 
 const onFinishAddNormalIndex = () => {
   console.log(indexForm.value)
-  addNormalMetric(indexForm.value).then(resp=>{
-    if(!resp.code){
+  addNormalMetric(indexForm.value).then(resp => {
+    if (!resp.code) {
 
       Notification.success({
         title: '系统提示',
@@ -813,7 +813,7 @@ const onFinishAddNormalIndex = () => {
     }
     router.push({name: '指标开发'})
 
-  }).catch(error=>{
+  }).catch(error => {
     console.log(error)
   })
 
@@ -980,7 +980,7 @@ const onTryCalculate = () => {
     tryCalculateTableStruData.value = resp.data.tableStructure
     console.log(resp.data)
 
-  }).catch(error=>{
+  }).catch(error => {
     console.log(error)
   })
 
@@ -990,10 +990,10 @@ const onTryCalculate = () => {
 const onPreview = () => {
   // 预览
   previewVisible.value = true
-  preview(indexForm.value).then((resp)=>{
+  preview(indexForm.value).then((resp) => {
     executeSql.value = resp.data.executeSql
 
-  }).catch(error=>{
+  }).catch(error => {
     console.log(error)
   })
   // 插入表语句

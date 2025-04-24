@@ -61,11 +61,11 @@ import IndexManagerLeftMenu from "./menu/IndexManagerLeftMenu.vue";
 
 const props = defineProps({
   navbarDefault: String,
-  needDropDown: { type: Boolean, default: false },
-  topMenuType: { type: Number, default: 1 },
-  topMenuSelected: { type: String, default: "0" },
-  leftMenuSelected: { type: String, default: "0" },
-  sidebarType: { type: Number, default: -1 },
+  needDropDown: {type: Boolean, default: false},
+  topMenuType: {type: Number, default: 1},
+  topMenuSelected: {type: String, default: "0"},
+  leftMenuSelected: {type: String, default: "0"},
+  sidebarType: {type: Number, default: -1},
 });
 </script>
 

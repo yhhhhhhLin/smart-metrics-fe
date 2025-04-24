@@ -5,7 +5,8 @@
       <div class="statistical-period-container">
         <div class="statistical-period-content">
           <div class="statistical-period-manager-header">
-            <a-input :style="{width:'260px'}" v-model="pageDimensionForm.dimObjectName" @press-enter="fetchDimension" placeholder="请输入统计周期"/>
+            <a-input :style="{width:'260px'}" v-model="pageDimensionForm.dimObjectName" @press-enter="fetchDimension"
+                     placeholder="请输入统计周期"/>
 
           </div>
           <div class="statistical-period-mid">
@@ -13,7 +14,8 @@
               <template #optional="{ record }">
                 <div class="statistical-period-optional">
                   <a-button type="text" @click="$modal.info({ title:'error', content:record.name })">编辑</a-button>
-                  <a-button type="text" @click="$modal.info({ title:'error', content:'后端异常，错误代码：500' })">删除</a-button>
+                  <a-button type="text" @click="$modal.info({ title:'error', content:'后端异常，错误代码：500' })">删除
+                  </a-button>
                 </div>
               </template>
             </a-table>
@@ -23,21 +25,20 @@
       </div>
 
 
-
     </template>
   </container>
 </template>
 
 <script setup lang="ts">
 import Container from "../../components/Container.vue";
-import {onMounted, reactive, ref} from "vue";
+import {onMounted, ref} from "vue";
 import router from "../../router";
-import {listISP, pageDimensions} from "../../services/metric/metric.ts";
+import {listISP} from "../../services/metric/metric.ts";
 
 const projectId = ref()
 const projectDscId = ref()
 
-const pageDimensionForm = ref({"pageSize": 10,currentPage: 1, dimObjectName: ''})
+const pageDimensionForm = ref({"pageSize": 10, currentPage: 1, dimObjectName: ''})
 
 onMounted(() => {
   projectId.value = sessionStorage.getItem('projectId') || '1'
@@ -46,13 +47,13 @@ onMounted(() => {
   fetchSP()
 });
 
-const fetchSP = () =>{
-  listISP().then(resp=>{
+const fetchSP = () => {
+  listISP().then(resp => {
     sPData.value = []
-    resp.data.forEach(record=>{
+    resp.data.forEach(record => {
       sPData.value.push(record)
     })
-  }).catch(err=>{
+  }).catch(err => {
     console.log(err)
   })
 
@@ -95,7 +96,7 @@ const scrollPercent = {
 };
 
 // 0为新增指标 1为编辑指标
-const toDimAddOrUpdate = (typeNum: number)=>{
+const toDimAddOrUpdate = (typeNum: number) => {
   sessionStorage.setItem("dimAddOrUpdateStatus", typeNum)
   router.push({
     name: '维度新增或修改',

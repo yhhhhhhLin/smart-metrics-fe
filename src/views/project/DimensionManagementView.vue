@@ -5,7 +5,8 @@
       <div class="dim-manager-container">
         <div class="dim-manager-content">
           <div class="dim-manager-header">
-            <a-input :style="{width:'260px'}" v-model="pageDimensionForm.dimObjectName" @press-enter="fetchDimension" placeholder="请输入维度名称"/>
+            <a-input :style="{width:'260px'}" v-model="pageDimensionForm.dimObjectName" @press-enter="fetchDimension"
+                     placeholder="请输入维度名称"/>
 
             <a-button type="primary" @click="toDimAddOrUpdate(0)"> 新增指标维度</a-button>
 
@@ -15,7 +16,8 @@
               <template #optional="{ record }">
                 <div class="dim-list-optional">
                   <a-button type="text" @click="$modal.info({ title:'error', content:record.name })">发布</a-button>
-                  <a-button type="text" @click="$modal.info({ title:'error', content:'后端异常，错误代码：500' })">编辑</a-button>
+                  <a-button type="text" @click="$modal.info({ title:'error', content:'后端异常，错误代码：500' })">编辑
+                  </a-button>
                 </div>
               </template>
             </a-table>
@@ -25,21 +27,20 @@
       </div>
 
 
-
     </template>
   </container>
 </template>
 
 <script setup lang="ts">
 import Container from "../../components/Container.vue";
-import {onMounted, reactive, ref} from "vue";
+import {onMounted, ref} from "vue";
 import router from "../../router";
 import {pageDimensions} from "../../services/metric/metric.ts";
 
 const projectId = ref()
 const projectDscId = ref()
 
-const pageDimensionForm = ref({"pageSize": 10,currentPage: 1, dimObjectName: ''})
+const pageDimensionForm = ref({"pageSize": 10, currentPage: 1, dimObjectName: ''})
 
 onMounted(() => {
   projectId.value = sessionStorage.getItem('projectId') || '1'
@@ -48,13 +49,13 @@ onMounted(() => {
   fetchDimension()
 });
 
-const fetchDimension = () =>{
-  pageDimensions(pageDimensionForm.value).then(resp=>{
+const fetchDimension = () => {
+  pageDimensions(pageDimensionForm.value).then(resp => {
     dimensionData.value = []
-    resp.data.records.forEach(record=>{
+    resp.data.records.forEach(record => {
       dimensionData.value.push(record)
     })
-  }).catch(err=>{
+  }).catch(err => {
     console.log(err)
   })
 
@@ -99,7 +100,7 @@ const scrollPercent = {
 };
 
 // 0为新增指标 1为编辑指标
-const toDimAddOrUpdate = (typeNum: number)=>{
+const toDimAddOrUpdate = (typeNum: number) => {
   sessionStorage.setItem("dimAddOrUpdateStatus", typeNum)
   router.push({
     name: '维度新增或修改',

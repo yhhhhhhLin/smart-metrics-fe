@@ -361,10 +361,10 @@
           </div>
 
           <div class="advanced-query-item">
-            <a-collapse >
+            <a-collapse>
               <a-collapse-item header="sql方式获取数据" key="1">
                 直接执行sql
-                <a-textarea placeholder="请输入要执行的SQL语句" v-model="sqlQuery.sql" auto-size />
+                <a-textarea placeholder="请输入要执行的SQL语句" v-model="sqlQuery.sql" auto-size/>
               </a-collapse-item>
             </a-collapse>
           </div>
@@ -376,7 +376,8 @@
         <div class="actions">
           <div class="action-left">
             <a-popconfirm content="检测到有填写自定义sql，请选择获取数据方式"
-                          okText="正常查询" cancelText="执行自定义sql" :popup-visible="runQueryPopVisible" @ok="runNormalAdvQuery" @cancel = "runCustomSqlAdvQuery">
+                          okText="正常查询" cancelText="执行自定义sql" :popup-visible="runQueryPopVisible"
+                          @ok="runNormalAdvQuery" @cancel="runCustomSqlAdvQuery">
               <a-button type="primary" @click="runQuery">运行查询</a-button>
             </a-popconfirm>
             <a-button @click="clearQuery">清空</a-button>
@@ -392,15 +393,15 @@
         <div class="result">
           <a-tabs default-active-key="1" :active-key="resultKey">
             <a-tab-pane key="1" title="查询结果">
-                <a-table
-                    :columns="resultColumns"
-                    :data="resultData"
-                    :pagination="pagination"
-                    style="margin-top: 20px"
-                />
+              <a-table
+                  :columns="resultColumns"
+                  :data="resultData"
+                  :pagination="pagination"
+                  style="margin-top: 20px"
+              />
             </a-tab-pane>
             <a-tab-pane key="2" title="sql">
-              {{resultSql}}
+              {{ resultSql }}
             </a-tab-pane>
           </a-tabs>
         </div>
@@ -525,8 +526,11 @@ import Container from "../../components/Container.vue";
 import {
   advancedSearch,
   columns,
-  dbs, executeSql, getAdvancedSearchSql,
-  getDataSource, getSimpleSearchSql,
+  dbs,
+  executeSql,
+  getAdvancedSearchSql,
+  getDataSource,
+  getSimpleSearchSql,
   simpleSearch,
   tables
 } from "../../services/datasource/datasource.ts";
@@ -561,7 +565,7 @@ const addAdvCustomizedConditionModalVisible = ref(false)
 const advTempOrderField = ref('')
 const advTempOrderMethod = ref('ASC')
 
-const resultKey =ref('1')
+const resultKey = ref('1')
 const runQueryPopVisible = ref(false)
 
 const queryMode = ref("simple");
@@ -1065,15 +1069,15 @@ const runQuery = () => {
     })
   } else {
     // 判断自定义输入框是否有值
-    if(sqlQuery.value.sql != ''){
+    if (sqlQuery.value.sql != '') {
       runQueryPopVisible.value = true
-    }else{
+    } else {
       runNormalAdvQuery()
     }
   }
 }
 
-const getQuerySql = () =>{
+const getQuerySql = () => {
   resultKey.value = '2'
   if (queryMode.value == 'simple') {
     const payload = {
@@ -1210,7 +1214,7 @@ const delAdvTableSelectOption = (tableName, tableAlias) => {
   }
 }
 
-const delSelectedFieldConditionAndOrderBy = (tableName, tableAlias) =>{
+const delSelectedFieldConditionAndOrderBy = (tableName, tableAlias) => {
 
 
 }
@@ -1323,7 +1327,7 @@ const delTableJoinCondition = (joinCondition: API.JoinCondition) => {
     delAdvTableSelectOption(joinCondition.joinTable, joinCondition.joinTableAlias)
 
     // TODO 还要删除后续展示选择的字段，条件分组和排序的相关字段
-    delSelectedFieldConditionAndOrderBy(joinCondition.joinTable,joinCondition.joinTableAlias)
+    delSelectedFieldConditionAndOrderBy(joinCondition.joinTable, joinCondition.joinTableAlias)
 
     Notification.success({
       title: '系统提示',
@@ -1356,7 +1360,7 @@ const loadMoreSelectItem = async (option, done) => {
   }
 };
 
-const runNormalAdvQuery = ()=>{
+const runNormalAdvQuery = () => {
   runQueryPopVisible.value = false
   const payload = {
     ...advancedQuery.value,
@@ -1455,17 +1459,16 @@ const addToMetrics = () => {
   margin-top: 20px;
 }
 
-.action-left{
+.action-left {
   display: flex;
   gap: 10px;
 }
 
-.action-right{
+.action-right {
   display: flex;
   gap: 10px;
   margin-right: 10%;
 }
-
 
 
 .conditions {

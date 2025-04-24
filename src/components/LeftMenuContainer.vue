@@ -31,7 +31,9 @@
             :default-selected-keys="['0_2']"
         >
           <a-sub-menu key="0">
-            <template #icon><icon-apps></icon-apps></template>
+            <template #icon>
+              <icon-apps></icon-apps>
+            </template>
             <template #title>Navigation 1</template>
             <a-menu-item key="0_0">Menu 1</a-menu-item>
             <a-menu-item key="0_1">Menu 2</a-menu-item>
@@ -39,14 +41,18 @@
             <a-menu-item key="0_3">Menu 4</a-menu-item>
           </a-sub-menu>
           <a-sub-menu key="1">
-            <template #icon><icon-bug></icon-bug></template>
+            <template #icon>
+              <icon-bug></icon-bug>
+            </template>
             <template #title>Navigation 2</template>
             <a-menu-item key="1_0">Menu 1</a-menu-item>
             <a-menu-item key="1_1">Menu 2</a-menu-item>
             <a-menu-item key="1_2">Menu 3</a-menu-item>
           </a-sub-menu>
           <a-sub-menu key="2">
-            <template #icon><icon-bulb></icon-bulb></template>
+            <template #icon>
+              <icon-bulb></icon-bulb>
+            </template>
             <template #title>Navigation 3</template>
             <a-menu-item key="2_0">Menu 1</a-menu-item>
             <a-menu-item key="2_1">Menu 2</a-menu-item>
@@ -74,6 +80,8 @@
 
 
 import UserTopInfo from "./userinfo/UserTopInfo.vue";
+import {IconApps, IconBug, IconBulb,} from '@arco-design/web-vue/es/icon';
+import ProjectDetailTopMenu from "./menu/ProjectDetailTopMenu.vue";
 
 const props = defineProps({
   navbarDefault: String,
@@ -84,14 +92,6 @@ const props = defineProps({
   topMenuType: String,
   leftMenuType: String
 })
-
-import {
-  IconApps,
-  IconBug,
-  IconBulb,
-} from '@arco-design/web-vue/es/icon';
-import ProjectDetailTopMenu from "./menu/ProjectDetailTopMenu.vue";
-
 </script>
 
 <style scoped>
@@ -151,13 +151,13 @@ import ProjectDetailTopMenu from "./menu/ProjectDetailTopMenu.vue";
   display: flex;
 }
 
-.mid-container-left{
+.mid-container-left {
   width: 180px;
   position: fixed;
   height: calc(100vh - 6.5%);
 }
 
-.mid-container-content{
+.mid-container-content {
   flex-grow: 1;
   padding: 16px;
   margin-left: 200px;

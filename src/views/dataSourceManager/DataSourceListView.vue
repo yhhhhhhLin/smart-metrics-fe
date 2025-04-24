@@ -27,7 +27,7 @@
                     @change="fetchData"
                 >
                   <div v-for="dscType in dscTypes">
-                    <a-option :value="dscType">{{dscCodeMap[dscType]}}</a-option>
+                    <a-option :value="dscType">{{ dscCodeMap[dscType] }}</a-option>
                   </div>
                 </a-select>
               </div>
@@ -95,13 +95,12 @@ import {onMounted, reactive, ref} from 'vue';
 import router from '../../router';
 import {pageDataSource} from '../../services/datasource/datasource.ts';
 import Container from "../../components/Container.vue";
-import { dscCodeMap } from '../../utils/DscCodeMap';
+import {dscCodeMap} from '../../utils/DscCodeMap';
 
-const statusMap:Record<number, string> = {
+const statusMap: Record<number, string> = {
   1: '可用',
   0: '不可用',
 };
-
 
 
 // 分页查询条件
@@ -121,14 +120,14 @@ const dscPageDate = reactive<any[]>([]);
 
 // 表格列配置
 const columns = [
-  {title: '数据源名称', dataIndex: 'dscName',width: 250},
-  {title: '数据源类型', dataIndex: 'dscType',width: 150,render:({record})=>dscCodeMap[record.dscType]},
+  {title: '数据源名称', dataIndex: 'dscName', width: 250},
+  {title: '数据源类型', dataIndex: 'dscType', width: 150, render: ({record}) => dscCodeMap[record.dscType]},
   {title: '描述', dataIndex: 'dscDesc', width: 350},
-  {title: '状态', dataIndex: 'dscStatus',width: 150,render: ({record}) => statusMap[record.dscStatus]},
+  {title: '状态', dataIndex: 'dscStatus', width: 150, render: ({record}) => statusMap[record.dscStatus]},
   {title: '连接信息', dataIndex: 'username', width: 350},
   {title: '负责人名称', dataIndex: 'createdUserName', width: 300},
   {title: '创建时间', dataIndex: 'createdTime', width: 300},
-  {title: '更新时间', dataIndex: 'updatedTime',width: 300},
+  {title: '更新时间', dataIndex: 'updatedTime', width: 300},
   {
     title: '操作',
     fixed: 'right',
@@ -228,7 +227,7 @@ const toAlarmDataSourcePath = () => {
   flex-grow: 1;
 }
 
-.dsc_info_optional_buttons{
+.dsc_info_optional_buttons {
   display: flex;
   gap: 5px;
 }

@@ -19,7 +19,7 @@
 </template>
 
 <script setup>
-import { ref, watch, defineProps, defineEmits } from 'vue'
+import {defineEmits, defineProps, ref, watch} from 'vue'
 import TreeNode from './TreeNode.vue'
 
 const props = defineProps({
@@ -54,7 +54,7 @@ watch(
       }
       selectedNode.value = findNode(props.treeData)
     },
-    { immediate: true }
+    {immediate: true}
 )
 </script>
 
@@ -63,12 +63,14 @@ watch(
   position: relative;
   width: 300px;
 }
+
 .selected-display {
   padding: 8px 12px;
   border: 1px solid #ddd;
   border-radius: 4px;
   cursor: pointer;
 }
+
 .tree-container {
   position: absolute;
   width: 100%;
@@ -78,6 +80,7 @@ watch(
   overflow-y: auto;
   z-index: 999;
 }
+
 .arrow {
   float: right;
 }

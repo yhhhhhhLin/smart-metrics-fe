@@ -1,12 +1,13 @@
 <template>
-  <container :top-menu-type="2" :top-menu-selected="'/project/index-management'" :left-menu-selected="'/project/index-management/index-develop'" :sidebarType="1">
+  <container :top-menu-type="2" :top-menu-selected="'/project/index-management'"
+             :left-menu-selected="'/project/index-management/index-develop'" :sidebarType="1">
     <template #content>
       <div class="index-manager-container">
         <div class="index-manager-directory">
           <div class="index-dir-header">
             <div class="index-dir-header-title">
               <div class="index-dir-header-title-left">
-                <icon-list />
+                <icon-list/>
                 <span>指标目录</span>
               </div>
               <a-button type="text" size="mini" @click="onAddDirClick(null)">+</a-button>
@@ -17,9 +18,12 @@
             />
           </div>
 
-          <a-tree :data="treeData" :fieldNames="{ title: 'title', key: 'id', children: 'children' }" @rightClick="onRightClick">
+          <a-tree :data="treeData" :fieldNames="{ title: 'title', key: 'id', children: 'children' }"
+                  @rightClick="onRightClick">
             <template #title="nodeData">
-              <template v-if="metricsDirSearchKeyIndex = getMatchIndex(nodeData?.title), metricsDirSearchKeyIndex < 0">{{ nodeData?.title }}</template>
+              <template v-if="metricsDirSearchKeyIndex = getMatchIndex(nodeData?.title), metricsDirSearchKeyIndex < 0">
+                {{ nodeData?.title }}
+              </template>
               <span v-else>
                 {{ nodeData?.title?.substr(0, metricsDirSearchKeyIndex) }}
                 <span style="color: var(--color-primary-light-4);">
@@ -44,15 +48,16 @@
         </div>
         <div class="index-manager-content">
           <div class="index-manager-header">
-            <a-input-search :style="{width:'260px'}" v-model="pageMetricForm.metricName" placeholder="请输入指标名称" @search="fetchMetricPage"/>
+            <a-input-search :style="{width:'260px'}" v-model="pageMetricForm.metricName" placeholder="请输入指标名称"
+                            @search="fetchMetricPage"/>
 
-            <a-button type="primary" @click="showIndexTypeDialog = true"> 新增指标 </a-button>
+            <a-button type="primary" @click="showIndexTypeDialog = true"> 新增指标</a-button>
 
           </div>
           <div class="index-manager-mid">
-            <a-table :scroll="scrollPercent" :scrollbar="true" :columns="indexTableColumns" :data="metricsData" >
-              <template #metricName = "{record}">
-                {{record.metricName}}
+            <a-table :scroll="scrollPercent" :scrollbar="true" :columns="indexTableColumns" :data="metricsData">
+              <template #metricName="{record}">
+                {{ record.metricName }}
                 <button @click="onAIClick(record)" style="margin-left: 8px; cursor: pointer;">
                   🤖
                 </button>
@@ -70,8 +75,12 @@
               </template>
               <template #optional="{ record }">
                 <div class="index-list-optional">
-                  <a-button v-if="record.metricStatus==0" type="text" @click="$modal.info({ title:'Name', content:record.name })">发布</a-button>
-                  <a-button v-else-if="record.metricStatus==1" type="text" @click="$modal.info({ title:'Name', content:record.name })">下线</a-button>
+                  <a-button v-if="record.metricStatus==0" type="text"
+                            @click="$modal.info({ title:'Name', content:record.name })">发布
+                  </a-button>
+                  <a-button v-else-if="record.metricStatus==1" type="text"
+                            @click="$modal.info({ title:'Name', content:record.name })">下线
+                  </a-button>
                   <a-button type="text" @click="$modal.info({ title:'Name', content:record.name })">编辑</a-button>
                 </div>
               </template>
@@ -87,7 +96,7 @@
           @ok="handleAddDir"
           @cancel="resetAddDirModal"
       >
-        <a-input v-model="addDirForm.name" placeholder="请输入目录名称" style="margin-bottom: 12px" />
+        <a-input v-model="addDirForm.name" placeholder="请输入目录名称" style="margin-bottom: 12px"/>
       </a-modal>
 
       <a-modal
@@ -107,8 +116,8 @@
 
 <script setup lang="ts">
 import Container from "../../components/Container.vue";
-import {computed, onMounted, reactive, ref} from "vue";
-import {getMetricDirTree, addMetricDir, delMetricDir, pageMetric} from "../../services/metric/metric.ts";
+import {computed, onMounted, ref} from "vue";
+import {addMetricDir, delMetricDir, getMetricDirTree, pageMetric} from "../../services/metric/metric.ts";
 import {Notification} from "@arco-design/web-vue";
 import router from "../../router";
 
@@ -130,7 +139,7 @@ const pageMetricForm = ref({pageSize: 10, currentPage: 1, metricName: ''});
 const metricsData = ref([])
 
 const onAddDirClick = (parentId: number | null) => {
-  addDirForm.value = { name: '', parentId };
+  addDirForm.value = {name: '', parentId};
   addDirModalVisible.value = true;
 };
 
@@ -155,7 +164,7 @@ const handleAddDir = async () => {
 
 const resetAddDirModal = () => {
   addDirModalVisible.value = false;
-  addDirForm.value = { name: '', parentId: null };
+  addDirForm.value = {name: '', parentId: null};
 };
 
 const onRightClick = (info) => {
@@ -182,10 +191,10 @@ const searchData = (keyword: string) => {
     return data
         .map((item) => {
           const match = item.title.toLowerCase().includes(keyword.toLowerCase());
-          if (match) return { ...item };
+          if (match) return {...item};
           if (item.children) {
             const children = loop(item.children);
-            if (children.length) return { ...item, children };
+            if (children.length) return {...item, children};
           }
           return null;
         })
@@ -205,27 +214,27 @@ onMounted(() => {
   // TODO 获取所有指标
 });
 
-const fetchMetricPage = ()=>{
-  pageMetric(pageMetricForm.value).then(resp=>{
+const fetchMetricPage = () => {
+  pageMetric(pageMetricForm.value).then(resp => {
     metricsData.value = []
-    resp.data.records.forEach(m=>{
+    resp.data.records.forEach(m => {
       metricsData.value.push(m)
     })
 
-  }).catch(error=>{
+  }).catch(error => {
     console.log(error)
   })
 
 }
 
-const clickDirEdit = ()=>{
+const clickDirEdit = () => {
 
 }
 
-const clickDirDel = async (nodeDirId)=>{
+const clickDirDel = async (nodeDirId) => {
   const resp = await delMetricDir(nodeDirId)
 
-  if(!resp.code){
+  if (!resp.code) {
     Notification.success({
       title: '系统提示',
       content: '删除成功',
@@ -300,19 +309,19 @@ const scrollPercent = {
 };
 
 // 0普通指标 1复合指标
-const selectIndexType = (type: number)=>{
-  if(type == 0){
+const selectIndexType = (type: number) => {
+  if (type == 0) {
     router.push({name: '普通指标创建或修改'})
-  }else{
+  } else {
     router.push({name: '复合指标创建或修改'})
   }
 
 }
 
-const onAIClick = (record)=>{
+const onAIClick = (record) => {
   router.push({
     name: '平台ai助手',
-    query:{
+    query: {
       metricsId: record.id,
     }
   })
@@ -322,7 +331,7 @@ const onAIClick = (record)=>{
 
 <style>
 
-.index-manager-container{
+.index-manager-container {
   background-color: #f1f6fb;
   display: flex;
   flex-grow: 1;
@@ -351,31 +360,31 @@ const onAIClick = (record)=>{
   gap: 10px;
 }
 
-.index-manager-header{
+.index-manager-header {
   display: flex;
   justify-content: space-between;
   margin: 0 10px 10px 10px;
 }
 
-.index-dir-header{
+.index-dir-header {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.index-dir-header-title{
+.index-dir-header-title {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
 }
 
-.index-dir-header-title-left{
+.index-dir-header-title-left {
   display: flex;
   align-items: center;
   gap: 5px;
 }
 
-.index-list-optional{
+.index-list-optional {
   gap: 5px;
   display: flex;
 }

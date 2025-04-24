@@ -19,16 +19,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue"
+import {onMounted, ref} from "vue"
 import Container from "../../components/Container.vue"
 
 const cardList = ref([
-  { title: "指标总数", value: 5, color: "#1e80ff" },
-  { title: "普通指标数量", value: 4, color: "#00b42a" },
-  { title: "复合指标数量", value: 1, color: "#722ed1" },
-  { title: "已发布指标", value: 5, color: "#165dff" },
-  { title: "运行中调度", value: 5, color: "#ff7d00" },
-  { title: "失败调度", value: 0, color: "#f53f3f" },
+  {title: "指标总数", value: 5, color: "#1e80ff"},
+  {title: "普通指标数量", value: 4, color: "#00b42a"},
+  {title: "复合指标数量", value: 1, color: "#722ed1"},
+  {title: "已发布指标", value: 5, color: "#165dff"},
+  {title: "运行中调度", value: 5, color: "#ff7d00"},
+  {title: "失败调度", value: 0, color: "#f53f3f"},
 ])
 
 onMounted(() => {

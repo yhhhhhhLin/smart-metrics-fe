@@ -3,7 +3,7 @@
     <template #content>
       <div class="chat-ai-assistant">
         <div class="chat-header">
-          关于指标id：{{metricsId}}
+          关于指标id：{{ metricsId }}
           <h2>平台 AI 助手</h2>
         </div>
 
@@ -70,7 +70,7 @@
                 </a-popconfirm>
 
                 <div class="setting-btn" @click="enableReasoning = !enableReasoning">
-                  <icon-codepen  size="18"/>
+                  <icon-codepen size="18"/>
                   {{ enableReasoning ? '关闭深度思考(R1)' : '开启深度思考(R1)' }}
                 </div>
               </div>
@@ -99,7 +99,6 @@ import Container from "../../components/Container.vue";
 import {onMounted, reactive, ref} from "vue";
 import {fetchEventSource} from "@microsoft/fetch-event-source";
 import {Message} from "@arco-design/web-vue";
-import router from "../../router";
 import {useRoute} from "vue-router";
 
 const inputMsg = ref('');
@@ -123,7 +122,7 @@ onMounted(() => {
 
   const route = useRoute()
   const t = route.query.metricsId
-  if(t){
+  if (t) {
     metricsId.value = t
   }
 
@@ -161,7 +160,7 @@ function handlerSendMessage() {
     signal: controller.signal,
     headers: {
       "Content-Type": "application/json",
-      "dscId":"1",
+      "dscId": "1",
       "metricsId": metricsId.value,
       "reasoner": enableReasoning.value.toString(),
       // "token": "123"
@@ -187,7 +186,7 @@ function handlerSendMessage() {
       newMessage = contentWord;
       newReasoningMessage = reasoningContentWord
 
-      messages[msgLength] = {role: 'assistant',reasoningContent: newReasoningMessage ,content: newMessage};
+      messages[msgLength] = {role: 'assistant', reasoningContent: newReasoningMessage, content: newMessage};
     },
     onerror(err) {
       isDisabledInput.value = false;
@@ -313,7 +312,7 @@ function editPromptBeforeCancel() {
   padding: 1px 20px 24px 20px;
 }
 
-.chat-header{
+.chat-header {
   display: flex;
   gap: 43%;
 }
