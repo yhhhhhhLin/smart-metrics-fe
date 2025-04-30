@@ -123,7 +123,8 @@
 
       <div class="user-register-main-right">
         <img
-            src="../../assets/images/RegisterRightImage.png"
+
+            src="../../assets/images/LoginRightImage.png"
             alt="右侧图片"
             class="register-main-right-image"
         />

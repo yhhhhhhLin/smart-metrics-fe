@@ -31,12 +31,19 @@
 
             </div>
             <div class="home-other">
-              这是other
+              <div class="no-message">
+                <div class="no-message__icon">📭</div>
+                <h3 class="no-message__text">暂无任何消息</h3>
+                <button class="no-message__button">
+                  <span class="plus-icon"></span>
+                  添加新消息
+                </button>
+              </div>
 
             </div>
           </div>
           <div class="home-message">
-            这是系统公共
+            系统公告
 
           </div>
         </div>
@@ -185,12 +192,86 @@ const clickOption = (optionKey: number) => {
   background-color: #FFFFFF;
   height: 280px;
   border-radius: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .home-message {
   background-color: #FFFFFF;
   width: 21%;
   border-radius: 5px;
+  display: flex;
+  justify-content: start;
+}
+
+.no-message {
+  text-align: center;
+  padding: 2rem;
+  max-width: 300px;
+}
+
+.no-message__icon {
+  font-size: 3.5rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.8;
+}
+
+.no-message__text {
+  color: #6c757d;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+}
+
+.no-message__button {
+  background: #0d6efd;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.no-message__button:hover {
+  background: #0b5ed7;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+}
+
+.plus-icon {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  position: relative;
+}
+
+.plus-icon::before,
+.plus-icon::after {
+  content: '';
+  position: absolute;
+  background: white;
+  border-radius: 2px;
+}
+
+.plus-icon::before {
+  width: 100%;
+  height: 2px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.plus-icon::after {
+  width: 2px;
+  height: 100%;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 

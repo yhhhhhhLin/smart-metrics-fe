@@ -3,7 +3,7 @@
     <div class="user-login-main">
       <div class="user-login-main-left">
         <div class="login-main-left-header">
-          欢迎使用****！
+          欢迎使用指标管理平台！
         </div>
         <div class="login-main-left-title">
           登录
