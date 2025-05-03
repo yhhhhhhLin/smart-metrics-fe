@@ -88,5 +88,11 @@ export function getAdvancedSearchSql(info: API.AdvancedSearchDto){
     return post<string>('/dsc/db/getAdvancedSearchSql', info);
 }
 
+export function delProjectById(id: number){
+    return get<boolean>('/dsc/project/del',id );
+}
+
+
+
 
 

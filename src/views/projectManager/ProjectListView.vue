@@ -21,7 +21,7 @@
               <a-button type="primary" @click="updateStatus(record)">
                 {{ record.isTop == 1 ? '取消置顶' : '置顶' }}
               </a-button>
-              <a-button @click="$modal.info({ title: 'Name', content: record.name })">删除</a-button>
+              <a-button @click="deleteProject(record)">删除</a-button>
             </template>
 
             <template #projectName="{record}">
@@ -78,13 +78,14 @@
 import Container from "../../components/Container.vue";
 import {onMounted, reactive, ref} from "vue";
 import {
-  addDscProject,
+  addDscProject, delProjectById,
   listDataSource,
   pageProject,
   updateProjectIsTopStatus
 } from "../../services/datasource/datasource.ts";
 import {Notification} from "@arco-design/web-vue";
 import router from "../../router";
+import {log} from "echarts/types/src/util/log";
 
 const projectAddForm = reactive<API.projectAddDto>({projectName: '', projectNameEn: '', projectDesc: '', dscId: null});
 const projectAddVisible = ref(false)
@@ -226,6 +227,27 @@ const goToProjectOverviewPage = (projectId: number, dscId: number) => {
         path: "/project/overview"
       }
   )
+}
+
+const deleteProject = (record) =>{
+  log('删除id为：'+record.id)
+
+  delProjectById(record).then((resp)=>{
+    if(resp.data){
+      fetchProject()
+      Notification.success({
+        title: '系统提示',
+        content: '删除成功',
+        closable: true
+      })
+    }else{
+      console.log(resp)
+    }
+
+  }).catch((error)=>{
+    console.log(error)
+  })
+
 }
 </script>
 
