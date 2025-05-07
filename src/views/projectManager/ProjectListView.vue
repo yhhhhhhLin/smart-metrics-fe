@@ -85,7 +85,6 @@ import {
 } from "../../services/datasource/datasource.ts";
 import {Notification} from "@arco-design/web-vue";
 import router from "../../router";
-import {log} from "echarts/types/src/util/log";
 
 const projectAddForm = reactive<API.projectAddDto>({projectName: '', projectNameEn: '', projectDesc: '', dscId: null});
 const projectAddVisible = ref(false)
@@ -230,7 +229,6 @@ const goToProjectOverviewPage = (projectId: number, dscId: number) => {
 }
 
 const deleteProject = (record) =>{
-  log('删除id为：'+record.id)
 
   delProjectById(record).then((resp)=>{
     if(resp.data){

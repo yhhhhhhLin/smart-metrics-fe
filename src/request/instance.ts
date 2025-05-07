@@ -15,6 +15,15 @@ instance.interceptors.request.use(function (config) {
     if (token != null) {
         config.headers.token = token;
     }
+
+    // 如果有projetId，添加到请求头
+
+    const projectId = sessionStorage.getItem('projectId');
+    // 如果有 token，添加到请求头
+    if (projectId != null) {
+        config.headers.projectId = projectId;
+    }
+
     return config;
 }, function (error) {
     // 请求错误时提示错误信息
