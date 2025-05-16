@@ -31,8 +31,8 @@ export function pageDataSourceAlertRule(pageInfo: API.Page<API.AlertRulePage>) {
     return post<API.Page<API.DscAlertRuleVO>>('/dsc/alert/page', pageInfo);
 }
 
-export function addAlertRule(addAlertRuleInfo: API.AlertRuleAddOrUpdateDto) {
-    return post<boolean>("/dsc/alert/add", addAlertRuleInfo);
+export function addOrUpdateAlertRule(addAlertRuleInfo: API.AlertRuleAddOrUpdateDto) {
+    return post<boolean>("/dsc/alert/addOrUpdate", addAlertRuleInfo);
 }
 
 export function updateAlertRuleStatus(info: API.IdAndStatusDto) {

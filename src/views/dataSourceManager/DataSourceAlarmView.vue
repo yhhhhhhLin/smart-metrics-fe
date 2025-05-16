@@ -107,7 +107,7 @@
 import container from "../../components/Container.vue";
 import {onMounted, reactive, ref} from "vue";
 import {
-  addAlertRule,
+  addOrUpdateAlertRule,
   listDataSource,
   pageDataSourceAlertRule,
   updateAlertRuleStatus
@@ -253,7 +253,7 @@ const handleClick = () => {
 
 const handleOk = () => {
   visible.value = false;
-  addAlertRule(alarmForm).then((resp) => {
+  addOrUpdateAlertRule(alarmForm).then((resp) => {
     if (resp.code == 0) {
       Notification.success({
         title: '系统提示',
