@@ -215,8 +215,12 @@ export const routes: any = [
                 name: '注册',
                 component: UserRegisterView
             },
-
         ]
+    },
+    {
+        path: '/project/projectManager',
+        name: '项目管理',
+        component: ProjectManagerView
     },
     {
         path: projectRootPath,
