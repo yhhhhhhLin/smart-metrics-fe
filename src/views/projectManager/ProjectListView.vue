@@ -253,10 +253,23 @@ const deleteProject = (record) =>{
 .project-list-content {
   background-color: #FFFFFF;
   flex-grow: 1;
-  border-radius: 5px;
+  border-radius: 8px;
   display: flex;
   flex-direction: column;
   height: 100%;
+  animation: fadeInUp 0.6s ease-out;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .project-list-operate {
@@ -264,12 +277,330 @@ const deleteProject = (record) =>{
   display: flex;
   justify-content: space-between;
   padding: 20px;
+  animation: slideInDown 0.5s ease-out;
+  position: relative;
+}
 
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.project-list-operate-project-name-search {
+  animation: fadeInLeft 0.5s ease-out 0.2s both;
+}
+
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.project-list-operate-create-project-btn {
+  animation: fadeInRight 0.5s ease-out 0.2s both;
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* 搜索框动画 */
+:deep(.arco-input-search) {
+  transition: all 0.3s ease;
+}
+
+:deep(.arco-input-search:hover) {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+:deep(.arco-input-search .arco-input) {
+  transition: all 0.3s ease;
+}
+
+:deep(.arco-input-search .arco-input:focus) {
+  transform: scale(1.01);
+  box-shadow: 0 0 0 2px rgba(var(--primary-6), 0.1);
+}
+
+/* 新建项目按钮动画 */
+:deep(.arco-btn-primary) {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+:deep(.arco-btn-primary:hover) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(var(--primary-6), 0.2);
+}
+
+:deep(.arco-btn-primary::after) {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: 0.5s;
+}
+
+:deep(.arco-btn-primary:hover::after) {
+  left: 100%;
 }
 
 .project-page-content-content {
   height: 100%;
   padding: 20px;
+  animation: fadeIn 0.5s ease-out 0.3s both;
 }
 
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* 表格动画 */
+:deep(.arco-table) {
+  transition: all 0.3s ease;
+}
+
+:deep(.arco-table-tr) {
+  transition: all 0.3s ease;
+}
+
+:deep(.arco-table-tr:hover) {
+  transform: translateX(4px);
+  background-color: rgba(var(--primary-6), 0.04);
+}
+
+:deep(.arco-table-td) {
+  transition: all 0.3s ease;
+}
+
+/* 表格中的链接动画 */
+:deep(.arco-link) {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+:deep(.arco-link::after) {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background-color: var(--primary-6);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+  transform-origin: right;
+}
+
+:deep(.arco-link:hover::after) {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* 操作按钮动画 */
+:deep(.arco-btn) {
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+:deep(.arco-btn:hover) {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+:deep(.arco-btn::after) {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.5);
+  opacity: 0;
+  border-radius: 100%;
+  transform: scale(1, 1) translate(-50%);
+  transform-origin: 50% 50%;
+}
+
+:deep(.arco-btn:active::after) {
+  animation: ripple 0.6s ease-out;
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0, 0);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(20, 20);
+    opacity: 0;
+  }
+}
+
+/* 弹窗动画优化 */
+:deep(.arco-modal) {
+  animation: modalFadeIn 0.3s ease-out;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+:deep(.arco-modal-content) {
+  animation: modalContentFadeIn 0.3s ease-out 0.1s both;
+}
+
+@keyframes modalContentFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 表单输入框动画 */
+:deep(.arco-form-item) {
+  transition: all 0.3s ease;
+}
+
+:deep(.arco-input-wrapper),
+:deep(.arco-textarea-wrapper),
+:deep(.arco-select-view) {
+  transition: all 0.3s ease;
+}
+
+:deep(.arco-input-wrapper:hover),
+:deep(.arco-textarea-wrapper:hover),
+:deep(.arco-select-view:hover) {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+:deep(.arco-input-wrapper:focus-within),
+:deep(.arco-textarea-wrapper:focus-within),
+:deep(.arco-select-view:focus-within) {
+  transform: translateY(-1px);
+  box-shadow: 0 0 0 2px rgba(var(--primary-6), 0.1);
+}
+
+/* 提示框动画 */
+:deep(.arco-alert) {
+  animation: alertFadeIn 0.3s ease-out;
+  transition: all 0.3s ease;
+}
+
+@keyframes alertFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+:deep(.arco-alert:hover) {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* 分页器动画 */
+:deep(.arco-pagination) {
+  animation: fadeIn 0.5s ease-out 0.4s both;
+}
+
+:deep(.arco-pagination-item) {
+  transition: all 0.3s ease;
+}
+
+:deep(.arco-pagination-item:hover) {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+:deep(.arco-pagination-item-active) {
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(var(--primary-6), 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(var(--primary-6), 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(var(--primary-6), 0);
+  }
+}
+
+/* 通知提示动画 */
+:deep(.arco-notification) {
+  animation: notificationSlideIn 0.3s ease-out;
+}
+
+@keyframes notificationSlideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+:deep(.arco-notification-close) {
+  transition: all 0.3s ease;
+}
+
+:deep(.arco-notification-close:hover) {
+  transform: rotate(90deg);
+  color: var(--primary-6);
+}
 </style>
