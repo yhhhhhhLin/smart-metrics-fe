@@ -29,18 +29,26 @@
       <!-- 搜索模态框 -->
       <a-modal v-model:visible="searchVisible" title="数据查询" :width="800">
         <a-form :model="searchForm" layout="inline" @submit.prevent>
-          <a-form-item
-              v-for="field in dynamicFields"
-              :key="field.name"
-              :label="field.label"
-          >
-            <component
-                :is="field.type === 'date' ? 'a-date-picker' : 'a-input'"
-                v-model="searchForm[field.name]"
-                :placeholder="'请输入' + field.label"
-                allow-clear
+          <a-form-item label="时间区间">
+            <a-range-picker
+              v-model="searchForm.dateRange"
+              format="YYYY-MM-DD"
+              :placeholder="['开始日期', '结束日期']"
+              allow-clear
+              style="width: 320px;"
+              value-format="YYYY-MM-DD"
             />
           </a-form-item>
+          <a-divider style="margin: 12px 0" />
+          <template v-for="field in dynamicFields" :key="field.columnName">
+            <a-form-item :label="field.description">
+              <a-input
+                v-model="searchForm[field.columnName]"
+                :placeholder="'请输入' + field.description"
+                allow-clear
+              />
+            </a-form-item>
+          </template>
           <a-form-item>
             <a-button type="primary" @click="doSearch">查询</a-button>
           </a-form-item>
@@ -60,15 +68,34 @@
 
 <script setup lang="ts">
 import Container from "../../components/Container.vue";
-import { ref, computed, onMounted, nextTick } from "vue";
+import { ref, onMounted } from "vue";
 import { Message } from "@arco-design/web-vue";
-import {getMetricDimFields, pageMetric} from "../../services/metric/metric.ts";
-import {log} from "echarts/types/src/util/log";
+import { getMetricDimFields, pageMetric } from "../../services/metric/metric.ts";
+import dayjs from 'dayjs';
+import {query} from "../../services/metric/metricMarket.ts";
 
 interface MetricItem {
   id: number;
   metricName: string;
   metricCode: string;
+}
+
+interface SearchFormData {
+  dateRange: [string, string] | null;
+  [key: string]: any;
+}
+
+// 定义查询参数接口
+interface MetricQueryParams {
+  metricId: number;
+  startDate: string | null;
+  endDate: string | null;
+  dimensions: Array<{
+    field: string;      // 格式: tableAlias_columnName
+    value: string;      // 查询值
+    description: string; // 字段描述
+    type: string;       // 数据类型
+  }>;
 }
 
 // 所有指标
@@ -77,18 +104,26 @@ const dimDataList = ref<MetricItem[]>([]);
 // 当前搜索使用的指标
 const selectedMetricId = ref<number | null>(null);
 
-// 动态搜索框字段（由后端维度接口返回）
-const dynamicFields = ref<{ name: string; label: string; type: string }[]>([]);
+// 动态搜索框字段
+const dynamicFields = ref<Array<{
+  databaseName: string;
+  description: string;
+  dataType: string;
+  columnName: string;
+  tableAlias: string;
+}>>([]);
 
 // 搜索表单数据
-const searchForm = ref<Record<string, any>>({});
+const searchForm = ref<SearchFormData>({
+  dateRange: null
+});
 
 // 表格展示数据
 const tableData = ref<any[]>([]);
 
 const searchVisible = ref(false);
 
-// 表格列（简化）
+// 表格列
 const tableColumns = [
   { title: "日期", dataIndex: "t1_order_date", key: "date" },
   { title: "名称", dataIndex: "t0_product_name", key: "name" },
@@ -98,45 +133,79 @@ const tableColumns = [
 // 加载所有指标
 onMounted(() => {
   pageMetric({ currentPage: 1, pageSize: 10 })
-      .then(res => {
-        dimDataList.value = res.data.records;
-      })
-      .catch(console.error);
+    .then(res => {
+      dimDataList.value = res.data.records;
+    })
+    .catch(console.error);
 });
 
-// 点击打开搜索框
+// 打开搜索模态框
 const openSearchModal = async (item: MetricItem) => {
   selectedMetricId.value = item.id;
-  searchForm.value = {};
+  // 重置表单
+  searchForm.value = {
+    dateRange: null
+  };
   tableData.value = [];
 
   try {
-    // 获取该指标的维度字段
-    getMetricDimFields(item.id).then(resp=>{
-      console.log(resp)
-      // dynamicFields.value = resp.data || [];
-      searchVisible.value = true;
-
-    }).catch(error=>{
-      console.log(error)
-    })
-  } catch (e) {
-    console.log("失败"+e)
+    const resp = await getMetricDimFields(item.id);
+    dynamicFields.value = resp.data || [];
+    // 初始化动态字段
+    dynamicFields.value.forEach(field => {
+      searchForm.value[field.columnName] = '';
+    });
+    searchVisible.value = true;
+  } catch (error) {
+    console.error("加载搜索条件失败:", error);
     Message.error("加载搜索条件失败");
   }
 };
 
-// 点击查询按钮
+// 执行搜索
 const doSearch = async () => {
   try {
-    // const res = await queryMetricData({
-    //   metricId: selectedMetricId.value,
-    //   filters: searchForm.value
-    // });
-    tableData.value = res.data || [];
+    // 构建查询参数
+    const queryParams: MetricQueryParams = {
+      metricId: selectedMetricId.value!,
+      startDate: searchForm.value.dateRange?.[0] || null,
+      endDate: searchForm.value.dateRange?.[1] || null,
+      dimensions: dynamicFields.value
+        .filter(field => searchForm.value[field.columnName])
+        .map(field => ({
+          field: `${field.tableAlias}_${field.columnName}`,
+          value: searchForm.value[field.columnName],
+          description: field.description,
+          type: field.dataType
+        }))
+    };
+
+    // 打印查询参数
+    console.log('发送到后端的查询参数:', JSON.stringify(queryParams, null, 2));
+
+    // TODO: 调用后端接口
+    query(queryParams).then(resp=>{
+      console.log(resp)
+
+    }).catch(error=>{
+      console.log(error)
+    })
+    // const res = await queryMetricData(queryParams);
+    // if (res.code === 0) {
+    //   tableData.value = res.data || [];
+    // } else {
+    //   Message.error(res.message || '查询失败');
+    // }
+
   } catch (e) {
+    console.error("查询失败:", e);
     Message.error("查询失败");
   }
+};
+
+// 打开图表模态框（如果需要的话）
+const openChartModal = (item: MetricItem) => {
+  // 实现图表展示逻辑
 };
 </script>
 
@@ -168,5 +237,18 @@ const doSearch = async () => {
 
 .clickable-title:hover {
   color: var(--color-primary-hover);
+}
+
+/* 搜索表单样式 */
+:deep(.arco-form-item) {
+  margin-bottom: 16px;
+}
+
+:deep(.arco-form-item-label) {
+  font-weight: 500;
+}
+
+:deep(.arco-input-wrapper) {
+  width: 240px;
 }
 </style>
