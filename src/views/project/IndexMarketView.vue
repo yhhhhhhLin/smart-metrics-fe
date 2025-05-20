@@ -1,101 +1,164 @@
 <template>
   <container :top-menu-type="2" :top-menu-selected="'/project/index-market'">
     <template #content>
-      <div class="page">
-        <a-card
-            v-for="item in dimDataList"
+      <div class="index-market">
+        <!-- 搜索和筛选区域 -->
+        <div class="market-header">
+          <div class="search-area">
+            <a-input-search
+              v-model="searchKeyword"
+              placeholder="搜索指标名称或编码"
+              allow-clear
+              @search="handleSearch"
+              style="width: 300px"
+            />
+          </div>
+          <div class="filter-area">
+            <a-space>
+              <a-select
+                v-model="filterType"
+                placeholder="指标类型"
+                allow-clear
+                style="width: 120px"
+                @change="handleFilter"
+              >
+                <a-option value="normal">普通指标</a-option>
+                <a-option value="composite">复合指标</a-option>
+              </a-select>
+            </a-space>
+          </div>
+        </div>
+
+        <!-- 指标卡片网格 -->
+        <div class="metric-grid">
+          <a-card
+            v-for="item in filteredMetrics"
             :key="item.id"
             class="metric-card"
-            hoverable
-        >
-          <template #extra>
-            <a-button type="primary" size="small" @click="openSearchModal(item)">搜索</a-button>
-          </template>
-          <a-space direction="vertical" size="mini">
-            <a-typography-title
-                :heading="6"
-                class="clickable-title"
-                @click="openChartModal(item)"
-            >
-              {{ item.metricName }}
-            </a-typography-title>
-            <a-typography-text type="secondary">
-              指标标识：{{ item.metricCode }}
-            </a-typography-text>
-          </a-space>
-        </a-card>
-      </div>
-
-      <!-- 搜索模态框 -->
-      <a-modal v-model:visible="searchVisible" title="数据查询" :width="1000">
-        <a-form :model="searchForm" layout="inline" @submit.prevent>
-          <a-form-item label="时间区间">
-            <a-range-picker
-              v-model="searchForm.dateRange"
-              format="YYYY-MM-DD"
-              :placeholder="['开始日期', '结束日期']"
-              allow-clear
-              style="width: 320px;"
-              value-format="YYYY-MM-DD"
-            />
-          </a-form-item>
-          <a-divider style="margin: 12px 0" />
-          <template v-for="field in dynamicFields" :key="field.columnName">
-            <a-form-item :label="field.description">
-              <a-input
-                v-model="searchForm[field.columnName]"
-                :placeholder="'请输入' + field.description"
-                allow-clear
-              />
-            </a-form-item>
-          </template>
-          <a-form-item>
-            <a-button type="primary" @click="doSearch">查询</a-button>
-          </a-form-item>
-        </a-form>
-        <a-divider />
-        <div class="table-container">
-          <a-table
-            :data="tableData"
-            :columns="tableColumns"
-            :pagination="{
-              total: tableData.length,
-              pageSize: 10,
-              showTotal: true,
-              showJumper: true,
-              showPageSize: true
-            }"
             :bordered="false"
-            :stripe="true"
-            :scroll="{ x: '100%', y: '500px' }"
-            size="middle"
-            class="metric-table"
+            hoverable
           >
-            <template #empty>
-              <div class="empty-data">
-                <icon-empty />
-                <span>暂无数据</span>
+            <template #cover>
+              <div class="metric-card-cover">
+                <icon-data-analysis class="metric-icon" />
               </div>
             </template>
-          </a-table>
+            <template #actions>
+              <a-button type="text" @click="openSearchModal(item)">
+                <template #icon><icon-search /></template>
+                查询
+              </a-button>
+            </template>
+            <a-card-meta>
+              <template #title>
+                <div class="metric-title">
+                  {{ item.metricName }}
+                </div>
+              </template>
+              <template #description>
+                <div class="metric-info">
+                  <div class="metric-code">
+                    <icon-code /> {{ item.metricCode }}
+                  </div>
+                  <div class="metric-tags">
+                    <a-tag color="arcoblue" size="small">
+                      {{ item.metricType === 'normal' ? '普通指标' : '复合指标' }}
+                    </a-tag>
+                    <a-tag color="green" size="small">已启用</a-tag>
+                  </div>
+                </div>
+              </template>
+            </a-card-meta>
+          </a-card>
         </div>
-      </a-modal>
+
+        <!-- 分页器 -->
+        <div class="pagination-container">
+          <a-pagination
+            v-model:current="currentPage"
+            :total="totalMetrics"
+            :page-size="pageSize"
+            show-total
+            show-jumper
+            show-page-size
+            @change="handlePageChange"
+          />
+        </div>
+
+        <!-- 搜索模态框 -->
+        <a-modal v-model:visible="searchVisible" title="数据查询" :width="1000">
+          <a-form :model="searchForm" layout="inline" @submit.prevent>
+            <a-form-item label="时间区间">
+              <a-range-picker
+                v-model="searchForm.dateRange"
+                format="YYYY-MM-DD"
+                :placeholder="['开始日期', '结束日期']"
+                allow-clear
+                style="width: 320px;"
+                value-format="YYYY-MM-DD"
+              />
+            </a-form-item>
+            <a-divider style="margin: 12px 0" />
+            <template v-for="field in dynamicFields" :key="field.columnName">
+              <a-form-item :label="field.description">
+                <a-input
+                  v-model="searchForm[field.columnName]"
+                  :placeholder="'请输入' + field.description"
+                  allow-clear
+                />
+              </a-form-item>
+            </template>
+            <a-form-item>
+              <a-button type="primary" @click="doSearch">查询</a-button>
+            </a-form-item>
+          </a-form>
+          <a-divider />
+          <div class="table-container">
+            <a-table
+              :data="tableData"
+              :columns="tableColumns"
+              :pagination="{
+                total: tableData.length,
+                pageSize: 10,
+                showTotal: true,
+                showJumper: true,
+                showPageSize: true
+              }"
+              :bordered="false"
+              :stripe="true"
+              :scroll="{ x: '100%', y: '500px' }"
+              size="middle"
+              class="metric-table"
+            >
+              <template #empty>
+                <div class="empty-data">
+                  <icon-empty />
+                  <span>暂无数据</span>
+                </div>
+              </template>
+            </a-table>
+          </div>
+        </a-modal>
+      </div>
     </template>
   </container>
 </template>
 
 <script setup lang="ts">
 import Container from "../../components/Container.vue";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { Message } from "@arco-design/web-vue";
 import { getMetricDimFields, pageMetric } from "../../services/metric/metric.ts";
 import dayjs from 'dayjs';
 import {query} from "../../services/metric/metricMarket.ts";
+import { IconSearch, IconCode } from '@arco-design/web-vue/es/icon';
 
 interface MetricItem {
   id: number;
   metricName: string;
   metricCode: string;
+  metricType: string;
+  status: string;
 }
 
 interface SearchFormData {
@@ -115,6 +178,13 @@ interface MetricQueryParams {
     type: string;       // 数据类型
   }>;
 }
+
+// 搜索和筛选状态
+const searchKeyword = ref('');
+const filterType = ref<string | null>(null);
+const currentPage = ref(1);
+const pageSize = ref(10);
+const totalMetrics = ref(0);
 
 // 所有指标
 const dimDataList = ref<MetricItem[]>([]);
@@ -148,8 +218,15 @@ const tableColumns = [
     dataIndex: 't0_order_date',
     width: 120,
     render: ({ record }) => {
-      const date = record.t0_order_date?.value;
-      return date ? dayjs(date).format('YYYY-MM-DD') : '-';
+      try {
+        const date = record.t0_order_date?.value;
+        if (!date) return '-';
+        // 处理ISO格式的日期字符串
+        return date.split('T')[0];
+      } catch (e) {
+        console.error('日期格式化错误:', e);
+        return '-';
+      }
     }
   },
   {
@@ -168,22 +245,76 @@ const tableColumns = [
     width: 120,
     align: 'right',
     render: ({ record }) => {
-      const value = record.daily_sales_stores;
-      return value ? value.toLocaleString('zh-CN', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      }) : '-';
+      try {
+        const value = record.daily_sales_stores;
+        if (value == null) return '-';
+        return Number(value).toLocaleString('zh-CN', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+      } catch (e) {
+        console.error('数值格式化错误:', e);
+        return '-';
+      }
     }
   }
 ];
 
+// 过滤后的指标列表
+const filteredMetrics = computed(() => {
+  let result = [...dimDataList.value];
+  
+  // 关键词搜索
+  if (searchKeyword.value) {
+    const keyword = searchKeyword.value.toLowerCase();
+    result = result.filter(item => 
+      item.metricName.toLowerCase().includes(keyword) ||
+      item.metricCode.toLowerCase().includes(keyword)
+    );
+  }
+  
+  // 类型筛选
+  if (filterType.value) {
+    result = result.filter(item => item.metricType === filterType.value);
+  }
+  
+  return result;
+});
+
+// 处理搜索
+const handleSearch = () => {
+  currentPage.value = 1;
+  // 可以在这里添加额外的搜索逻辑
+};
+
+// 处理筛选
+const handleFilter = () => {
+  currentPage.value = 1;
+  // 可以在这里添加额外的筛选逻辑
+};
+
+// 处理分页
+const handlePageChange = (page: number) => {
+  currentPage.value = page;
+  // 可以在这里添加分页加载逻辑
+};
+
 // 加载所有指标
-onMounted(() => {
-  pageMetric({ currentPage: 1, pageSize: 10 })
-    .then(res => {
-      dimDataList.value = res.data.records;
-    })
-    .catch(console.error);
+onMounted(async () => {
+  try {
+    const res = await pageMetric({ 
+      currentPage: currentPage.value, 
+      pageSize: pageSize.value 
+    });
+    dimDataList.value = res.data.records.map(item => ({
+      ...item,
+      status: 'active'
+    }));
+    totalMetrics.value = res.data.total;
+  } catch (error) {
+    console.error('加载指标列表失败:', error);
+    Message.error('加载指标列表失败');
+  }
 });
 
 // 打开搜索模态框
@@ -241,14 +372,122 @@ const doSearch = async () => {
     Message.error("查询失败");
   }
 };
-
-// 打开图表模态框（如果需要的话）
-const openChartModal = (item: MetricItem) => {
-  // 实现图表展示逻辑
-};
 </script>
 
 <style scoped>
+.index-market {
+  padding: 20px;
+  background-color: #f7f8fa;
+  min-height: 100%;
+}
+
+.market-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding: 16px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.metric-card {
+  transition: all 0.3s ease;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.metric-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.metric-card-cover {
+  height: 120px;
+  background: linear-gradient(135deg, var(--color-primary-light-1), var(--color-primary));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.metric-icon {
+  font-size: 48px;
+  color: #fff;
+  opacity: 0.9;
+}
+
+.metric-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-1);
+  margin-bottom: 8px;
+}
+
+.metric-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.metric-code {
+  color: var(--color-text-3);
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.metric-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  padding: 16px 0;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+/* 响应式调整 */
+@media screen and (max-width: 1400px) {
+  .metric-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .market-header {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .search-area {
+    width: 100%;
+  }
+  
+  .search-area :deep(.arco-input-wrapper) {
+    width: 100%;
+  }
+  
+  .metric-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 保持原有的模态框样式 */
 .page {
   display: flex;
   flex-direction: column;
