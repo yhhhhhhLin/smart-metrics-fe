@@ -27,7 +27,7 @@
       </div>
 
       <!-- 搜索模态框 -->
-      <a-modal v-model:visible="searchVisible" title="数据查询" :width="800">
+      <a-modal v-model:visible="searchVisible" title="数据查询" :width="1000">
         <a-form :model="searchForm" layout="inline" @submit.prevent>
           <a-form-item label="时间区间">
             <a-range-picker
@@ -54,13 +54,31 @@
           </a-form-item>
         </a-form>
         <a-divider />
-        <a-table
+        <div class="table-container">
+          <a-table
             :data="tableData"
             :columns="tableColumns"
-            row-key="key"
-            size="small"
-            bordered
-        />
+            :pagination="{
+              total: tableData.length,
+              pageSize: 10,
+              showTotal: true,
+              showJumper: true,
+              showPageSize: true
+            }"
+            :bordered="false"
+            :stripe="true"
+            :scroll="{ x: '100%', y: '500px' }"
+            size="middle"
+            class="metric-table"
+          >
+            <template #empty>
+              <div class="empty-data">
+                <icon-empty />
+                <span>暂无数据</span>
+              </div>
+            </template>
+          </a-table>
+        </div>
       </a-modal>
     </template>
   </container>
@@ -123,11 +141,40 @@ const tableData = ref<any[]>([]);
 
 const searchVisible = ref(false);
 
-// 表格列
+// 定义表格列配置
 const tableColumns = [
-  { title: "日期", dataIndex: "t1_order_date", key: "date" },
-  { title: "名称", dataIndex: "t0_product_name", key: "name" },
-  { title: "销售额", dataIndex: "fruit_daily_sales", key: "sales" }
+  {
+    title: '日期',
+    dataIndex: 't0_order_date',
+    width: 120,
+    render: ({ record }) => {
+      const date = record.t0_order_date?.value;
+      return date ? dayjs(date).format('YYYY-MM-DD') : '-';
+    }
+  },
+  {
+    title: '商品名称',
+    dataIndex: 't0_product_name',
+    width: 120,
+  },
+  {
+    title: '门店名称',
+    dataIndex: 't0_store_name',
+    width: 120,
+  },
+  {
+    title: '销售额',
+    dataIndex: 'daily_sales_stores',
+    width: 120,
+    align: 'right',
+    render: ({ record }) => {
+      const value = record.daily_sales_stores;
+      return value ? value.toLocaleString('zh-CN', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }) : '-';
+    }
+  }
 ];
 
 // 加载所有指标
@@ -180,23 +227,15 @@ const doSearch = async () => {
         }))
     };
 
-    // 打印查询参数
-    console.log('发送到后端的查询参数:', JSON.stringify(queryParams, null, 2));
-
-    // TODO: 调用后端接口
-    query(queryParams).then(resp=>{
-      console.log(resp)
-
-    }).catch(error=>{
-      console.log(error)
-    })
-    // const res = await queryMetricData(queryParams);
-    // if (res.code === 0) {
-    //   tableData.value = res.data || [];
-    // } else {
-    //   Message.error(res.message || '查询失败');
-    // }
-
+    // 调用后端接口
+    const res = await query(queryParams);
+    if (res.code === 0 && res.data.success) {
+      tableData.value = res.data.data;
+      // 显示总数据量
+      Message.success(`查询成功，共 ${res.data.totalCount} 条数据`);
+    } else {
+      Message.error(res.data.errorMessage || '查询失败');
+    }
   } catch (e) {
     console.error("查询失败:", e);
     Message.error("查询失败");
@@ -250,5 +289,56 @@ const openChartModal = (item: MetricItem) => {
 
 :deep(.arco-input-wrapper) {
   width: 240px;
+}
+
+.table-container {
+  margin-top: 16px;
+  background: #fff;
+  border-radius: 4px;
+}
+
+.metric-table {
+  --border-radius: 8px;
+}
+
+:deep(.arco-table-th) {
+  background-color: #f7f8fa;
+  font-weight: 600;
+  color: #1d2129;
+}
+
+:deep(.arco-table-td) {
+  color: #4e5969;
+}
+
+:deep(.arco-table-tr:hover) {
+  background-color: #f2f3f5;
+}
+
+:deep(.arco-table-pagination) {
+  margin-top: 16px;
+  padding: 0 16px;
+}
+
+.empty-data {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0;
+  color: #86909c;
+}
+
+.empty-data .icon-empty {
+  font-size: 48px;
+  margin-bottom: 8px;
+}
+
+/* 响应式调整 */
+@media screen and (max-width: 1200px) {
+  .table-container {
+    margin: 16px -16px;
+    border-radius: 0;
+  }
 }
 </style>
