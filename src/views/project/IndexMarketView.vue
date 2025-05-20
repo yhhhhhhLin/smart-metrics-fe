@@ -26,17 +26,20 @@
         </a-card>
       </div>
 
-      <a-modal v-model:visible="chartVisible" title="水果销售额趋势" :width="800" @afterOpen="renderChart">
-        <div ref="chartRef" class="chart-container" />
-      </a-modal>
-
-      <a-modal v-model:visible="searchVisible" title="水果销售额查询" :width="800">
+      <!-- 搜索模态框 -->
+      <a-modal v-model:visible="searchVisible" title="数据查询" :width="800">
         <a-form :model="searchForm" layout="inline" @submit.prevent>
-          <a-form-item label="日期">
-            <a-date-picker v-model="searchForm.date" placeholder="请选择日期" format="YYYY-MM-DD" />
-          </a-form-item>
-          <a-form-item label="水果名称">
-            <a-input v-model="searchForm.fruitName" placeholder="输入水果名" allow-clear />
+          <a-form-item
+              v-for="field in dynamicFields"
+              :key="field.name"
+              :label="field.label"
+          >
+            <component
+                :is="field.type === 'date' ? 'a-date-picker' : 'a-input'"
+                v-model="searchForm[field.name]"
+                :placeholder="'请输入' + field.label"
+                allow-clear
+            />
           </a-form-item>
           <a-form-item>
             <a-button type="primary" @click="doSearch">查询</a-button>
@@ -44,7 +47,7 @@
         </a-form>
         <a-divider />
         <a-table
-            :data="flattenedTableData"
+            :data="tableData"
             :columns="tableColumns"
             row-key="key"
             size="small"
@@ -57,9 +60,10 @@
 
 <script setup lang="ts">
 import Container from "../../components/Container.vue";
-import { ref, computed, onMounted, nextTick, watch } from "vue";
-import * as echarts from "echarts";
-import { pageMetric } from "../../services/metric/metric.ts";
+import { ref, computed, onMounted, nextTick } from "vue";
+import { Message } from "@arco-design/web-vue";
+import {getMetricDimFields, pageMetric} from "../../services/metric/metric.ts";
+import {log} from "echarts/types/src/util/log";
 
 interface MetricItem {
   id: number;
@@ -67,39 +71,31 @@ interface MetricItem {
   metricCode: string;
 }
 
-interface SalesDataItem {
-  t0_product_name: string;
-  fruit_daily_sales: number;
-}
-
-interface ChartDataGroup {
-  t1_order_date: string;
-  data: SalesDataItem[];
-}
-
+// 所有指标
 const dimDataList = ref<MetricItem[]>([]);
-const chartVisible = ref(false);
+
+// 当前搜索使用的指标
+const selectedMetricId = ref<number | null>(null);
+
+// 动态搜索框字段（由后端维度接口返回）
+const dynamicFields = ref<{ name: string; label: string; type: string }[]>([]);
+
+// 搜索表单数据
+const searchForm = ref<Record<string, any>>({});
+
+// 表格展示数据
+const tableData = ref<any[]>([]);
+
 const searchVisible = ref(false);
-const chartRef = ref<HTMLElement | null>(null);
-let chartInstance: echarts.ECharts | null = null;
 
-const searchForm = ref({
-  date: null as string | null,
-  fruitName: ''
-});
-
-const filteredData = ref<ChartDataGroup[]>([]);
-
-// mock 数据
-const mockData: ChartDataGroup[] = [
-  { t1_order_date: "2025-04-10", data: [{ fruit_daily_sales: 5, t0_product_name: "香蕉" }, { fruit_daily_sales: 6, t0_product_name: "橙子" }, { fruit_daily_sales: 7, t0_product_name: "牛奶" }] },
-  { t1_order_date: "2025-04-09", data: [{ fruit_daily_sales: 8, t0_product_name: "面包" }] },
-  { t1_order_date: "2025-04-08", data: [{ fruit_daily_sales: 6, t0_product_name: "橙子" }, { fruit_daily_sales: 21, t0_product_name: "牛奶" }, { fruit_daily_sales: 8, t0_product_name: "面包" }] },
-  { t1_order_date: "2025-04-07", data: [{ fruit_daily_sales: 5, t0_product_name: "香蕉" }, { fruit_daily_sales: 7, t0_product_name: "牛奶" }] },
-  { t1_order_date: "2025-04-06", data: [{ fruit_daily_sales: 5, t0_product_name: "香蕉" }, { fruit_daily_sales: 6, t0_product_name: "橙子" }] }
+// 表格列（简化）
+const tableColumns = [
+  { title: "日期", dataIndex: "t1_order_date", key: "date" },
+  { title: "名称", dataIndex: "t0_product_name", key: "name" },
+  { title: "销售额", dataIndex: "fruit_daily_sales", key: "sales" }
 ];
 
-// 加载维度数据
+// 加载所有指标
 onMounted(() => {
   pageMetric({ currentPage: 1, pageSize: 10 })
       .then(res => {
@@ -108,111 +104,39 @@ onMounted(() => {
       .catch(console.error);
 });
 
-// 监听图表 modal 打开自动绘图
-watch(chartVisible, async (val) => {
-  if (val) {
-    await nextTick();
-    renderChart();
-  }
-});
+// 点击打开搜索框
+const openSearchModal = async (item: MetricItem) => {
+  selectedMetricId.value = item.id;
+  searchForm.value = {};
+  tableData.value = [];
 
-// 打开图表 modal
-const openChartModal = (item: MetricItem) => {
-  if (item.metricName === "水果每天销售额1") {
-    chartVisible.value = true;
+  try {
+    // 获取该指标的维度字段
+    getMetricDimFields(item.id).then(resp=>{
+      console.log(resp)
+      // dynamicFields.value = resp.data || [];
+      searchVisible.value = true;
+
+    }).catch(error=>{
+      console.log(error)
+    })
+  } catch (e) {
+    console.log("失败"+e)
+    Message.error("加载搜索条件失败");
   }
 };
 
-// 打开搜索 modal
-const openSearchModal = (item: MetricItem) => {
-  if (item.metricName === "水果每天销售额1") {
-    searchVisible.value = true;
-    filteredData.value = mockData;
+// 点击查询按钮
+const doSearch = async () => {
+  try {
+    // const res = await queryMetricData({
+    //   metricId: selectedMetricId.value,
+    //   filters: searchForm.value
+    // });
+    tableData.value = res.data || [];
+  } catch (e) {
+    Message.error("查询失败");
   }
-};
-
-// 搜索过滤数据
-const doSearch = () => {
-  const { date, fruitName } = searchForm.value;
-
-  filteredData.value = mockData.filter(group => {
-    const dateMatch = !date || group.t1_order_date === date;
-    const fruitMatch = group.data.some(d => !fruitName || d.t0_product_name.includes(fruitName));
-    return dateMatch && fruitMatch;
-  });
-};
-
-// 表格数据展开处理
-const flattenedTableData = computed(() =>
-    filteredData.value.flatMap(group =>
-        group.data
-            .filter(item => !searchForm.value.fruitName || item.t0_product_name.includes(searchForm.value.fruitName))
-            .map(item => ({
-              key: `${group.t1_order_date}-${item.t0_product_name}`,
-              date: group.t1_order_date,
-              name: item.t0_product_name,
-              sales: item.fruit_daily_sales
-            }))
-    )
-);
-
-// 表格列定义
-const tableColumns = [
-  { title: "日期", dataIndex: "date", key: "date" },
-  { title: "水果名称", dataIndex: "name", key: "name" },
-  { title: "销售额", dataIndex: "sales", key: "sales" }
-];
-
-// 绘制 echarts 图表
-const renderChart = async () => {
-  await nextTick();
-  if (!chartRef.value) return;
-
-  if (!chartInstance) {
-    chartInstance = echarts.init(chartRef.value);
-  } else {
-    chartInstance.clear();
-  }
-
-  const groupedData: Record<string, any[]> = {};
-  mockData.forEach(group => {
-    group.data.forEach(item => {
-      const name = item.t0_product_name;
-      if (!groupedData[name]) groupedData[name] = [];
-      groupedData[name].push([group.t1_order_date, item.fruit_daily_sales]);
-    });
-  });
-
-  const series = Object.entries(groupedData).map(([name, data]) => ({
-    name,
-    type: 'scatter',
-    symbolSize: 20,
-    data
-  }));
-
-  const option: echarts.EChartsOption = {
-    tooltip: {
-      trigger: 'item',
-      formatter: (params: any) =>
-          `${params.seriesName}<br/>日期: ${params.value[0]}<br/>销售额: ${params.value[1]}`
-    },
-    legend: { top: 10 },
-    xAxis: {
-      type: 'category',
-      name: '日期',
-      nameLocation: 'middle',
-      nameGap: 25,
-      axisLabel: { rotate: 30 }
-    },
-    yAxis: {
-      type: 'value',
-      name: '销售额'
-    },
-    series
-  };
-
-  chartInstance.setOption(option);
-  chartInstance.resize();
 };
 </script>
 
@@ -244,10 +168,5 @@ const renderChart = async () => {
 
 .clickable-title:hover {
   color: var(--color-primary-hover);
-}
-
-.chart-container {
-  width: 100%;
-  height: 400px;
 }
 </style>

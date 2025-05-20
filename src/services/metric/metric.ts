@@ -50,6 +50,12 @@ export function pageMetric(info: API.PageMetricDto){
     return post<API.Page<API.IndexMetricVO>>('/metric/page',info)
 }
 
+export function getMetricDimFields(info: number){
+    return get('/metric/getMetricDimFields?id='+info)
+}
+
+
+
 
 
 
