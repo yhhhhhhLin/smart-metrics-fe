@@ -1,7 +1,7 @@
 <template>
   <a-menu mode="horizontal" :default-selected-keys="[props.default]" @menu-item-click="clickMenu">
     <div v-for="route in routes" :key="route.path">
-      <a-menu-item :key=getFullPath(route.path)>{{ route.name }}</a-menu-item>
+      <a-menu-item v-if="!(route.meta && route.meta.hidden)" :key="getFullPath(route.path)">{{ route.name }}</a-menu-item>
     </div>
   </a-menu>
 </template>

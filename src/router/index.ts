@@ -29,6 +29,7 @@ import normalIndexAddOrUpdateView from "../views/project/NormalIndexAddOrUpdateV
 import NormalIndexAddOrUpdateView from "../views/project/NormalIndexAddOrUpdateView.vue";
 import CompositeIndexAddOrUpdateView from "../views/project/CompositeIndexAddOrUpdateView.vue";
 import ProjectAIView from "../views/project/ProjectAIView.vue";
+import DataPredictionView from '../views/project/DataPredictionView.vue';
 
 export const dataSourceRootPath = '/datasource'
 export const projectManagerRootPath = '/projectManager'
@@ -148,6 +149,13 @@ export const projectRoutes = [
         path: 'projectAI',
         name: '平台ai助手',
         component: ProjectAIView
+    },
+    {
+        index: '7',
+        path: 'data-prediction',
+        name: '数据预测',
+        component: DataPredictionView,
+        meta: { hidden: true }
     }
 ]
 

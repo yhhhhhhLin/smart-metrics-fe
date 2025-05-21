@@ -2,7 +2,9 @@
   <div class="container">
     <!-- 顶部导航栏 -->
     <div class="header-container">
-      <div class="header-container-left-logo">这是logo图片位置</div>
+      <div class="header-container-left-logo">
+        <img :src="systemLogo" alt="系统LOGO" class="system-logo-img" />
+      </div>
 
       <div class="header-mid">
         <div class="header-drop-down-box" v-if="props.needDropDown">
@@ -59,6 +61,8 @@ import DataSourceManagerTopMenu from "./menu/DataSourceManagerTopMenu.vue";
 import UserTopInfo from "./userinfo/UserTopInfo.vue";
 import IndexManagerLeftMenu from "./menu/IndexManagerLeftMenu.vue";
 
+const systemLogo = "https://cdn.jsdelivr.net/gh/bytebase/bytebase@main/docs/static/img/logo.svg";
+
 const props = defineProps({
   navbarDefault: String,
   needDropDown: {type: Boolean, default: false},
@@ -99,6 +103,15 @@ const props = defineProps({
   width: 240px;
   height: 64px;
   background-color: #349fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.system-logo-img {
+  height: 40px;
+  max-width: 180px;
+  object-fit: contain;
 }
 
 .header-mid {
