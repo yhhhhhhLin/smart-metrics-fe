@@ -54,7 +54,9 @@ export function getMetricDimFields(info: number){
     return get('/metric/getMetricDimFields?id='+info)
 }
 
-
+export function metricPredict(info){
+    return post('/metric/analyse/metricPredict',info)
+}
 
 
 
