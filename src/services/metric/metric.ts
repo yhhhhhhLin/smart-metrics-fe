@@ -50,13 +50,57 @@ export function pageMetric(info: API.PageMetricDto){
     return post<API.Page<API.IndexMetricVO>>('/metric/page',info)
 }
 
-export function getMetricDimFields(info: number){
+export function getMetricDimFields(info: any){
     return get('/metric/getMetricDimFields?id='+info)
 }
 
 export function metricPredict(info){
     return post('/metric/analyse/metricPredict',info)
 }
+
+export function getFieldValue(info){
+    return post('/metric/analyse/getFieldValue',info)
+}
+
+
+export function taskList(){
+    return get('/metric/analyse/taskList')
+}
+
+// 指标权限管理相关接口
+export function getMetricPermissions() {
+    return get('/metric/permission/list')
+}
+
+export function addMetricPermission(data: {
+    metricId: number;
+    permissions: string[];
+    users: number[];
+}) {
+    return post('/metric/permission/add', data)
+}
+
+export function updateMetricPermission(data: {
+    id: number;
+    metricId: number;
+    permissions: string[];
+    users: number[];
+}) {
+    return post('/metric/permission/update', data)
+}
+
+export function deleteMetricPermission(id: number) {
+    return post('/metric/permission/delete', { id })
+}
+
+export function getMetricList() {
+    return get('/metric/list')
+}
+
+export function getUserList() {
+    return get('/user/list')
+}
+
 
 
 

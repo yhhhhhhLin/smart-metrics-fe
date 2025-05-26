@@ -149,7 +149,6 @@ import Container from "../../components/Container.vue";
 import { ref, onMounted, computed } from "vue";
 import { Message } from "@arco-design/web-vue";
 import { getMetricDimFields, pageMetric } from "../../services/metric/metric.ts";
-import dayjs from 'dayjs';
 import {query} from "../../services/metric/metricMarket.ts";
 import { IconSearch, IconCode } from '@arco-design/web-vue/es/icon';
 

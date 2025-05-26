@@ -30,6 +30,7 @@ import NormalIndexAddOrUpdateView from "../views/project/NormalIndexAddOrUpdateV
 import CompositeIndexAddOrUpdateView from "../views/project/CompositeIndexAddOrUpdateView.vue";
 import ProjectAIView from "../views/project/ProjectAIView.vue";
 import DataPredictionView from '../views/project/DataPredictionView.vue';
+import MetricPermissionView from '../views/project/MetricPermissionView.vue';
 
 export const dataSourceRootPath = '/datasource'
 export const projectManagerRootPath = '/projectManager'
@@ -156,6 +157,12 @@ export const projectRoutes = [
         name: '数据预测',
         component: DataPredictionView,
         meta: { hidden: true }
+    },
+    {
+        index: '8',
+        path: 'metric-permission',
+        name: '指标权限管理',
+        component: MetricPermissionView
     }
 ]
 

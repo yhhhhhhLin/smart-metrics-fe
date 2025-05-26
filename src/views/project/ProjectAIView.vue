@@ -110,7 +110,6 @@
                       :auto-size="{ minRows: 1, maxRows: 4 }"
                       placeholder="请输入要提问的问题..."
                       :disabled="isDisabledInput"
-                      @keydown.enter.prevent="handleEnterPress"
                       class="input-textarea"
                     />
                     <a-button 
@@ -199,17 +198,66 @@ function getPrompt(msg: API.GptMessageInfo[]): string {
   return msg.length > 0 && msg[0].role === 'system' ? msg[0].content : '';
 }
 
-const handleEnterPress = (event: KeyboardEvent) => {
-  if (event.key === 'Enter' && !event.shiftKey) {
-    handlerSendMessage();
-  }
-};
+function handlerSendMessage() {
+  isDisabledInput.value = true;
+  buttonLoading.value = true;
 
-const handlerSendMessage = () => {
-  if (!inputMsg.value.trim()) return;
-  messages.push({ role: 'user', content: inputMsg.value, reasoningContent: '' });
+  messages.push({role: 'user', content: inputMsg.value});
+  const msgLength = messages.length;
   inputMsg.value = '';
-};
+
+  const controller = new AbortController();
+  // if (!token) {
+  //   Message.error('请先登录');
+  //   router.push('/login');
+  //   return;
+  // }
+
+  // fetchEventSource(import.meta.env.VITE_BASE_HOST + import.meta.env.VITE_BASE_PRE_URL + '/gpt/gptChat', {
+  fetchEventSource("http://localhost:7531/gpt/gptChat", {
+    method: 'POST',
+    signal: controller.signal,
+    headers: {
+      "Content-Type": "application/json",
+      "dscId": "1",
+      "metricsId": metricsId.value,
+      "reasoner": enableReasoning.value.toString(),
+      // "token": "123"
+    },
+    body: JSON.stringify(messages),
+    onmessage(msg) {
+      const oneMsg = JSON.parse(msg.data);
+      if (oneMsg.isEnd === "true") {
+        isDisabledInput.value = false;
+        buttonLoading.value = false;
+        newMessage = '';
+        newReasoningMessage = '';
+        return;
+      }
+
+      console.log(msg)
+
+
+      const contentWord = oneMsg?.content || '';
+      const reasoningContentWord = oneMsg?.reasoningContent || '';
+
+
+      newMessage = contentWord;
+      newReasoningMessage = reasoningContentWord
+
+      messages[msgLength] = {role: 'assistant', reasoningContent: newReasoningMessage, content: newMessage};
+    },
+    onerror(err) {
+      isDisabledInput.value = false;
+      buttonLoading.value = false;
+      newMessage = '出错了...(可能是你没权限，也可能是系统错误)';
+      messages[msgLength] = {role: 'assistant', content: newMessage};
+      throw err;
+    }
+  }).then(() => {
+    localStorage.setItem(storageKeyPre + token, JSON.stringify(messages));
+  });
+}
 
 function handleCopyCodeSuccess() {
   Message.success('复制成功');
