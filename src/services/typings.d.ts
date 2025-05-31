@@ -382,6 +382,12 @@ declare namespace API {
         content: string
         reasoningContent: string
     }
+
+    type UpdatePasswordForm = {
+        oldPassword: string;
+        newPassword: string;
+        confirmPassword: string;
+    }
 }
 
 

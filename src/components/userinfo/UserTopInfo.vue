@@ -26,18 +26,19 @@ import { Notification } from "@arco-design/web-vue"
 let token = ref()
 const userinfoStore = useUserInfoStore()
 
-const handleSelect = (item:number) => {
-  switch (item){
-    case 1:
-      console.log('111')
-          break
-    case 2:
-      console.log('222')
-          break
-    case 3:
-      logoutLogin()
+const handleSelect = (value: string | number | Record<string, any> | undefined) => {
+  if (typeof value === 'number') {
+    switch (value) {
+      case 1:
+        router.push('/user/info')
+        break
+      case 2:
+        router.push('/user/update-password')
+        break
+      case 3:
+        logoutLogin()
+    }
   }
-
 }
 
 const logoutLogin = ()=>{

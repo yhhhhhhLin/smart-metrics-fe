@@ -17,6 +17,8 @@ import DataSourceAlarmListView from "../views/dataSourceManager/DataSourceAlarmL
 import UserIndex from "../views/user/UserIndex.vue";
 import UserLoginView from "../views/user/UserLoginView.vue";
 import UserRegisterView from "../views/user/UserRegisterView.vue";
+import UserInfoView from "../views/user/UserInfoView.vue";
+import UpdatePasswordView from "../views/user/UpdatePasswordView.vue";
 import IndexManagerIndexView from "../views/project/IndexManagerIndexView.vue";
 import IndexManagementView from "../views/project/IndexManagementView.vue";
 import DataManagementIndexView from "../views/project/DataManagementIndexView.vue";
@@ -230,6 +232,16 @@ export const routes: any = [
                 name: '注册',
                 component: UserRegisterView
             },
+            {
+                path: 'info',
+                name: '个人信息',
+                component: UserInfoView
+            },
+            {
+                path: 'update-password',
+                name: '修改密码',
+                component: UpdatePasswordView
+            }
         ]
     },
     {

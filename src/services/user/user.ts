@@ -21,3 +21,11 @@ export function getUserInfo() {
 export function listUserIdAndNameMap(username: string){
     return get<Map<number,string>>('/user/usernames',{username});
 }
+
+export function updatePassword(passwordForm: API.UpdatePasswordForm) {
+    return post<boolean>('/user/updatePassword', passwordForm);
+}
+
+export function updateUserInfo(userInfo: API.UserInfo) {
+    return post<boolean>('/user/updateInfo', userInfo);
+}
