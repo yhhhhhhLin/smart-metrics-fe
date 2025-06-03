@@ -34,7 +34,7 @@
               <div class="no-message">
                 <div class="no-message__icon">📭</div>
                 <h3 class="no-message__text">暂无任何消息</h3>
-                <button class="no-message__button">
+                <button class="no-message__button" @click="showAddMessageModal = true">
                   <span class="plus-icon"></span>
                   添加新消息
                 </button>
@@ -43,11 +43,52 @@
             </div>
           </div>
           <div class="home-message">
-            系统公告
-
+            <div class="message-header">系统公告</div>
+            <div class="message-list">
+              <div v-if="systemNotifies.length === 0" class="no-message">
+                暂无系统公告
+              </div>
+              <div v-else v-for="notify in systemNotifies" :key="notify.id" class="message-item">
+                <div class="message-title">{{ notify.title }}</div>
+                <div class="message-content">{{ notify.content }}</div>
+                <div class="message-footer">
+                  <span class="message-time">{{ notify.createTime }}</span>
+                  <span class="message-user">{{ notify.createUser }}</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
+        <!-- 添加新消息模态框 -->
+        <a-modal
+            v-model:visible="showAddMessageModal"
+            title="添加新消息"
+            @ok="handleAddMessage"
+            @cancel="handleCancelAddMessage"
+            :mask-closable="false"
+        >
+          <a-form :model="messageForm" layout="vertical">
+            <a-form-item field="title" label="消息标题" validate-trigger="blur" required>
+              <a-input v-model="messageForm.title" placeholder="请输入消息标题" allow-clear/>
+            </a-form-item>
+            <a-form-item field="content" label="消息内容" validate-trigger="blur" required>
+              <a-textarea
+                  v-model="messageForm.content"
+                  placeholder="请输入消息内容"
+                  allow-clear
+                  :auto-size="{ minRows: 3, maxRows: 6 }"
+              />
+            </a-form-item>
+            <a-form-item field="type" label="消息类型">
+              <a-select v-model="messageForm.type" placeholder="请选择消息类型">
+                <a-option value="notice">系统通知</a-option>
+                <a-option value="warning">警告信息</a-option>
+                <a-option value="update">更新公告</a-option>
+              </a-select>
+            </a-form-item>
+          </a-form>
+        </a-modal>
       </div>
     </template>
 
@@ -62,7 +103,15 @@ import ProjectManagerPng from '../assets/images/ProjectManager.png'
 import DataSourceManagerPng from '../assets/images/DataSourceManager.png'
 import UserManagerPng from '../assets/images/UserManager.png'
 import AdminManagerPng from '../assets/images/AdminManager.png'
+import {onMounted, reactive, ref} from 'vue'
+import {Message} from '@arco-design/web-vue'
+import {addNotify, listNotifies} from '../services/user/notify'
 
+interface MessageForm {
+  title: string;
+  content: string;
+  type: 'notice' | 'warning' | 'update';
+}
 
 const options = [
   {key: 1, image: ProjectManagerPng, title: '项目管理'},
@@ -92,6 +141,79 @@ const clickOption = (optionKey: number) => {
   console.log('点击++' + optionKey)
 
 }
+
+// 新消息相关
+const showAddMessageModal = ref(false)
+const messageForm = reactive<MessageForm>({
+  title: '',
+  content: '',
+  type: 'notice'
+})
+
+// 消息类型映射
+const messageTypeMap = {
+  'notice': 1,
+  'warning': 2,
+  'update': 3
+}
+
+// 消息列表
+const systemNotifies = ref<API.NotifyVO[]>([])
+
+// 获取系统消息列表
+const fetchSystemNotifies = async () => {
+  try {
+    // 1 表示系统通知
+    const res = await listNotifies(1)
+    systemNotifies.value = res.data
+  } catch (error) {
+    console.error('获取系统消息失败:', error)
+  }
+}
+
+const handleAddMessage = async () => {
+  if (!messageForm.title || !messageForm.content) {
+    Message.error('请填写完整的消息信息')
+    return
+  }
+
+  try {
+    const notifyDto: API.AddNotifyDto = {
+      title: messageForm.title,
+      content: messageForm.content,
+      type: messageTypeMap[messageForm.type]
+    }
+
+    const res = await addNotify(notifyDto)
+    if (res.data) {
+      Message.success('消息添加成功')
+      // 重新获取消息列表
+      await fetchSystemNotifies()
+    }
+  } catch (error) {
+    console.error('添加消息失败:', error)
+    Message.error('添加消息失败')
+  }
+
+  // 清空表单并关闭模态框
+  messageForm.title = ''
+  messageForm.content = ''
+  messageForm.type = 'notice'
+  showAddMessageModal.value = false
+}
+
+const handleCancelAddMessage = () => {
+  // 清空表单
+  messageForm.title = ''
+  messageForm.content = ''
+  messageForm.type = 'notice'
+  showAddMessageModal.value = false
+}
+
+// 在组件挂载时获取系统消息
+onMounted(() => {
+  fetchSystemNotifies()
+})
 </script>
 
 <style scoped>
@@ -202,13 +324,58 @@ const clickOption = (optionKey: number) => {
   width: 21%;
   border-radius: 5px;
   display: flex;
-  justify-content: start;
+  flex-direction: column;
+  padding: 15px;
+}
+
+.message-header {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 15px;
+  color: #1d2129;
+}
+
+.message-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.message-item {
+  padding: 12px;
+  border-bottom: 1px solid #f2f3f5;
+  margin-bottom: 10px;
+}
+
+.message-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.message-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1d2129;
+  margin-bottom: 8px;
+}
+
+.message-content {
+  font-size: 13px;
+  color: #4e5969;
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.message-footer {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #86909c;
 }
 
 .no-message {
   text-align: center;
-  padding: 2rem;
-  max-width: 300px;
+  color: #86909c;
+  padding: 20px 0;
 }
 
 .no-message__icon {
@@ -236,13 +403,13 @@ const clickOption = (optionKey: number) => {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .no-message__button:hover {
   background: #0b5ed7;
   transform: translateY(-1px);
-  box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
 }
 
 .plus-icon {

@@ -388,6 +388,22 @@ declare namespace API {
         newPassword: string;
         confirmPassword: string;
     }
+
+    // 消息通知相关
+    type AddNotifyDto = {
+        title: string;
+        content: string;
+        type: number;  // 1: 系统通知, 2: 警告信息, 3: 更新公告
+    }
+
+    type NotifyVO = {
+        id: number;
+        title: string;
+        content: string;
+        type: number;
+        createTime: string;
+        createUser: string;
+    }
 }
 
 
