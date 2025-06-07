@@ -29,3 +29,12 @@ export function updatePassword(passwordForm: API.UpdatePasswordForm) {
 export function updateUserInfo(userInfo: API.UserInfo) {
     return post<boolean>('/user/updateInfo', userInfo);
 }
+
+export function resetPassword(data: {
+    email: string;
+    code: string;
+    newPassword: string;
+    confirmPassword: string;
+}) {
+    return post<boolean>('/user/reset-password', data);
+}

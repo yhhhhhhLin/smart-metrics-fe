@@ -19,6 +19,7 @@ import UserLoginView from "../views/user/UserLoginView.vue";
 import UserRegisterView from "../views/user/UserRegisterView.vue";
 import UserInfoView from "../views/user/UserInfoView.vue";
 import UpdatePasswordView from "../views/user/UpdatePasswordView.vue";
+import ForgotPasswordView from "../views/user/ForgotPasswordView.vue";
 import IndexManagerIndexView from "../views/project/IndexManagerIndexView.vue";
 import IndexManagementView from "../views/project/IndexManagementView.vue";
 import DataManagementIndexView from "../views/project/DataManagementIndexView.vue";
@@ -241,6 +242,11 @@ export const routes: any = [
                 path: 'update-password',
                 name: '修改密码',
                 component: UpdatePasswordView
+            },
+            {
+                path: 'forgot-password',
+                name: '找回密码',
+                component: ForgotPasswordView
             }
         ]
     },

@@ -31,7 +31,10 @@
         </div>
         <div class="login-main-left-utils">
           <a-checkbox>自动登录</a-checkbox>
-          <a-link class="register-link" @click="toRegisterPage">注册账号</a-link>
+          <div class="login-links">
+            <a-link class="forgot-password-link" @click="toForgotPasswordPage">忘记密码</a-link>
+            <a-link class="register-link" @click="toRegisterPage">注册账号</a-link>
+          </div>
         </div>
         <div class="login-main-left-login-button">
           <a-button type="primary" block @click="onClickLogin">
@@ -68,6 +71,10 @@ const userLoginForm: API.UserLoginForm = reactive({
 const toRegisterPage = () => {
   router.push("/user/register")
 
+}
+
+const toForgotPasswordPage = () => {
+  router.push("/user/forgot-password")
 }
 
 const onClickLogin = async () => {
@@ -158,6 +165,22 @@ const onClickLogin = async () => {
   font-size: 0.95rem;
   margin-top: 15px;
   color: #7d7d7d;
+}
+
+.login-links {
+  display: flex;
+  gap: 16px;
+}
+
+.forgot-password-link {
+  color: #4a4aff;
+  font-weight: bold;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.forgot-password-link:hover {
+  color: #2c2cff;
 }
 
 .register-link {
